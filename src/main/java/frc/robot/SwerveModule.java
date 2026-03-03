@@ -132,6 +132,7 @@ SwerveModule (Setup setup){
         driveEncoder.getPosition(), turnAngle());
   }
 
+  /** used by {@link Drivetrain#report()} */
   void report() {
     SmartDashboard.putNumber(info.name + " angle", turnRots());
     SmartDashboard.putNumber(info.name + " speed", driveEncoder.getVelocity());
@@ -139,6 +140,7 @@ SwerveModule (Setup setup){
     SmartDashboard.putNumber(info.name + " angle diff", absoluteEncoder.getPosition() - absOffset - turnRots());
   }
 
+  /** used by {@link Drivetrain#fullSpeed()} */
   void fullSpeed() {
     driveMotor.set(1);
   }

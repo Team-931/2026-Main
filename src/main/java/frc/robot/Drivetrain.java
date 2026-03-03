@@ -16,17 +16,21 @@ import frc.robot.Constants.DrvConst;
 
 /** Represents a swerve drive style drivetrain. */
 public class Drivetrain {
+  // one for each wheel
   private final SwerveModule frontLeft = new SwerveModule(DrvConst.frontLeft);
   private final SwerveModule frontRight = new SwerveModule(DrvConst.frontRight);
   private final SwerveModule backLeft = new SwerveModule(DrvConst.backLeft);
   private final SwerveModule backRight = new SwerveModule(DrvConst.backRight);
 
+  // uses a ~ gyroscope to estimate our orientation, can also measure tilt ...
   private final  AHRS gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
 
-private final SwerveDriveKinematics kinematics =
+  // used by odometry, could also be used by trajectories
+  private final SwerveDriveKinematics kinematics =
       new SwerveDriveKinematics(
           DrvConst.frontLeftLocation, DrvConst.frontRightLocation, DrvConst.backLeftLocation, DrvConst.backRightLocation);
 
+  /** estimates location and orientation based on gyro and wheel motion */  
   private final SwerveDrivePoseEstimator odometry =
       new SwerveDrivePoseEstimator(
           kinematics,
@@ -38,16 +42,21 @@ private final SwerveDriveKinematics kinematics =
             backRight.getPosition()
           },
           Pose2d.kZero);
+
+  // basic set-up, may not be needed
   public Drivetrain() {
     gyro.reset();//TODO: Is this line needed?
+    // wait till gyro is ready
     while(gyro.isCalibrating());
     zeroYaw();
   }
 
+  // Whichever way we are facing is now considered forward
   void zeroYaw() {
     gyro.zeroYaw();
   }
 
+  // Resets the translation of relative turn encoders to match the absolute
   void setRelOffset() {
     frontLeft.setRelOffset();
     frontRight.setRelOffset();
@@ -63,31 +72,34 @@ private final SwerveDriveKinematics kinematics =
    * @param rot Angular rate of the robot.
    * @param fieldRelative Whether the provided x and y speeds are relative to the field.
    */
-  public void drive(
-      double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) 
+  {
+    Translation2d FLVel, BLVel, FRVel, BRVel,  
+    BaseVel = new Translation2d(xSpeed, ySpeed);
+    double maxSpeed = BaseVel.getNorm() + DrvConst.driveRadius * Math.abs(rot);
+    if (maxSpeed > DrvConst.overloadSpeed) {
+      BaseVel = BaseVel.times(DrvConst.overloadSpeed / maxSpeed);
+      rot *= (DrvConst.overloadSpeed / maxSpeed);
+    }
+
+    if(fieldRelative) {
+      BaseVel = BaseVel.rotateBy(gyro.getRotation2d().unaryMinus());
+    }
+    FLVel = BaseVel.plus(DrvConst.frontLeftClW.times(rot));
+    BLVel = BaseVel.plus(DrvConst.backLeftClW.times(rot));
+    FRVel = BaseVel.plus(DrvConst.frontRightClW.times(rot));
+    BRVel = BaseVel.plus(DrvConst.backRightClW.times(rot));
     
-  Translation2d FLVel, BLVel, FRVel, BRVel,  
-  BaseVel = new Translation2d(xSpeed, ySpeed);
-  double maxSpeed = BaseVel.getNorm() + DrvConst.driveRadius * Math.abs(rot);
-  if (maxSpeed > DrvConst.overloadSpeed) {
-    BaseVel = BaseVel.times(DrvConst.overloadSpeed / maxSpeed);
-    rot *= (DrvConst.overloadSpeed / maxSpeed);
+    frontLeft.setVel(FLVel);
+    backLeft.setVel(BLVel);
+    frontRight.setVel(FRVel);
+    backRight.setVel(BRVel);
   }
 
-  if(fieldRelative) {
-    BaseVel = BaseVel.rotateBy(gyro.getRotation2d().unaryMinus());
-  }
-  FLVel = BaseVel.plus(DrvConst.frontLeftClW.times(rot));
-  BLVel = BaseVel.plus(DrvConst.backLeftClW.times(rot));
-  FRVel = BaseVel.plus(DrvConst.frontRightClW.times(rot));
-  BRVel = BaseVel.plus(DrvConst.backRightClW.times(rot));
-  
-  frontLeft.setVel(FLVel);
-  backLeft.setVel(BLVel);
-  frontRight.setVel(FRVel);
-  backRight.setVel(BRVel);
-}
-
+/** arrange wheels in a position that resists motion in all directions.
+ * the implemention sets each wheel driving very slowly away from center -- 
+ * 1 robot diagonal in 256 seconds -- it should probably be slower
+ */
 void setXPosture() {
   Translation2d FLVel = DrvConst.frontLeftLocation.div(128),
                 BLVel = DrvConst.backLeftLocation.div(128), 
@@ -99,6 +111,7 @@ void setXPosture() {
   backRight.setVel(BRVel);
 }
 
+/** used for calibration: each drive motor goes full speed */
 void fullSpeed() {
   backLeft.fullSpeed();
   backRight.fullSpeed();
@@ -116,7 +129,8 @@ void fullSpeed() {
     SmartDashboard.putNumber("estd. Y", pose.getY());
     SmartDashboard.putNumber("estd. Angle", pose.getRotation().getRotations());
   }
-  /** base future odometry at {@code currentPose}
+  /** base future odometry at {@code currentPose} --
+   * ignores orientation
    * @param currentPose the "known" current Pose2d
    */
   void resetOdometry(Pose2d currentPose) {
