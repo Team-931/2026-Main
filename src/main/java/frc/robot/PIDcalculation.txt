@@ -1,0 +1,51 @@
+Ignoring the derivative term, the PI equation is:
+    motorOutput = kV * setPoint - kP * error - kI * sumError
+Simplified response:
+    speed = maxSpeed * motorOutput
+And for the next cycle:
+    error = speed - setPoint
+    sumError = error * period + sumError
+
+Combining:
+    error = maxSpeed * (kV * setPoint - kP * error - kI * sumError) - setPoint
+    = (maxSpeed * kV - 1) * setPoint - maxSpeed * kP * error - maxSpeed * kI * sumError
+
+    sumError = sumError + (maxSpeed * kV - 1) * setPoint * period - maxSpeed * kP * error * period - maxSpeed * kI * sumError * period
+    = sumError * (1 - maxSpeed * kI * period) + setPoint * (maxSpeed * kV - 1) * period - error * maxSpeed * kP * period
+
+As a matrix equation:
+    [ error ]       [ - kP * maxSpeed            |       - kI * maxSpeed   ]               [ error]              [1]
+                =                                                                   *                   +               * setPoint * (maxSpeed * kV - 1)
+    [sumError]      [ - kP * maxSpeed * period   | (1 - kI * period * maxSpeed)]          [sumError]          [period]
+
+We want to approach a fixed point, so first we try to find a fixed point:
+    errorFix = (maxSpeed * kV - 1) * setPoint - maxSpeed * kP * errorFix - maxSpeed * kI * sumErrorFix
+    sumErrorFix = sumErrorFix * (1 - maxSpeed * period * kI) + setPoint * (maxSpeed * kV - 1) * period - errorFix * maxSpeed * period * kP
+
+    errorFix * (1 + maxSpeed * kP) = (maxSpeed * kV - 1) * setPoint - maxSpeed * kI * sumErrorFix
+    sumErrorFix * maxSpeed * period * kI =  setPoint * period * (maxSpeed * kV - 1) - errorFix * period * maxSpeed * kP
+    sumErrorFix * maxSpeed * kI =  setPoint * (maxSpeed * kV - 1) - errorFix * maxSpeed * kP
+
+    errorFix * (1 + maxSpeed * kP) = (maxSpeed * kV - 1) * setPoint - (setPoint * (maxSpeed * kV - 1) - errorFix * maxSpeed * kP)
+    = errorFix * maxSpeed * kP
+    errorFix = 0 // This is a good thing
+    
+    sumErrorFix * maxSpeed * kI =  setPoint * (maxSpeed * kV - 1)
+    sumErrorFix = setPoint * (maxSpeed * kV - 1) / (maxSpeed * kI) 
+
+Now see if we do approach the fixed point:
+    [       error       ]       [ - kP * maxSpeed   | - kI * maxSpeed   ]           [       error       ]
+                            =                                                   *           
+    [sumError - sumErrorFix]      [ - kP * period * maxSpeed   | (1 - kI * period * maxSpeed)]           [sumError - sumErrorFix]
+
+I assert that if both solutions of the following equation have abs(x) < 1 it will converge. The smaller the solutions the faster.
+    E := x*x - (1 - kI * period * maxSpeed - kP * maxSpeed) * x  - kP * maxSpeed = 0
+    x*x - a * x - b = 0 // naming the coefficients
+
+Assuming kP >= 0, it is enough to require E > 0 for x = +1 and -1:
+    1  - (1 - kI * period * maxSpeed - kP * maxSpeed) - kP * maxSpeed > 0
+    1  + (1 - kI * period * maxSpeed - kP * maxSpeed) - kP * maxSpeed > 0
+    kI * period * maxSpeed >0
+    => kI > 0
+    2 - kI * period * maxSpeed - 2 * kP * maxSpeed > 0
+    => kI < 2 * (1 - kP * maxSpeed) / period / maxSpeed
