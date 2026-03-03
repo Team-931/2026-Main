@@ -64,7 +64,7 @@ void stop() {
     }
   }
 
-TrajectoryWrap trajectoryWrap;
+TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
   public class AttitudeWrap {
     AttitudePlan current;
@@ -73,7 +73,7 @@ TrajectoryWrap trajectoryWrap;
       return (current != null) ? current.report(timer.get()) : AttitudePlan.State.kZero;
     }    
   }
-  AttitudeWrap currentAttitudePlan;
+  AttitudeWrap currentAttitudePlan = new AttitudeWrap();
 
   void runTrajectory() { //  its use of odometry is still crude. TODO: less crude
     var sample = trajectoryWrap.getSample();
