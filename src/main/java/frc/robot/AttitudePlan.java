@@ -2,6 +2,10 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
+/** creates trapezoidal motion profiles for the robot's attitude
+ * -- which way it faces.
+ * They work best if they end with aero velocity
+  */
 class AttitudePlan {
     AttitudePlan(Rotation2d stayhere) {
         accel = 0;
@@ -24,21 +28,29 @@ class AttitudePlan {
             v_max2 = v_max*v_max/2,
             discrim = a_change + v_min2 - v_max2, // TODO -- cases if (discrim == 0) or v_max > maxspd ...
             noCruise = Math.copySign(a_change, discrim) + v_min2 + v_max2;
-        accel = Math.copySign(maxaccel, discrim);
-        double helpCruise = noCruise - maxspd * maxspd,
-         cruiseLen = 0;
-        if (helpCruise <= 0) 
-            cruiseVel = Math.copySign(Math.sqrt(noCruise), discrim);
-        else {
-            cruiseVel = Math.copySign(maxspd, discrim);
-            cruiseLen = helpCruise / cruiseVel / accel;
-        }
-        cruiseTime = (cruiseVel - startv) / accel;
-        decelTime = cruiseTime + cruiseLen;
-        endTime = (cruiseVel - endv) / accel + decelTime;
         this.start = new State(start, startv);
         this.end = new State(end, endv);
-        cruiseBase = start.minus(new Rotation2d(cruiseLen*cruiseVel/2));
+        if (discrim == 0) {
+            cruiseTime = decelTime = 0;
+            cruiseVel = startv;
+            cruiseBase = start;
+            accel = Math.copySign(maxaccel, startv - endv);
+        }
+        else {
+            accel = Math.copySign(maxaccel, discrim);
+            double helpCruise = noCruise - maxspd * maxspd,
+            cruiseLen = 0;
+            if (helpCruise <= 0) 
+                cruiseVel = Math.copySign(Math.sqrt(noCruise), discrim);
+            else {
+                cruiseVel = discrim > 0 ? Math.max(maxspd, v_max) : Math.min(-maxspd, v_min);
+                cruiseLen = (Math.min(Math.abs(discrim), helpCruise)) / (accel * cruiseVel);
+            }
+            cruiseTime = (cruiseVel - startv) / accel;
+            decelTime = cruiseTime + cruiseLen;
+            cruiseBase = start.minus(new Rotation2d(cruiseLen*cruiseVel/2));
+        }
+        endTime = (cruiseVel - endv) / accel + decelTime;
     }    
     State report(double time) {
         if(time <= 0) return start;
