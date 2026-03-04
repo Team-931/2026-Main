@@ -33,7 +33,12 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Class used to parameterize a spline by its arc length. */
+/** Class used to parameterize a spline by its arc length.
+ * <p> members added by Harrington:
+ * <p>{@link LandmarkInfo}, {@link IntRef},
+ * <p>{@link SplineParameterizer#parameterize(Spline, int, int, LandmarkInfo[], IntRef)},
+ * <p>and {@link SplineParameterizer#parameterize(Spline, int, int, LandmarkInfo[], IntRef, double, double)}
+ */
 public final class SplineParameterizer {
   private static final double kMaxDx = 0.127;
   private static final double kMaxDy = 0.00127;

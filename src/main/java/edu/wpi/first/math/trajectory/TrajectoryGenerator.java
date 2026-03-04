@@ -23,7 +23,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-/** Helper class used to generate trajectories with various constraints. */
+/** Helper class used to generate trajectories with various constraints.
+ * <p> Harrington's added members are:
+ * <p> {@link Landmark},
+ * <p> {@link TrajectoryGenerator#generateTrajectory(Pose2d, List, Pose2d, TrajectoryConfig, Collection)},
+ * <p> {@link TrajectoryGenerator#generateTrajectory(edu.wpi.first.math.spline.Spline.ControlVector, List,
+ *  edu.wpi.first.math.spline.Spline.ControlVector, TrajectoryConfig, Collection)},
+ * <p> and {@link TrajectoryGenerator#splinePointsFromSplines(Spline[], LandmarkInfo[])}.
+ */
 public final class TrajectoryGenerator {
   private static final Transform2d kFlip = new Transform2d(Translation2d.kZero, Rotation2d.kPi);
 
@@ -169,6 +176,8 @@ static final public class Landmark {
    * @param landmarks A {@link Collection} of {@link Landmark}s to report about from 
    *  within the Trajectory
    * @return The generated trajectory.
+   * @throws IndexOutOfBoundsException if any member of landmarks has a {@code (key < 0 || > interiorWaypoints.size() + 1)}
+   *  i. e. the landmark is not on the trajectory
    */
   public static Trajectory generateTrajectory(
       Spline.ControlVector initial,
@@ -200,6 +209,7 @@ static final public class Landmark {
     }
 
     // Get the spline points
+    // and the landmark info
     List<PoseWithCurvature> points;
     try {
       points =
@@ -229,7 +239,8 @@ static final public class Landmark {
         config.getMaxVelocity(),
         config.getMaxAcceleration(),
         config.isReversed());
-    // fill landmarks in.
+    // fill landmarks in. 
+    // This will throw an exception (IndexOutOfBoundsException) if the original key is not part of the trajectory 
     for (int ix = 0; ix < length; ++ix) {
       LandmarkInfo info = landmarkInfo[ix];
       double param = info.splineParamOut;
@@ -257,6 +268,8 @@ static final public class Landmark {
    * @param landmarks A {@link Collection} of {@link Landmark}s to report about from 
    *  within the Trajectory
    * @return The generated trajectory.
+   * @throws IndexOutOfBoundsException if any member of landmarks has a {@code (key < 0 || > interiorWaypoints.size() + 1)}
+   *  i. e. the landmark is not on the trajectory
    */
   public static Trajectory generateTrajectory(
       Pose2d start, List<Translation2d> interiorWaypoints, Pose2d end, TrajectoryConfig config,
@@ -418,10 +431,12 @@ static final public class Landmark {
     // Add the first point to the vector.
     splinePoints.add(splines[0].getPoint(0.0).get());
     
+    /** to keep track of which spline we're working on */
     int splineIx = 0;
+    /** the index of the next landmark to initialize */
     var landmarkIx = new SplineParameterizer.IntRef();
 
-    // Advance through any negative indices.
+    // Advance landmark index through any negative indices.
     // The only case that won't raise OutOfBounds errors is splineIndexIn = -1, splineParamIn = 1.0
     // which comes from key == 0.
     for(;
@@ -431,6 +446,7 @@ static final public class Landmark {
           
     // Iterate through the vector and parameterize each spline, adding the
     // parameterized points to the final vector.
+    // initialize landmarks as we come across them
     for (final var spline : splines) {
       var points = SplineParameterizer.parameterize(spline, splineIx++, splinePoints.size() - 2, landmarkInfos, landmarkIx);
 
