@@ -1,6 +1,7 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
+// Hacked by Philp Harrington
 
 package edu.wpi.first.math.trajectory;
 
@@ -131,9 +132,26 @@ public final class TrajectoryGenerator {
     // Return the generated trajectory.
     return generateTrajectory(controlVectors[0], interiorWaypoints, controlVectors[1], config);
   }
+
+/** A pair of the {@link Landmark#key}, a floating point number indicating position with 
+ * respect to the waypoints, and the {@link Landmark#state} of the trajectory at that position.
+ * <p> The state may be left null at initialization, since it will be assigned when the
+ * trajectory is generated.
+ */
 static final public class Landmark {
+  /** sum of the index for the preceding waypoint (the starting point is 0) and
+   * a number between 0.0 and 1.0 estimating position between the preceding (0.0)
+   * and following (1.0) waypoints
+   */
   public final double key;
+  /** state at this positon, particularly including {@code state.timeSeconds},
+   * the time the state will be reached.
+   * @see Trajectory.State
+   */
   public Trajectory.State state;
+  /** Creates a {@link Landmark} to pass to {@link TrajectoryGenerator#generateTrajectory(Pose2d, List, Pose2d, TrajectoryConfig, Collection)}
+   * <p> {@link Landmark#state} will start out as null.
+   */
   public Landmark(double key) {
     this.key = key;
   } 
@@ -148,6 +166,8 @@ static final public class Landmark {
    * @param interiorWaypoints The interior waypoints.
    * @param end The ending control vector.
    * @param config The configuration for the trajectory.
+   * @param landmarks A {@link Collection} of {@link Landmark}s to report about from 
+   *  within the Trajectory
    * @return The generated trajectory.
    */
   public static Trajectory generateTrajectory(
@@ -234,6 +254,8 @@ static final public class Landmark {
    * @param interiorWaypoints The interior waypoints.
    * @param end The ending pose.
    * @param config The configuration for the trajectory.
+   * @param landmarks A {@link Collection} of {@link Landmark}s to report about from 
+   *  within the Trajectory
    * @return The generated trajectory.
    */
   public static Trajectory generateTrajectory(
@@ -384,6 +406,7 @@ static final public class Landmark {
    *
    * @param splines The splines to parameterize.
    * @param landmarkInfos landmarks to work in
+   * @see SplineParameterizer.LandmarkInfo
    * @return The spline points for use in time parameterization of a trajectory.
    * @throws MalformedSplineException When the spline is malformed (e.g. has close adjacent points
    *     with approximately opposing headings)

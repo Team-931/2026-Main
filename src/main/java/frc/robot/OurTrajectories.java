@@ -8,7 +8,9 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 
-/** Note: the {@link Pose2d} objectss in here have {@link Rotation2d} components
+/** A class to encapsulate the pre-generated drive trajectories and any landmarks 
+ * within them.
+ * <p>Note: the {@link Pose2d} objectss in here have {@link Rotation2d} components
  * that refer to ** direction to move **, not direction to face. Direction to face
  * will be controlled separately.
  * In the {@link Translation2d} objects:
