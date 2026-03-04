@@ -9,17 +9,22 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants.FeederConst;
-
+/** Represents controls for the feeder hardware */
 class Feeder {
+    /** One motor: Kraken's controller is TalonFX */
     final TalonFX motor = new TalonFX(FeederConst.motorID);
+    /* The following bracketed code is run at set-up */
     {
         final TalonFXConfiguration config = new TalonFXConfiguration()
             .withMotorOutput(
                 new MotorOutputConfigs()
+                    /* If the motor gets installed backward change this */
                     .withInverted(InvertedValue.CounterClockwise_Positive)
+                    /* Don't brake when set at zero */
                     .withNeutralMode(NeutralModeValue.Coast)
             )
             .withCurrentLimits(
+                /* Keep the motors from burning out if they jam */
                 new CurrentLimitsConfigs()
                     .withStatorCurrentLimit((120))
                     .withStatorCurrentLimitEnable(true)
@@ -27,6 +32,7 @@ class Feeder {
                     .withSupplyCurrentLimitEnable(true)
             )
             .withSlot0(
+                /* for velocity control if we need it */
                 new Slot0Configs()
                     .withKP(1)
                     .withKI(0)
@@ -36,6 +42,9 @@ class Feeder {
         
         motor.getConfigurator().apply(config);
     }
+    /** On/off control
+     * @param on : {@code true} turns on {@code false} turns off.
+     */
     void run(boolean on) {
         if(on)
             motor.set(FeederConst.runPower) ; 

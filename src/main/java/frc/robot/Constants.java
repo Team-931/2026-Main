@@ -91,25 +91,43 @@ final class Constants {
                             minSpdSq = minSpd*minSpd;
     }
     static final class ShootConstants {
+        // percent of full power (or velocity if using velocity control)
+        // for shooters when turned on
         static final double launch_speed = 0.5;
+        // percent of full power (or velocity if using velocity control)
+        // for tranfer when turned on
         static final double transferPower = .5;
+        // Hood servo constants:
+        // speed capacity
         static final LinearVelocity kMaxServoSpeed = Millimeters.of(20).per(Second);
+        // all the way in (in proportion to full length) leaves 1 mm for error 
         static final double kMinPosition = 0.01;
+        // as far out as the hood can go (in proportion to full length)
         static final double kMaxPosition = 0.77;
+        // we plan to allow 1 mm for error
         static final double kPositionTolerance = 0.01;
+        // potential full extension of servos, if the hood geometry permitted
         static final Distance kServoLength = Millimeters.of(100);
         /** Time for hood Servos to run their full length */
         static final double hoodFullLengthTime = kServoLength.div(kMaxServoSpeed).in(Seconds);
+        // CAN Id.s for TalonFX need not be distinct from those for SparkMax
+        // but must differ from each other: 
+        // check if they match the motors' configuration.
         static final int leftShooterID = 1;
         static final int midShootID = 2;
         static final int RightShootID = 3;
         static final int transferMotorID = 4;
+        // PWM Id.s match the ports they plug into
         static final int leftServoID = 1;
         static final int rightServoID = 9;
     }
     static final class FeederConst {
     
+        // CAN Id.s for TalonFX need not be distinct from those for SparkMax
+        // but must differ from each other: 
+        // check if it matches the motor's configuration.
         static final int motorID = 5;
+        // percent of full power (or velocity if using velocity control) when turned on
         static final double runPower = .3;
     }
     
