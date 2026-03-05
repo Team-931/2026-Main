@@ -10,6 +10,8 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,6 +35,13 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("circle time", OurTrajectories.circleTrajectory.getTotalTimeSeconds());
   }
 
+  Field2d field = new Field2d();
+  {
+    SmartDashboard.putData(field);
+    field.getObject("circle").setTrajectory(OurTrajectories.circleTrajectory);
+    FieldObject2d lmk = field.getObject("lmk");
+    for (var l : OurTrajectories.landmarks) lmk.setPose(l.state.poseMeters);
+  }
   Command setHoodCommand(double level) {
     return Commands.waitSeconds(1).andThen(() -> actualname.adjustHood(level)) .andThen(Commands.waitUntil(actualname::hoodReady));
   }
@@ -99,6 +108,7 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
   {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", actualname.hoodReady()), .25,.125);}
+  {addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();

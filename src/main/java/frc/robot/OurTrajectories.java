@@ -3,6 +3,7 @@ package frc.robot;
 import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -20,14 +21,15 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 
 final class OurTrajectories {
     static TrajectoryConfig config = new TrajectoryConfig(1, 2);
-    static List<TrajectoryGenerator.Landmark> landmarks = List.of(new TrajectoryGenerator.Landmark(3.9), new TrajectoryGenerator.Landmark(1.2));
+    static List<TrajectoryGenerator.Landmark> landmarks = List.of(new TrajectoryGenerator.Landmark(3.3), new TrajectoryGenerator.Landmark(1.2));
+    static Pose2d startPt = new Pose2d(1, 3, Rotation2d.kZero);
     static Trajectory circleTrajectory = 
         TrajectoryGenerator.generateTrajectory(
-            Pose2d.kZero, // start position and heading
+            startPt, // start position and heading
             List.of(
-                new Translation2d(1, 1), // first intermediate way point ...
-                new Translation2d(0, 2),
-                new Translation2d(-1, 1)), 
-            Pose2d.kZero, // end position and heading
+                startPt.getTranslation().plus(new Translation2d(1, 1)), // first intermediate way point ...
+                startPt.getTranslation().plus(new Translation2d(0, 2)),
+                startPt.getTranslation().plus(new Translation2d(-1, 1))), 
+            startPt, // end position and heading
             config, landmarks);
 }
