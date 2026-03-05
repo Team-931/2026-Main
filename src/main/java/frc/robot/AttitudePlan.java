@@ -79,7 +79,7 @@ class AttitudePlan {
         static State kZero = new State(Rotation2d.kZero, 0);
     }
 
-    //TODO: members 
+    //Done: members 
    final double accel, cruiseVel;
    final Rotation2d cruiseBase;
    final State start, end;

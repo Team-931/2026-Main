@@ -10,6 +10,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -24,11 +25,16 @@ public class Robot extends TimedRobot {
   private final transferShooter actualname = new transferShooter();
   private final Feeder feeder = new Feeder();
 
+// Generate trajectories, and their landmarks, before game starts.
   {
     new OurTrajectories();
     SmartDashboard.putNumber("landmark time", OurTrajectories.landmarks.get(0).state.timeSeconds);
     SmartDashboard.putNumber("landmark time1", OurTrajectories.landmarks.get(1).state.timeSeconds);
     SmartDashboard.putNumber("circle time", OurTrajectories.circleTrajectory.getTotalTimeSeconds());
+  }
+
+  Command setHoodCommand(double level) {
+    return Commands.waitSeconds(1).andThen(() -> actualname.adjustHood(level)) .andThen(Commands.waitUntil(actualname::hoodReady));
   }
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
@@ -80,9 +86,10 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     var attitude = currentAttitudePlan.report();
 
     var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), sample, attitude);
-
+      if(sample != null) {
         SmartDashboard.putNumber("traj x pos", sample.poseMeters.getX());
         SmartDashboard.putNumber("traj x spd", sample.velocityMetersPerSecond);
+      }
         SmartDashboard.putNumber("calc x spd", desiredSpds.vxMetersPerSecond);
         
     m_swerve.drive(desiredSpds.vxMetersPerSecond, desiredSpds.vyMetersPerSecond, desiredSpds.omegaRadiansPerSecond, true);
@@ -92,18 +99,35 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
   {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", actualname.hoodReady()), .25,.125);}
+  
 
-  Command setHoodCommand(double level) {
-    return Commands.waitSeconds(1).andThen(() -> actualname.adjustHood(level)) .andThen(Commands.waitUntil(actualname::hoodReady));
+  SendableChooser<Command> autoChooser = new SendableChooser<>();
+  // This sets up the choices for auto
+  // now only simple examples 
+  {
+    autoChooser.setDefaultOption("No autonomous", null);
+    autoChooser.addOption("Move hood", 
+      setHoodCommand(.77)
+      .andThen(setHoodCommand(.05), 
+        setHoodCommand((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2)));
+    autoChooser.addOption("Circle trajectory", Commands.runOnce(() -> trajectoryWrap.set(OurTrajectories.circleTrajectory)));
+    
+    SmartDashboard.putData("Auto chooser", autoChooser);//TODO: add a label
   }
+
+  private Command autoCommand;
   @Override
   public void autonomousInit() {
+    autoCommand = autoChooser.getSelected();
+    if(autoCommand != null) autoCommand.schedule();
     //TODO: Command based:
-    setHoodCommand(.77)
-      .andThen(setHoodCommand(.05), 
-        setHoodCommand((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2)).schedule();
-    trajectoryWrap.set(OurTrajectories.circleTrajectory);
+    
   }
+  @Override
+  public void autonomousExit() {
+    if(autoCommand != null) autoCommand.cancel();
+  }
+
   @Override
   public void autonomousPeriodic() {
     //TODO: Command based:
@@ -180,11 +204,8 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
       setMaxSpeed(DrvConst.kMaxSpeed);
       setMaxAngularSpeed(DrvConst.kMaxAngularSpeed);
     }
-   /*  if(drive_controller.getYButton()) {
-      m_swerve.drive(1, 0, 0, false);
-      return;
-    }
-    */ // DONE: have max speed modifiable
+   
+    // DONE: have max speed modifiable
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
     final var xSpeed =
