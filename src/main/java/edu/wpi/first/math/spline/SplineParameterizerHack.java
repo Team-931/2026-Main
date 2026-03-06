@@ -36,10 +36,10 @@ import java.util.List;
 /** Class used to parameterize a spline by its arc length.
  * <p> members added by Harrington:
  * <p>{@link LandmarkInfo}, {@link IntRef},
- * <p>{@link SplineParameterizer#parameterize(Spline, int, int, LandmarkInfo[], IntRef)},
- * <p>and {@link SplineParameterizer#parameterize(Spline, int, int, LandmarkInfo[], IntRef, double, double)}
+ * <p>{@link SplineParameterizerHack#parameterize(Spline, int, int, LandmarkInfo[], IntRef)},
+ * <p>and {@link SplineParameterizerHack#parameterize(Spline, int, int, LandmarkInfo[], IntRef, double, double)}
  */
-public final class SplineParameterizer {
+public final class SplineParameterizerHack {
   private static final double kMaxDx = 0.127;
   private static final double kMaxDy = 0.00127;
   private static final double kMaxDtheta = 0.0872;
@@ -80,7 +80,7 @@ public final class SplineParameterizer {
   }
 
   /** Private constructor because this is a utility class. */
-  private SplineParameterizer() {}
+  private SplineParameterizerHack() {}
 
   /**
    * Parametrizes the spline. This method breaks up the spline into various arcs until their dx, dy,

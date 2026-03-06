@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,7 +23,7 @@ public class Robot extends TimedRobot {
   private final XboxController drive_controller = new XboxController(0);
   private final XboxController opController= new XboxController(1);
   private final Drivetrain m_swerve = new Drivetrain();
-  private final transferShooter actualname = new transferShooter();
+  private final transferShooter shooter = new transferShooter();
   private final Feeder feeder = new Feeder();
 
 // Generate trajectories, and their landmarks, before game starts.
@@ -34,16 +33,17 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("landmark time1", OurTrajectories.landmarks.get(1).state.timeSeconds);
     SmartDashboard.putNumber("circle time", OurTrajectories.circleTrajectory.getTotalTimeSeconds());
   }
-
+// Display trajectories, and their landmarks, before game starts.
   Field2d field = new Field2d();
   {
     SmartDashboard.putData(field);
     field.getObject("circle").setTrajectory(OurTrajectories.circleTrajectory);
-    FieldObject2d lmk = field.getObject("lmk");
-    for (var l : OurTrajectories.landmarks) lmk.setPose(l.state.poseMeters);
+    field.getObject("lmk 0").setPose(OurTrajectories.landmarks.get(0).state.poseMeters);
+    field.getObject("lmk 1").setPose(OurTrajectories.landmarks.get(1).state.poseMeters);
   }
+// Temporary version: combining a hood movement with a wait for the hood to catch up.
   Command setHoodCommand(double level) {
-    return Commands.waitSeconds(1).andThen(() -> actualname.adjustHood(level)) .andThen(Commands.waitUntil(actualname::hoodReady));
+    return Commands.waitSeconds(1).andThen(() -> shooter.adjustHood(level)) .andThen(Commands.waitUntil(shooter::hoodReady));
   }
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
@@ -73,19 +73,20 @@ public class Robot extends TimedRobot {
         done = false;
       }
   
-void stop() {
-    currentTrajectory = null;
-    done = true;
+    void stop() {
+        currentTrajectory = null;
+        done = true;
     }
   }
 
 TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
+// TODO: allow setting current AttitudePlan
   public class AttitudeWrap {
     AttitudePlan current;
     Timer timer = new Timer();
     AttitudePlan.State report() {
-      return (current != null) ? current.report(timer.get()) : AttitudePlan.State.kZero;
+      return (current != null) ? current.report(timer.get()) : null;
     }    
   }
   AttitudeWrap currentAttitudePlan = new AttitudeWrap();
@@ -107,7 +108,7 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
-  {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", actualname.hoodReady()), .25,.125);}
+  {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);}
   {addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   
 
@@ -157,6 +158,8 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     // if (drive_controller.getLeftStickButtonPressed()) actualname.shoot(true);
     if(opController.getAButtonPressed()) feeder.run(true);
     if(opController.getAButtonReleased()) feeder.run(false);
+    if(opController.getRightBumperButtonPressed()) shooter.shoot(true);
+    if(opController.getRightBumperButtonReleased()) shooter.shoot(false);
 
     //if(drive_controller.getBButton()){System.out.println("Hello world");}
     

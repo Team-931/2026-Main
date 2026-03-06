@@ -19,7 +19,7 @@ class Feeder {
             .withMotorOutput(
                 new MotorOutputConfigs()
                     /* If the motor gets installed backward change this */
-                    .withInverted(InvertedValue.CounterClockwise_Positive)
+                    .withInverted(InvertedValue.Clockwise_Positive)
                     /* Don't brake when set at zero */
                     .withNeutralMode(NeutralModeValue.Coast)
             )

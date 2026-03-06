@@ -113,10 +113,10 @@ final class Constants {
         // CAN Id.s for TalonFX need not be distinct from those for SparkMax
         // but must differ from each other: 
         // check if they match the motors' configuration.
-        static final int leftShooterID = 1;
-        static final int midShootID = 2;
-        static final int RightShootID = 3;
-        static final int transferMotorID = 4;
+        static final int leftShooterID = 15;
+        static final int midShootID = 16;
+        static final int RightShootID = 17;
+        static final int transferMotorID = 14;
         // PWM Id.s match the ports they plug into
         static final int leftServoID = 1;
         static final int rightServoID = 9;
@@ -126,9 +126,9 @@ final class Constants {
         // CAN Id.s for TalonFX need not be distinct from those for SparkMax
         // but must differ from each other: 
         // check if it matches the motor's configuration.
-        static final int motorID = 5;
+        static final int motorID = 13;
         // percent of full power (or velocity if using velocity control) when turned on
-        static final double runPower = .3;
+        static final double runPower = .5;
     }
     
 }

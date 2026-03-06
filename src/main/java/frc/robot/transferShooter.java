@@ -27,15 +27,15 @@ public class transferShooter {
 
     TalonFX shooterLeft=new TalonFX(ShootConstants.leftShooterID), shooterMid=new TalonFX(ShootConstants.midShootID), shooterRight=new TalonFX(ShootConstants.RightShootID), 
     transfer=new TalonFX(ShootConstants.transferMotorID);
-    {configureMotor(shooterLeft, InvertedValue.CounterClockwise_Positive);}
-    Follower followLeft = new Follower(ShootConstants.leftShooterID, MotorAlignmentValue.Opposed);
+    {configureMotor(shooterRight, InvertedValue.Clockwise_Positive);}
+    Follower followRight = new Follower(ShootConstants.RightShootID, MotorAlignmentValue.Opposed);
     {
-        shooterMid.setControl(followLeft); 
-        shooterRight.setControl(followLeft);
+        shooterMid.setControl(followRight); 
+        shooterLeft.setControl(followRight);
     }
 //TODO orientation & prefomance activities
 void shoot(boolean on){
-    shooterLeft.setVoltage (on ? Constants.nominalVoltage * ShootConstants.launch_speed : 0);
+    shooterRight.setVoltage (on ? Constants.nominalVoltage * ShootConstants.launch_speed : 0);
 }
 
 void setTransfer(boolean on) {

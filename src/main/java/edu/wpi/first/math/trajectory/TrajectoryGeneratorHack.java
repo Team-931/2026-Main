@@ -13,9 +13,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.spline.PoseWithCurvature;
 import edu.wpi.first.math.spline.Spline;
 import edu.wpi.first.math.spline.SplineHelper;
-import edu.wpi.first.math.spline.SplineParameterizer;
-import edu.wpi.first.math.spline.SplineParameterizer.LandmarkInfo;
-import edu.wpi.first.math.spline.SplineParameterizer.MalformedSplineException;
+import edu.wpi.first.math.spline.SplineParameterizerHack;
+import edu.wpi.first.math.spline.SplineParameterizerHack.LandmarkInfo;
+import edu.wpi.first.math.spline.SplineParameterizerHack.MalformedSplineException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,12 +26,12 @@ import java.util.function.BiConsumer;
 /** Helper class used to generate trajectories with various constraints.
  * <p> Harrington's added members are:
  * <p> {@link Landmark},
- * <p> {@link TrajectoryGenerator#generateTrajectory(Pose2d, List, Pose2d, TrajectoryConfig, Collection)},
- * <p> {@link TrajectoryGenerator#generateTrajectory(edu.wpi.first.math.spline.Spline.ControlVector, List,
+ * <p> {@link TrajectoryGeneratorHack#generateTrajectory(Pose2d, List, Pose2d, TrajectoryConfig, Collection)},
+ * <p> {@link TrajectoryGeneratorHack#generateTrajectory(edu.wpi.first.math.spline.Spline.ControlVector, List,
  *  edu.wpi.first.math.spline.Spline.ControlVector, TrajectoryConfig, Collection)},
- * <p> and {@link TrajectoryGenerator#splinePointsFromSplines(Spline[], LandmarkInfo[])}.
+ * <p> and {@link TrajectoryGeneratorHack#splinePointsFromSplines(Spline[], LandmarkInfo[])}.
  */
-public final class TrajectoryGenerator {
+public final class TrajectoryGeneratorHack {
   private static final Transform2d kFlip = new Transform2d(Translation2d.kZero, Rotation2d.kPi);
 
   private static final Trajectory kDoNothingTrajectory =
@@ -39,7 +39,7 @@ public final class TrajectoryGenerator {
   private static BiConsumer<String, StackTraceElement[]> errorFunc;
 
   /** Private constructor because this is a utility class. */
-  private TrajectoryGenerator() {}
+  private TrajectoryGeneratorHack() {}
 
   private static void reportError(String error, StackTraceElement[] stackTrace) {
     if (errorFunc != null) {
@@ -156,7 +156,7 @@ static final public class Landmark {
    * @see Trajectory.State
    */
   public Trajectory.State state;
-  /** Creates a {@link Landmark} to pass to {@link TrajectoryGenerator#generateTrajectory(Pose2d, List, Pose2d, TrajectoryConfig, Collection)}
+  /** Creates a {@link Landmark} to pass to {@link TrajectoryGeneratorHack#generateTrajectory(Pose2d, List, Pose2d, TrajectoryConfig, Collection)}
    * <p> {@link Landmark#state} will start out as null.
    */
   public Landmark(double key) {
@@ -191,9 +191,9 @@ static final public class Landmark {
     Arrays.sort(landmarkArray, (a, b) -> Double.compare(a.key, b.key));
     // Prepare an array for parametrization
     var length = landmarkArray.length;
-    var landmarkInfo = new SplineParameterizer.LandmarkInfo[length];
+    var landmarkInfo = new SplineParameterizerHack.LandmarkInfo[length];
     for (int ix = 0; ix < length; ++ix) {
-      landmarkInfo[ix] = new SplineParameterizer.LandmarkInfo(landmarkArray[ix].key);
+      landmarkInfo[ix] = new SplineParameterizerHack.LandmarkInfo(landmarkArray[ix].key);
     }
 
     // Clone the control vectors.
@@ -404,7 +404,7 @@ static final public class Landmark {
     // Iterate through the vector and parameterize each spline, adding the
     // parameterized points to the final vector.
     for (final var spline : splines) {
-      var points = SplineParameterizer.parameterize(spline);
+      var points = SplineParameterizerHack.parameterize(spline);
 
       // Append the array of poses to the vector. We are removing the first
       // point because it's a duplicate of the last point from the previous
@@ -419,12 +419,12 @@ static final public class Landmark {
    *
    * @param splines The splines to parameterize.
    * @param landmarkInfos landmarks to work in
-   * @see SplineParameterizer.LandmarkInfo
+   * @see SplineParameterizerHack.LandmarkInfo
    * @return The spline points for use in time parameterization of a trajectory.
    * @throws MalformedSplineException When the spline is malformed (e.g. has close adjacent points
    *     with approximately opposing headings)
    */
-  public static List<PoseWithCurvature> splinePointsFromSplines(Spline[] splines, SplineParameterizer.LandmarkInfo[] landmarkInfos) {
+  public static List<PoseWithCurvature> splinePointsFromSplines(Spline[] splines, SplineParameterizerHack.LandmarkInfo[] landmarkInfos) {
     // Create the vector of spline points.
     var splinePoints = new ArrayList<PoseWithCurvature>();
 
@@ -434,7 +434,7 @@ static final public class Landmark {
     /** to keep track of which spline we're working on */
     int splineIx = 0;
     /** the index of the next landmark to initialize */
-    var landmarkIx = new SplineParameterizer.IntRef();
+    var landmarkIx = new SplineParameterizerHack.IntRef();
 
     // Advance landmark index through any negative indices.
     // The only case that won't raise OutOfBounds errors is splineIndexIn = -1, splineParamIn = 1.0
@@ -448,7 +448,7 @@ static final public class Landmark {
     // parameterized points to the final vector.
     // initialize landmarks as we come across them
     for (final var spline : splines) {
-      var points = SplineParameterizer.parameterize(spline, splineIx++, splinePoints.size() - 2, landmarkInfos, landmarkIx);
+      var points = SplineParameterizerHack.parameterize(spline, splineIx++, splinePoints.size() - 2, landmarkInfos, landmarkIx);
 
       // Append the array of poses to the vector. We are removing the first
       // point because it's a duplicate of the last point from the previous

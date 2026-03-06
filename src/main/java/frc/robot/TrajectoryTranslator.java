@@ -24,10 +24,10 @@ class TrajectoryTranslator {
 			sample != null ?
 			calculate(reportOdometry, sample) :
 			Translation2d.kZero;
-		double correction = 
+		double rotSpeed = 
 			attitude != null ?
-			DrvConst.attitudeP * attitude.angle .minus(reportOdometry.getRotation()) .getRadians() :
+			DrvConst.attitudeP * attitude.angle .minus(reportOdometry.getRotation()) .getRadians() + attitude.rotSpeed :
 			0;
-		return new ChassisSpeeds(linear.getX(), linear.getY(), attitude.rotSpeed + correction);
+		return new ChassisSpeeds(linear.getX(), linear.getY(), rotSpeed);
 	}
 }
