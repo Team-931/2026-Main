@@ -25,6 +25,7 @@ public class Robot extends TimedRobot {
   private final Drivetrain m_swerve = new Drivetrain();
   private final transferShooter shooter = new transferShooter();
   private final Feeder feeder = new Feeder();
+  private final Intake intake = new Intake();
 
 // Generate trajectories, and their landmarks, before game starts.
   {
@@ -156,8 +157,17 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     driveWithJoystick(useField);
     m_swerve.updateOdometry();
     // if (drive_controller.getLeftStickButtonPressed()) actualname.shoot(true);
-    if(opController.getAButtonPressed()) feeder.run(true);
-    if(opController.getAButtonReleased()) feeder.run(false);
+    if(opController.getYButtonPressed()) {
+      intake.out();
+      intake.pickup();
+    }
+    if (opController.getYButton() && opController.getXButton()) {
+      intake.agitateSwitch();
+    }
+    if(opController.getYButtonReleased()) intake.stop();
+    if(opController.getAButton()) intake.in();
+    if(opController.getBButtonPressed()) feeder.run(true);
+    if(opController.getBButtonReleased()) feeder.run(false);
     if(opController.getRightBumperButtonPressed()) shooter.shoot(true);
     if(opController.getRightBumperButtonReleased()) shooter.shoot(false);
 
