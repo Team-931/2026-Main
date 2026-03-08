@@ -84,21 +84,21 @@ public class Robot extends TimedRobot {
 
 TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
-// TODO: allow setting current AttitudePlan
-  public class AttitudeWrap {
-    AttitudePlan current;
+// TODO: allow setting current OrientationPlan
+  public class OrientationWrap {
+    OrientationPlan current;
     Timer timer = new Timer();
-    AttitudePlan.State report() {
+    OrientationPlan.State report() {
       return (current != null) ? current.report(timer.get()) : null;
     }    
   }
-  AttitudeWrap currentAttitudePlan = new AttitudeWrap();
+  OrientationWrap currentOrientationPlan = new OrientationWrap();
 
   void runTrajectory() { //  its use of odometry is still crude. TODO: less crude
     var sample = trajectoryWrap.getSample();
-    var attitude = currentAttitudePlan.report();
+    var orientation = currentOrientationPlan.report();
 
-    var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), sample, attitude);
+    var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), sample, orientation);
       if(sample != null) {
         SmartDashboard.putNumber("traj x pos", sample.poseMeters.getX());
         SmartDashboard.putNumber("traj x spd", sample.velocityMetersPerSecond);

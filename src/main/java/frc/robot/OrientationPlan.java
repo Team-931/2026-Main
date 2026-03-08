@@ -2,22 +2,22 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
-/** creates trapezoidal motion profiles for the robot's attitude
+/** creates trapezoidal motion profiles for the robot's orientation
  * -- which way it faces.
  * They work best if they end with aero velocity
   */
-class AttitudePlan {
-    AttitudePlan(Rotation2d stayhere) {
+class OrientationPlan {
+    OrientationPlan(Rotation2d stayhere) {
         accel = 0;
         cruiseVel = 0;
         cruiseBase = stayhere;
         start = end = new State(stayhere, 0);
         cruiseTime = decelTime = endTime = 0;
     }
-    AttitudePlan(Rotation2d start, Rotation2d end, double maxspd, double maxaccel) {
+    OrientationPlan(Rotation2d start, Rotation2d end, double maxspd, double maxaccel) {
         this(start, 0, end, 0, maxspd, maxaccel);
     }    
-    AttitudePlan(Rotation2d start, double startv, Rotation2d end, double endv, double maxspd, double maxaccel) {
+    OrientationPlan(Rotation2d start, double startv, Rotation2d end, double endv, double maxspd, double maxaccel) {
         maxaccel = Math.abs(maxaccel);
         maxspd = Math.abs(maxspd);
         double change = end.minus(start).getRadians();
