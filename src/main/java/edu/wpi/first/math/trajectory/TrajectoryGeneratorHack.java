@@ -173,7 +173,7 @@ static final public class Landmark {
    * @param interiorWaypoints The interior waypoints.
    * @param end The ending control vector.
    * @param config The configuration for the trajectory.
-   * @param landmarks A {@link Collection} of {@link Landmark}s to report about from 
+   * @param landmarks Zero or more {@link Landmark}s to report about from 
    *  within the Trajectory
    * @return The generated trajectory.
    * @throws IndexOutOfBoundsException if any member of landmarks has a {@code (key < 0 || > interiorWaypoints.size() + 1)}
@@ -184,14 +184,14 @@ static final public class Landmark {
       List<Translation2d> interiorWaypoints,
       Spline.ControlVector end,
       TrajectoryConfig config,
-      Collection<Landmark> landmarks) {
+      Landmark... landmarks) {
 
     // Sort the landmarks
-    var landmarkArray =  landmarks.toArray(new Landmark[0]);
+    final var landmarkArray =  landmarks.clone();
     Arrays.sort(landmarkArray, (a, b) -> Double.compare(a.key, b.key));
     // Prepare an array for parametrization
     var length = landmarkArray.length;
-    var landmarkInfo = new SplineParameterizerHack.LandmarkInfo[length];
+    final var landmarkInfo = new SplineParameterizerHack.LandmarkInfo[length];
     for (int ix = 0; ix < length; ++ix) {
       landmarkInfo[ix] = new SplineParameterizerHack.LandmarkInfo(landmarkArray[ix].key);
     }
@@ -242,7 +242,7 @@ static final public class Landmark {
     // fill landmarks in. 
     // This will throw an exception (IndexOutOfBoundsException) if the original key is not part of the trajectory 
     for (int ix = 0; ix < length; ++ix) {
-      LandmarkInfo info = landmarkInfo[ix];
+      final LandmarkInfo info = landmarkInfo[ix];
       double param = info.splineParamOut;
       Trajectory.State state0 = param != 1 ? traj.getStates().get(info.splineIndexOut) : null,
                        state1 = param != 0 ? traj.getStates().get(info.splineIndexOut+1) : null,
@@ -265,7 +265,7 @@ static final public class Landmark {
    * @param interiorWaypoints The interior waypoints.
    * @param end The ending pose.
    * @param config The configuration for the trajectory.
-   * @param landmarks A {@link Collection} of {@link Landmark}s to report about from 
+   * @param landmarks Zero or more {@link Landmark}s to report about from 
    *  within the Trajectory
    * @return The generated trajectory.
    * @throws IndexOutOfBoundsException if any member of landmarks has a {@code (key < 0 || > interiorWaypoints.size() + 1)}
@@ -273,7 +273,7 @@ static final public class Landmark {
    */
   public static Trajectory generateTrajectory(
       Pose2d start, List<Translation2d> interiorWaypoints, Pose2d end, TrajectoryConfig config,
-      Collection<Landmark> landmarks) {
+      Landmark... landmarks) {
     var controlVectors =
         SplineHelper.getCubicControlVectorsFromWaypoints(
             start, interiorWaypoints.toArray(new Translation2d[0]), end);
@@ -282,10 +282,27 @@ static final public class Landmark {
     return generateTrajectory(controlVectors[0], interiorWaypoints, controlVectors[1], config, landmarks);
   }
 
+  /**
+   * Generates a trajectory from the given waypoints and config. This method uses clamped cubic
+   * splines -- a method in which the initial pose, final pose, and interior waypoints are provided.
+   * The headings are automatically determined at the interior points to ensure continuous
+   * curvature.
+   *
+   * @param start The starting pose.
+   * @param interiorWaypoints The interior waypoints.
+   * @param end The ending pose.
+   * @param config The configuration for the trajectory.
+   * @param landmarks A {@link Collection} of {@link Landmark}s to report about from 
+   *  within the Trajectory
+   * @return The generated trajectory.
+   * @throws IndexOutOfBoundsException if any member of landmarks has a {@code (key < 0 || > interiorWaypoints.size() + 1)}
+   *  i. e. the landmark is not on the trajectory
+   */
+  
   public static Trajectory generateTrajectory(
       Pose2d start, List<Translation2d> interiorWaypoints, Pose2d end, TrajectoryConfig config,
-      Landmark... landmarks) {
-        return generateTrajectory(start, interiorWaypoints, end, config, List.of(landmarks));
+      Collection<Landmark> landmarks) {
+        return generateTrajectory(start, interiorWaypoints, end, config, landmarks.toArray(new Landmark[0]));
        } /**
    * Generates a trajectory from the given quintic control vectors and config. This method uses
    * quintic hermite splines -- therefore, all points must be represented by control vectors.
@@ -428,7 +445,7 @@ static final public class Landmark {
    * @throws MalformedSplineException When the spline is malformed (e.g. has close adjacent points
    *     with approximately opposing headings)
    */
-  public static List<PoseWithCurvature> splinePointsFromSplines(Spline[] splines, SplineParameterizerHack.LandmarkInfo[] landmarkInfos) {
+  public static List<PoseWithCurvature> splinePointsFromSplines(Spline[] splines, SplineParameterizerHack.LandmarkInfo... landmarkInfos) {
     // Create the vector of spline points.
     var splinePoints = new ArrayList<PoseWithCurvature>();
 
@@ -438,7 +455,7 @@ static final public class Landmark {
     /** to keep track of which spline we're working on */
     int splineIx = 0;
     /** the index of the next landmark to initialize */
-    var landmarkIx = new SplineParameterizerHack.IntRef();
+    final var landmarkIx = new SplineParameterizerHack.IntRef();
 
     // Advance landmark index through any negative indices.
     // The only case that won't raise OutOfBounds errors is splineIndexIn = -1, splineParamIn = 1.0
