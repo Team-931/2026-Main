@@ -13,7 +13,9 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-class Intake {
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+class Intake extends SubsystemBase {
     /** Pulls the intake in to fully folded */
     void in() {
         inoutMotor.setControl(inoutRequest.withPosition(0));

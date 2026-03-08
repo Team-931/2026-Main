@@ -14,10 +14,11 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShootConstants;
 
 
-public class transferShooter { 
+public class transferShooter extends SubsystemBase { 
     Servo leftServo=new Servo(ShootConstants.leftServoID), rightServo=new Servo(ShootConstants.rightServoID);
     {
         leftServo.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
