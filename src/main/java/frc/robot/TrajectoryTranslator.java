@@ -19,14 +19,14 @@ class TrajectoryTranslator {
 		return x;
 	}
 
-	ChassisSpeeds calculate(Pose2d reportOdometry, Trajectory.State sample, AttitudePlan.State attitude) {
+	ChassisSpeeds calculate(Pose2d reportOdometry, Trajectory.State sample, OrientationPlan.State orientation) {
 		var linear = 
 			sample != null ?
 			calculate(reportOdometry, sample) :
 			Translation2d.kZero;
 		double rotSpeed = 
-			attitude != null ?
-			DrvConst.attitudeP * attitude.angle .minus(reportOdometry.getRotation()) .getRadians() + attitude.rotSpeed :
+			orientation != null ?
+			DrvConst.orientationttitudeP * orientation.angle .minus(reportOdometry.getRotation()) .getRadians() + orientation.rotSpeed :
 			0;
 		return new ChassisSpeeds(linear.getX(), linear.getY(), rotSpeed);
 	}
