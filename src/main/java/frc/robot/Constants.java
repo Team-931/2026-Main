@@ -93,7 +93,7 @@ final class Constants {
     static final class ShootConstants {
         // percent of full power (or velocity if using velocity control)
         // for shooters when turned on
-        static final double launch_speed = 0.5;
+        static final double launch_speed = 1;
         // percent of full power (or velocity if using velocity control)
         // for tranfer when turned on
         static final double transferPower = .5;
@@ -130,5 +130,20 @@ final class Constants {
         // percent of full power (or velocity if using velocity control) when turned on
         static final double runPower = .5;
     }
-    
+    static final class Intake {
+        // TODO: adjust all constants.
+        /** motor rotations from fully closed to fully extended */
+        public static final double inoutRange = 7;
+        //
+        public static final double inoutSpeed = krakenFreeSpeed/(inoutRange), // as fast as possible
+                inoutAccel = 1; // = 1 / (time from 0 to 1) squared
+        //
+        public static final int inoutID = 12;
+        public static final int pickupID = 11;
+        public static final double pickupPower = .5;
+        /** How high to go up when agitating
+         * <p> [0 to 1] lower numbers mean higher position.
+         */
+        static final double agitateUpper = .8;
+    }
 }
