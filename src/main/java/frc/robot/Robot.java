@@ -159,15 +159,6 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     driveWithJoystick(useField);
     m_swerve.updateOdometry();
     // if (drive_controller.getLeftStickButtonPressed()) actualname.shoot(true);
-    if(opController.getYButtonPressed()) {
-      intake.out();
-      intake.pickup();
-    }
-    if (opController.getYButton() && opController.getXButton()) {
-      intake.agitateSwitch();
-    }
-    if(opController.getYButtonReleased()) intake.stop();
-    if(opController.getAButton()) intake.in();
     if(opController.getBButtonPressed()) feeder.run(true);
     if(opController.getBButtonReleased()) feeder.run(false);
     if(opController.getRightBumperButtonPressed()) shooter.shoot(true);
