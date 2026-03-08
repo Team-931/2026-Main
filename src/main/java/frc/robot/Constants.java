@@ -146,4 +146,10 @@ final class Constants {
          */
         static final double agitateUpper = .8;
     }
+    static final class Climber {
+
+        public static int motorID;
+        //
+        
+    }
 }
