@@ -129,7 +129,7 @@ public final class TrajectoryGeneratorHack {
    * @param end The ending pose.
    * @param config The configuration for the trajectory.
    * @return The generated trajectory.
-   */
+   *//* 
   public static Trajectory generateTrajectory(
       Pose2d start, List<Translation2d> interiorWaypoints, Pose2d end, TrajectoryConfig config) {
     var controlVectors =
@@ -139,7 +139,7 @@ public final class TrajectoryGeneratorHack {
     // Return the generated trajectory.
     return generateTrajectory(controlVectors[0], interiorWaypoints, controlVectors[1], config);
   }
-
+ */
 /** A pair of the {@link Landmark#key}, a floating point number indicating position with 
  * respect to the waypoints, and the {@link Landmark#state} of the trajectory at that position.
  * <p> The state may be left null at initialization, since it will be assigned when the
@@ -282,7 +282,11 @@ static final public class Landmark {
     return generateTrajectory(controlVectors[0], interiorWaypoints, controlVectors[1], config, landmarks);
   }
 
-  /**
+  public static Trajectory generateTrajectory(
+      Pose2d start, List<Translation2d> interiorWaypoints, Pose2d end, TrajectoryConfig config,
+      Landmark... landmarks) {
+        return generateTrajectory(start, interiorWaypoints, end, config, List.of(landmarks));
+       } /**
    * Generates a trajectory from the given quintic control vectors and config. This method uses
    * quintic hermite splines -- therefore, all points must be represented by control vectors.
    * Continuous curvature is guaranteed in this method.

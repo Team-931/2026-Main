@@ -29,8 +29,8 @@ public class Robot extends TimedRobot {
 // Generate trajectories, and their landmarks, before game starts.
   {
     new OurTrajectories();
-    SmartDashboard.putNumber("landmark time", OurTrajectories.landmarks.get(0).state.timeSeconds);
-    SmartDashboard.putNumber("landmark time1", OurTrajectories.landmarks.get(1).state.timeSeconds);
+    SmartDashboard.putNumber("landmark time", OurTrajectories.circlelandmarks.get(0).state.timeSeconds);
+    SmartDashboard.putNumber("landmark time1", OurTrajectories.circlelandmarks.get(1).state.timeSeconds);
     SmartDashboard.putNumber("circle time", OurTrajectories.circleTrajectory.getTotalTimeSeconds());
   }
 // Display trajectories, and their landmarks, before game starts.
@@ -38,8 +38,10 @@ public class Robot extends TimedRobot {
   {
     SmartDashboard.putData(field);
     field.getObject("circle").setTrajectory(OurTrajectories.circleTrajectory);
-    field.getObject("lmk 0").setPose(OurTrajectories.landmarks.get(0).state.poseMeters);
-    field.getObject("lmk 1").setPose(OurTrajectories.landmarks.get(1).state.poseMeters);
+    field.getObject("lmk 0").setPose(OurTrajectories.circlelandmarks.get(0).state.poseMeters);
+    field.getObject("lmk 1").setPose(OurTrajectories.circlelandmarks.get(1).state.poseMeters);
+    field.getObject("toBalls").setTrajectory(OurTrajectories.centerBalls);
+    field.getObject("near balls").setPose(OurTrajectories.centerBall2Landmark.state.poseMeters);
   }
 // Temporary version: combining a hood movement with a wait for the hood to catch up.
   Command setHoodCommand(double level) {
