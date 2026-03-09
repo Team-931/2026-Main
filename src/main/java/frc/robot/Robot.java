@@ -26,6 +26,7 @@ public class Robot extends TimedRobot {
   private final transferShooter shooter = new transferShooter();
   private final Feeder feeder = new Feeder();
   private final Intake intake = new Intake();
+  private final Climber climber = new Climber();
 
 // Generate trajectories, and their landmarks, before game starts.
   {
