@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwvModConst;
 import frc.robot.Constants.DrvConst.Setup;
 /**Represents a wheel and its necessary motors, sensors, and information. */
-public class SwerveModule extends SubsystemBase {
+public class SwerveModule {
   /** The constants appropriate to this wheel: as provided at start-up. */
   private final Setup info;
   /** What the absolute encoder reads when wheel is pointd forward. */
