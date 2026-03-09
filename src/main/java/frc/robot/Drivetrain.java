@@ -12,10 +12,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DrvConst;
 
 /** Represents a swerve drive style drivetrain. */
-public class Drivetrain {
+public class Drivetrain extends SubsystemBase {
   // one for each wheel
   private final SwerveModule frontLeft = new SwerveModule(DrvConst.frontLeft);
   private final SwerveModule frontRight = new SwerveModule(DrvConst.frontRight);
