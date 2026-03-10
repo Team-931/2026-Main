@@ -71,7 +71,7 @@ public class Drivetrain extends SubsystemBase {
     //Assuming getting config works then this should totally work.
     //TODO: Do I need to put some code in periodic for this to work, or will it just work?
 
-    RobotConfig config;
+    RobotConfig config = null;
     try{
       config = RobotConfig.fromGUISettings();
     } catch (Exception e) {
@@ -92,8 +92,8 @@ public class Drivetrain extends SubsystemBase {
                 false // ALWAYS false for robot-relative speeds);), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
               ),
               new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                      new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                      new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                      new PIDConstants(2.0, 0.0, 0.0), // Translation PID constants
+                      new PIDConstants(2.0, 0.0, 0.0) // Rotation PID constants
               ),
               config, // The robot configuration
               () -> {
