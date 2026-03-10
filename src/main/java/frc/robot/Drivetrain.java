@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
@@ -12,8 +13,10 @@ import com.studica.frc.AHRS;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -50,57 +53,65 @@ public class Drivetrain extends SubsystemBase {
 
   // basic set-up, may not be needed
   public Drivetrain() {
-    gyro.reset();//TODO: Is this line needed?
+    gyro.reset();//TODO: Is this line needed? - Phill
+    //I think so because what if you have gyro on before class construction and its not hurting anything - Elliot
+
     // wait till gyro is ready
     while(gyro.isCalibrating());
     zeroYaw();
 
+    // These comments are from pathplanner example vv
+
     // Load the RobotConfig from the GUI settings. You should probably
     // store this in your Constants file
-    //TODO: figure out how to integrate path planner starting here
+
+    //Notes on what I did here
+
+    //I put autobuilder.configure in the try accept for now because it said "config may not have stored value"
+    //Assuming getting config works then this should totally work.
+    //TODO: Do I need to put some code in periodic for this to work, or will it just work?
+
     RobotConfig config;
     try{
       config = RobotConfig.fromGUISettings();
+
+      // Configure AutoBuilder last
+      AutoBuilder.configure(
+              this::getPose, // Robot pose supplier
+              this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+              this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+              (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+              new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                      new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                      new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+              ),
+              config, // The robot configuration
+              () -> {
+                // Boolean supplier that controls when the path will be mirrored for the red alliance
+                // This will flip the path being followed to the red side of the field.
+                // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                var alliance = DriverStation.getAlliance();
+                if (alliance.isPresent()) {
+                  return alliance.get() == DriverStation.Alliance.Red;
+                }
+                return false;
+              },
+              this // Reference to this subsystem to set requirements
+      );
     } catch (Exception e) {
       // Handle exception as needed
       e.printStackTrace();
     }
+  }
 
-    //TODO: create methods bellow then you can comment this in and continue to resolve.
-    
-    //driveRobotRelative
-    //getPose
-    //resetPose
-    //getRobotRelativeSpeeds
+  public Pose2d getPose() {
+    return reportOdometry();
+  }
 
-    //https://pathplanner.dev/pplib-getting-started.html#install-pathplannerlib - This is where 
-
-    // Configure AutoBuilder last
-  //   AutoBuilder.configure(
-  //           this::getPose, // Robot pose supplier
-  //           this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-  //           this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-  //           (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
-  //           new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-  //                   new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-  //                   new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
-  //           ),
-  //           config, // The robot configuration
-  //           () -> {
-  //             // Boolean supplier that controls when the path will be mirrored for the red alliance
-  //             // This will flip the path being followed to the red side of the field.
-  //             // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-  //             var alliance = DriverStation.getAlliance();
-  //             if (alliance.isPresent()) {
-  //               return alliance.get() == DriverStation.Alliance.Red;
-  //             }
-  //             return false;
-  //           },
-  //           this // Reference to this subsystem to set requirements
-  //     );
-    
-  // }
+  public void resetPose(Pose2d pose) {
+    resetOdometry(pose);
+  }
 
   // Whichever way we are facing is now considered forward
   void zeroYaw() {
@@ -115,6 +126,15 @@ public class Drivetrain extends SubsystemBase {
     backRight.setRelOffset();
   }
 
+  public void driveRobotRelative(ChassisSpeeds RobotChassisSpeeds){
+    drive(
+      RobotChassisSpeeds.vxMetersPerSecond,
+      RobotChassisSpeeds.vyMetersPerSecond, 
+      RobotChassisSpeeds.omegaRadiansPerSecond, 
+      false // ALWAYS false for robot-relative speeds);
+    );
+  }
+  
   /**
    * Method to drive the robot using joystick info.
    *
@@ -194,7 +214,7 @@ void fullSpeed() {
   }
   /** Updates the field relative position of the robot. */
   public void updateOdometry() {
-    odometry.update(
+    odometry.update( 
         gyro.getRotation2d(),
         new SwerveModulePosition[] {
           frontLeft.getPosition(),
@@ -203,4 +223,16 @@ void fullSpeed() {
           backRight.getPosition()
         });
   }
+
+  public ChassisSpeeds getRobotRelativeSpeeds() {
+    // 1. Get the current state (velocity & angle) from each module
+    SwerveModuleState fl = frontLeft.getState();
+    SwerveModuleState fr = frontRight.getState();
+    SwerveModuleState bl = backLeft.getState();
+    SwerveModuleState br = backRight.getState();
+
+    // 2. Use your kinematics object to convert them to robot-relative speeds
+    // Replace 'm_kinematics' with whatever your SwerveDriveKinematics variable is named
+    return kinematics.toChassisSpeeds(fl, fr, bl, br);
+}
 }
