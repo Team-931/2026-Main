@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -115,7 +118,7 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   {addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   
 
-  SendableChooser<Command> autoChooser = new SendableChooser<>();
+  private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser();
   // This sets up the choices for auto
   // now only simple examples 
   {
