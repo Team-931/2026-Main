@@ -71,7 +71,7 @@ final class Constants {
     }
     static final class SwvModConst {
         // factors to translate encoder readings into useful units
-        static final double kWheelRadius = .05931 / 2; //meter //diameter: 2.335 in, 59.31 mm
+        static final double kWheelRadius = 0.03175; //Units.inchesToMeters(2.5)/2; // old -> .05931 / 2; //meter //diameter: 2.335 in, 59.31 mm
         static final double freeVeloc = 4.63; // meters / sec, full power, no load
         static final int turnGearing = 28, driveGearing = 4;
         static final double driveConversion = 2 * Math.PI * kWheelRadius / driveGearing, // motor rotations to output meters
