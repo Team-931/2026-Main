@@ -77,10 +77,15 @@ public class Drivetrain extends SubsystemBase {
 
       // Configure AutoBuilder last
       AutoBuilder.configure(
-              this::getPose, // Robot pose supplier
-              this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+              this::reportOdometry, // Robot pose supplier
+              odometry::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
               this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-              (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+              (speeds, feedforwards) -> drive(
+                speeds.vxMetersPerSecond,
+                speeds.vyMetersPerSecond, 
+                speeds.omegaRadiansPerSecond,
+                false // ALWAYS false for robot-relative speeds);), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+              ),
               new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
                       new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
                       new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
@@ -105,14 +110,6 @@ public class Drivetrain extends SubsystemBase {
     }
   }
 
-  public Pose2d getPose() {
-    return reportOdometry();
-  }
-
-  public void resetPose(Pose2d pose) {
-    resetOdometry(pose);
-  }
-
   // Whichever way we are facing is now considered forward
   void zeroYaw() {
     gyro.zeroYaw();
@@ -125,16 +122,6 @@ public class Drivetrain extends SubsystemBase {
     backLeft.setRelOffset();
     backRight.setRelOffset();
   }
-
-  public void driveRobotRelative(ChassisSpeeds RobotChassisSpeeds){
-    drive(
-      RobotChassisSpeeds.vxMetersPerSecond,
-      RobotChassisSpeeds.vyMetersPerSecond, 
-      RobotChassisSpeeds.omegaRadiansPerSecond, 
-      false // ALWAYS false for robot-relative speeds);
-    );
-  }
-  
   /**
    * Method to drive the robot using joystick info.
    *
