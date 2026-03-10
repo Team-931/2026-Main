@@ -65,7 +65,7 @@ public class Drivetrain extends SubsystemBase {
       // Handle exception as needed
       e.printStackTrace();
     }
-  }
+
     //TODO: create methods bellow then you can comment this in and continue to resolve.
     
     //driveRobotRelative
@@ -100,7 +100,7 @@ public class Drivetrain extends SubsystemBase {
   //           this // Reference to this subsystem to set requirements
   //     );
     
-  // }
+  }
 
   // Whichever way we are facing is now considered forward
   void zeroYaw() {
