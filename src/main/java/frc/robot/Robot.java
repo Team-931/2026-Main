@@ -116,6 +116,12 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   {addPeriodic(m_swerve::report, .25);}
   {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);}
   {addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
+  {addPeriodic(() -> {
+                      m_swerve.updateOdometry();
+                      var pose = LimelightHelpers.getBotPose2d("limelght-b");
+                      if (pose != null) m_swerve.visualOdometryUpdate(pose, Timer.getFPGATimestamp());
+                      }
+            , kDefaultPeriod);}
   
 
   private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser();
@@ -150,7 +156,6 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     //TODO: Command based:
     CommandScheduler.getInstance().run();
     runTrajectory();
-     m_swerve.updateOdometry();
   }
 
   static boolean useField = true, useVelCtrl = false;

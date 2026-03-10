@@ -212,6 +212,11 @@ void fullSpeed() {
         });
   }
 
+  /** export odometry method */
+  void visualOdometryUpdate(Pose2d newPose2d, double timestamp) {
+    odometry.addVisionMeasurement(newPose2d, timestamp);
+  }
+
   public ChassisSpeeds getRobotRelativeSpeeds() {
     // 1. Get the current state (velocity & angle) from each module
     SwerveModuleState fl = frontLeft.getState();
