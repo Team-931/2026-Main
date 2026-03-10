@@ -123,11 +123,11 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   // now only simple examples 
   {
     autoChooser.setDefaultOption("No autonomous", null);
-    autoChooser.addOption("Move hood", 
-      setHoodCommand(.77)
-      .andThen(setHoodCommand(.05), 
-        setHoodCommand((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2)));
-    autoChooser.addOption("Circle trajectory", Commands.runOnce(() -> trajectoryWrap.set(OurTrajectories.circleTrajectory)));
+    // autoChooser.addOption("Move hood", 
+    //   setHoodCommand(.77)
+    //   .andThen(setHoodCommand(.05), 
+    //     setHoodCommand((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2)));
+    // autoChooser.addOption("Circle trajectory", Commands.runOnce(() -> trajectoryWrap.set(OurTrajectories.circleTrajectory)));
     
     SmartDashboard.putData("Auto chooser", autoChooser);//TODO: add a label
   }

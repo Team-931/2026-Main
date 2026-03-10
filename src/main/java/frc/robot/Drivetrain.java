@@ -74,9 +74,14 @@ public class Drivetrain extends SubsystemBase {
     RobotConfig config;
     try{
       config = RobotConfig.fromGUISettings();
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
 
-      // Configure AutoBuilder last
-      AutoBuilder.configure(
+    // Configure AutoBuilder last
+      
+    AutoBuilder.configure(
               this::reportOdometry, // Robot pose supplier
               odometry::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
               this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
@@ -104,10 +109,6 @@ public class Drivetrain extends SubsystemBase {
               },
               this // Reference to this subsystem to set requirements
       );
-    } catch (Exception e) {
-      // Handle exception as needed
-      e.printStackTrace();
-    }
   }
 
   // Whichever way we are facing is now considered forward
