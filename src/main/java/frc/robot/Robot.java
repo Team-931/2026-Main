@@ -10,6 +10,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -19,12 +20,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.DrvConst;
 import frc.robot.Constants.ShootConstants;
 
 public class Robot extends TimedRobot {
   private final XboxController drive_controller = new XboxController(0);
-  private final XboxController opController= new XboxController(1);
+  private final GenericHID opController = new XboxController(1);
   private final Drivetrain m_swerve = new Drivetrain();
   private final transferShooter shooter = new transferShooter();
   private final Feeder feeder = new Feeder();
@@ -166,14 +168,18 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     SmartDashboard.putBoolean("april tag found", LimelightHelpers.getTV("limelight-b"));
     driveWithJoystick(useField);
     m_swerve.updateOdometry();
-    // if (drive_controller.getLeftStickButtonPressed()) actualname.shoot(true);
-    if(opController.getBButtonPressed()) feeder.run(true);
-    if(opController.getBButtonReleased()) feeder.run(false);
-    if(opController.getRightBumperButtonPressed()) shooter.shoot(true);
-    if(opController.getRightBumperButtonReleased()) shooter.shoot(false);
+    // Temporary testing
+    if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
+      feeder.run(true);
+      shooter.setTransfer(true);
+    }
+    if(opController.getRawButtonReleased(ButtonBoard.Shoot)) {
+      feeder.run(false); 
+      shooter.setTransfer(false);
+    }
+    if(opController.getRawButtonPressed(ButtonBoard.Shoot)) shooter.shoot(true);
+    if(opController.getRawButtonReleased(ButtonBoard.Shoot)) shooter.shoot(false);
 
-    //if(drive_controller.getBButton()){System.out.println("Hello world");}
-    
   }
 
   private boolean firstTimeDisabled = true;

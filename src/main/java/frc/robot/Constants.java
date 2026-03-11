@@ -16,7 +16,21 @@ final class Constants {
     static final double deadBand = .05;
     static final double nominalVoltage = 12; /* Volts */
     static final double krakenFreeSpeed = (6000); /* RPM */
-  
+    /** operator buttons */
+    static final class ButtonBoard {
+        static final int IntakeUp = 0,
+                        IntakeDown = 1,
+                        FuelIn = 2,
+                        FuelOut = 3,
+                        FeederReverse = 4,
+                        HoodLong = 5,
+                        HoodShort = 6,
+                        ClimberDown = 7,
+                        ClimberUp = 8,
+                        Shoot = 9;
+        
+    }
+    /** used by {@link Drivetrain} */
     static final class DrvConst {
          static final double kMaxSpeed = 3.0, overloadSpeed = SwvModConst.freeVeloc/* or kMaxSpeed */; // meters per second
          static final double kMaxAngularSpeed = 1*Math.PI; // 0.5 rotation per second, was 0.5 rad/s before
