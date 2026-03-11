@@ -18,16 +18,18 @@ final class Constants {
     static final double krakenFreeSpeed = (6000); /* RPM */
     /** operator buttons */
     static final class ButtonBoard {
-        static final int IntakeUp = 0,
+        static final int /** Folded away */
+                        IntakeUp = 0,
+                        /** Unfolded */
                         IntakeDown = 1,
                         FuelIn = 2,
                         FuelOut = 3,
-                        FeederReverse = 4,
-                        HoodLong = 5,
-                        HoodShort = 6,
-                        ClimberDown = 7,
-                        ClimberUp = 8,
-                        Shoot = 9;
+                        FeederReverse = 9,
+                        HoodLong = 8,
+                        HoodShort = 7,
+                        ClimberDown = 6,
+                        ClimberUp = 5,
+                        Shoot = 4;
         
     }
     /** used by {@link Drivetrain} */
