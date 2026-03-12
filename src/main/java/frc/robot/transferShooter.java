@@ -6,6 +6,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -34,6 +35,8 @@ public class transferShooter extends SubsystemBase {
         shooterMid.setControl(followRight); 
         shooterLeft.setControl(followRight);
     }
+    VelocityVoltage velocityRequest = new VelocityVoltage(0);
+    /**  */
 //TODO orientation & prefomance activities
 void shoot(boolean on){
     shooterRight.setVoltage (on ? Constants.nominalVoltage * ShootConstants.launch_speed : 0);

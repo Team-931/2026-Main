@@ -19,7 +19,23 @@ final class Constants {
     static final double deadBand = .05;
     static final double nominalVoltage = 12; /* Volts */
     static final double krakenFreeSpeed = (6000); /* RPM */
-  
+    /** operator buttons */
+    static final class ButtonBoard {
+        static final int /** Folded away */
+                        IntakeUp = 0,
+                        /** Unfolded */
+                        IntakeDown = 1,
+                        FuelIn = 2,
+                        FuelOut = 3,
+                        FeederReverse = 9,
+                        HoodLong = 8,
+                        HoodShort = 7,
+                        ClimberDown = 6,
+                        ClimberUp = 5,
+                        Shoot = 4;
+        
+    }
+    /** used by {@link Drivetrain} */
     static final class DrvConst {
          static final double kMaxSpeed = 3.0, overloadSpeed = SwvModConst.freeVeloc/* or kMaxSpeed */; // meters per second
          static final double kMaxAngularSpeed = 1*Math.PI; // 0.5 rotation per second, was 0.5 rad/s before
@@ -41,7 +57,7 @@ final class Constants {
          }
 
          static final double baseOffset = .1875; // 67.5 degrees or 3/16 circle
-         /** each {@link absOffet} is 1/4 circle rotated from the adjacent one.*/
+         /** each {@link absOffset} is 1/4 circle rotated from the adjacent one.*/
          static Setup frontLeft = new Setup(3, 5, baseOffset + .75, "FL"),
                      frontRight = new Setup(9, 6, baseOffset, "FR"),
                      backLeft = new Setup(2, 4, baseOffset + .5, "BL"),
@@ -74,7 +90,7 @@ final class Constants {
     }
     static final class SwvModConst {
         // factors to translate encoder readings into useful units
-        static final double kWheelRadius = .05931 / 2; //meter //diameter: 2.335 in, 59.31 mm
+        static final double kWheelRadius = 0.03175; //Units.inchesToMeters(2.5)/2; // old -> .05931 / 2; //meter //diameter: 2.335 in, 59.31 mm
         static final double freeVeloc = 4.63; // meters / sec, full power, no load
         static final int turnGearing = 28, driveGearing = 4;
         static final double driveConversion = 2 * Math.PI * kWheelRadius / driveGearing, // motor rotations to output meters
