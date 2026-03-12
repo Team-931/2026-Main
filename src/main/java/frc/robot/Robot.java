@@ -169,16 +169,19 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     driveWithJoystick(useField);
     m_swerve.updateOdometry();
     // Temporary testing
+
+    
+//button board is on shoot as of my commit. harington's commit should fix this.
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
       feeder.run(true);
       shooter.setTransfer(true);
+      shooter.shoot_with_velocity(2600);
     }
     if(opController.getRawButtonReleased(ButtonBoard.Shoot)) {
       feeder.run(false); 
       shooter.setTransfer(false);
+      shooter.shoot_with_velocity(0);
     }
-    if(opController.getRawButtonPressed(ButtonBoard.Shoot)) shooter.shoot_with_velocity(2600);
-    if(opController.getRawButtonReleased(ButtonBoard.Shoot)) shooter.shoot_with_velocity(0);
   }
 
   private boolean firstTimeDisabled = true;
