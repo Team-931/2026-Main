@@ -9,8 +9,11 @@ import com.revrobotics.spark.ClosedLoopSlot;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import static edu.wpi.first.units.Units.RPM;
+
 
 final class Constants {
     static final double deadBand = .05;
@@ -146,4 +149,20 @@ final class Constants {
          */
         static final double agitateUpper = .8;
     }
+
+    public static class IntakeConstants {
+        public static final int fuelIntakeID = 11;
+        public static final int outInID = 12;
+
+    }
+
+    public static class ClimberConstants {
+        public static final int climberID = 18;
+    
+    }
+
+    public static class KrakenX60 {
+        public static final AngularVelocity kFreeSpeed = RPM.of(6000);
+    }
+
 }
