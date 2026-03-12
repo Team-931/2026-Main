@@ -177,9 +177,8 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
       feeder.run(false); 
       shooter.setTransfer(false);
     }
-    if(opController.getRawButtonPressed(ButtonBoard.Shoot)) shooter.shoot(true);
-    if(opController.getRawButtonReleased(ButtonBoard.Shoot)) shooter.shoot(false);
-
+    if(opController.getRawButtonPressed(ButtonBoard.Shoot)) shooter.shoot_with_velocity(2600);
+    if(opController.getRawButtonReleased(ButtonBoard.Shoot)) shooter.shoot_with_velocity(0);
   }
 
   private boolean firstTimeDisabled = true;

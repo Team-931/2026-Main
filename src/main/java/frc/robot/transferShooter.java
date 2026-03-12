@@ -38,8 +38,12 @@ public class transferShooter extends SubsystemBase {
     VelocityVoltage velocityRequest = new VelocityVoltage(0);
     /**  */
 //TODO orientation & prefomance activities
-void shoot(boolean on){
+void shoot_with_voltage(boolean on){
     shooterRight.setVoltage (on ? Constants.nominalVoltage * ShootConstants.launch_speed : 0);
+}
+/** @param velocity double in RPM */
+void shoot_with_velocity(double velocity){
+    shooterRight.setControl(velocityRequest.withVelocity(velocity));
 }
 
 void setTransfer(boolean on) {
