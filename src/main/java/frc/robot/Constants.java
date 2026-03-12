@@ -22,17 +22,17 @@ final class Constants {
     /** operator buttons */
     static final class ButtonBoard {
         static final int /** Folded away */
-                        IntakeUp = 0,
+                        IntakeUp = 1,
                         /** Unfolded */
-                        IntakeDown = 1,
-                        FuelIn = 2,
-                        FuelOut = 3,
-                        FeederReverse = 9,
-                        HoodLong = 8,
-                        HoodShort = 7,
-                        ClimberDown = 6,
-                        ClimberUp = 5,
-                        Shoot = 4;
+                        IntakeDown = 2,
+                        FuelIn = 3,
+                        FuelOut = 4,
+                        FeederReverse = 10,
+                        HoodLong = 9,
+                        HoodShort = 8,
+                        ClimberDown = 7,
+                        ClimberUp = 6,
+                        Shoot = 5;
         
     }
     /** used by {@link Drivetrain} */
