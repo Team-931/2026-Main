@@ -75,7 +75,7 @@ public class Intake extends SubsystemBase {
     private final VoltageOut rollerVoltageRequest = new VoltageOut(0);
 
     private boolean isHomed = false;
-
+// TODO: check with teckstein about wrist gearing
     public Intake() {
         wristMotor = new TalonFX(IntakeConstants.outInID);
         intakeMotor = new TalonFX(IntakeConstants.fuelIntakeID);
