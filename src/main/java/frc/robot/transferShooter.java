@@ -41,7 +41,7 @@ public class transferShooter extends SubsystemBase {
 void shoot_with_voltage(boolean on){
     shooterRight.setVoltage (on ? Constants.nominalVoltage * ShootConstants.launch_speed : 0);
 }
-/** @param velocity double in RPM
+/** @param velocity double in RPS
  * PIH: I was wrong and WCP confused me.
  * They give RPM TalonFX uses RPS.
  * 80 RPS is probably top speed.
