@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -168,7 +169,7 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
   static boolean useField = true, useVelCtrl = false;
 
-  Command current_intake_command = intake.intakeCommand();
+  Command current_intake_command = intake.intakeCommand(true);
 
   @Override
   public void teleopPeriodic() {
@@ -192,15 +193,29 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
       shooter.shoot_with_velocity(0);
     }
 
+    if(opController.getRawButton(ButtonBoard.HoodShort)){
+      shooter.adjustHood(ShootConstants.kMinPosition); //.77 is the mechanical limit
+    }
+
+    if(opController.getRawButton(ButtonBoard.HoodLong)){
+      shooter.adjustHood(ShootConstants.kMaxPosition*0.6); //.77 is the mechanical limit
+    }
+
     if(opController.getRawButtonPressed(ButtonBoard.IntakeUp)){
       intake.stowedCommand().schedule();
     }
 
     if(opController.getRawButtonPressed(ButtonBoard.FuelIn)){
+      current_intake_command = intake.intakeCommand(true);
       current_intake_command.schedule();
     }
 
-    if(opController.getRawButtonReleased(ButtonBoard.FuelIn)){
+    if(opController.getRawButtonPressed(ButtonBoard.FuelOut)){
+      current_intake_command = intake.intakeCommand(false);
+      current_intake_command.schedule();
+    }
+
+    if(opController.getRawButtonReleased(ButtonBoard.FuelIn)||opController.getRawButtonReleased(ButtonBoard.FuelOut)){
       current_intake_command.cancel();
     }
   }

@@ -34,7 +34,8 @@ import frc.robot.Constants;
 public class Intake extends SubsystemBase {
     public enum Speed { //How fast the motors spin
         STOP(0),
-        INTAKE(0.5);
+        INTAKE(0.5),
+        OUTTAKE(-0.5);
 
         private final double percentOutput;
 
@@ -163,11 +164,15 @@ public class Intake extends SubsystemBase {
         );
     }
 
-    public Command intakeCommand() {
+    //TODO: make sure intake and outtake do not run while the wrist is flipped up
+    public Command intakeCommand(boolean intake_in) {
         return startEnd(
             () -> {
                 set(Position.INTAKE);
-                set(Speed.INTAKE);
+                if (intake_in){
+                    set(Speed.INTAKE);
+                }
+                set(Speed.OUTTAKE);
             },
             () -> set(Speed.STOP)
         );

@@ -137,7 +137,7 @@ final class Constants {
         static final int RightShootID = 17;
         static final int transferMotorID = 14;
         // PWM Id.s match the ports they plug into
-        static final int leftServoID = 1;
+        static final int leftServoID = 8;
         static final int rightServoID = 9;
     }
     static final class FeederConst {
