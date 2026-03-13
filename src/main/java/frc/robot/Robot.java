@@ -162,6 +162,8 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
   static boolean useField = true, useVelCtrl = false;
 
+  Command current_intake_command = intake.intakeCommand();
+
   @Override
   public void teleopPeriodic() {
     SmartDashboard.putBoolean("vision target found", LimelightHelpers.getTV("limelight-a"));
@@ -171,16 +173,24 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     // Temporary testing
 
     
-//button board is on shoot as of my commit. harington's commit should fix this.
+//button board not working at all?
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
       feeder.run(true);
       shooter.setTransfer(true);
-      shooter.shoot_with_velocity(2600);
+      shooter.shoot_with_velocity(43.3);
     }
     if(opController.getRawButtonReleased(ButtonBoard.Shoot)) {
       feeder.run(false); 
       shooter.setTransfer(false);
       shooter.shoot_with_velocity(0);
+    }
+
+    if(opController.getRawButtonPressed(ButtonBoard.FuelIn)){
+      current_intake_command.schedule();
+    }
+
+    if(opController.getRawButtonReleased(ButtonBoard.FuelIn)){
+      current_intake_command.cancel();
     }
   }
 
