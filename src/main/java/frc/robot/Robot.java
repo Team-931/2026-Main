@@ -141,12 +141,18 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   }
 
   private Command autoCommand;
+
+  @Override
+  public void teleopInit(){
+    intake.homingCommand().schedule();
+  }
+
   @Override
   public void autonomousInit() {
     autoCommand = autoChooser.getSelected();
     if(autoCommand != null) autoCommand.schedule();
     //TODO: Command based:
-    
+    intake.homingCommand().schedule();
   }
   @Override
   public void autonomousExit() {
@@ -170,6 +176,7 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     SmartDashboard.putBoolean("april tag found", LimelightHelpers.getTV("limelight-b"));
     driveWithJoystick(useField);
     m_swerve.updateOdometry();
+    CommandScheduler.getInstance().run();
     // Temporary testing
 
     
