@@ -172,6 +172,15 @@ public class Intake extends SubsystemBase {
         );
     }
 
+    public Command stowedCommand() {
+        return startEnd(
+            () -> {
+                set(Position.STOWED);
+            },
+            () -> set(Speed.STOP)
+        );
+    }
+
     public Command agitateCommand() {
         return runOnce(() -> set(Speed.INTAKE))
             .andThen(
