@@ -50,7 +50,7 @@ public class Intake extends SubsystemBase {
     public enum Position { //These will need to be changed during testing of the intake. 
         HOMED(110),
         STOWED(100),
-        INTAKE(-4),
+        INTAKE(-4), //The motor reads 0.4 and 0 for the in and out positions, but this angle nonsence is screwing with what rotaitons we get.
         AGITATE(20);
 
         private final double degrees;
@@ -64,8 +64,8 @@ public class Intake extends SubsystemBase {
         }
     }
 
-    private static final double kPivotReduction = 50.0;
-    private static final double kMaxPivotSpeed = Constants.krakenFreeSpeed/(kPivotReduction);
+    private static final double kPivotReduction = 24;
+    private static final double kMaxPivotSpeed = Constants.krakenFreeSpeed/(kPivotReduction)/500;
     private static final Angle kPositionTolerance = Degrees.of(5);
 
     private final TalonFX wristMotor;
@@ -75,7 +75,7 @@ public class Intake extends SubsystemBase {
     private final VoltageOut rollerVoltageRequest = new VoltageOut(0);
 
     private boolean isHomed = false;
-
+// TODO: check with teckstein about wrist gearing
     public Intake() {
         wristMotor = new TalonFX(IntakeConstants.outInID);
         intakeMotor = new TalonFX(IntakeConstants.fuelIntakeID);
@@ -172,15 +172,6 @@ public class Intake extends SubsystemBase {
         );
     }
 
-     public Command stowedCommand() {
-        return startEnd(
-            () -> {
-                set(Position.STOWED);
-            },
-            () -> set(Speed.STOP)
-        );
-    }
-
     public Command agitateCommand() {
         return runOnce(() -> set(Speed.INTAKE))
             .andThen(
@@ -199,14 +190,20 @@ public class Intake extends SubsystemBase {
     }
 
     public Command homingCommand() {
-        return Commands.sequence(
-            runOnce(() -> setPivotPercentOutput(0.1)),
-            Commands.waitUntil(() -> wristMotor.getSupplyCurrent().getValue().in(Amps) > 6),
+        return (
             runOnce(() -> {
+                setPivotPercentOutput(0.1);
+            }
+            ).andThen(
+                Commands.waitUntil(() -> wristMotor.getSupplyCurrent().getValue().in(Amps) > 6)
+            ).andThen(
+                runOnce(() -> {
                 wristMotor.setPosition(Position.HOMED.angle());
                 isHomed = true;
+                setPivotPercentOutput(0);
                 set(Position.STOWED);
             })
+            )
         )
         .unless(() -> isHomed)
         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
