@@ -184,12 +184,16 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
       feeder.run(true);
       shooter.setTransfer(true);
-      shooter.shoot_with_velocity(43.3);
+      shooter.shoot_with_velocity(43.3); //This speed juggles the fuel, doesn't shoot em very far.
     }
     if(opController.getRawButtonReleased(ButtonBoard.Shoot)) {
       feeder.run(false); 
       shooter.setTransfer(false);
       shooter.shoot_with_velocity(0);
+    }
+
+    if(opController.getRawButtonPressed(ButtonBoard.IntakeUp)){
+      intake.stowedCommand().schedule();
     }
 
     if(opController.getRawButtonPressed(ButtonBoard.FuelIn)){

@@ -65,7 +65,8 @@ public class Intake extends SubsystemBase {
     }
 
     private static final double kPivotReduction = 24;
-    private static final double kMaxPivotSpeed = Constants.krakenFreeSpeed/(kPivotReduction)/500;
+    private static final double kMaxPivotSpeed = Constants.krakenFreeSpeed/(kPivotReduction);
+    private static final double kMaxPivotAcceleration = Constants.krakenFreeSpeed/(kPivotReduction)/100;
     private static final Angle kPositionTolerance = Degrees.of(5);
 
     private final TalonFX wristMotor;
@@ -106,7 +107,7 @@ public class Intake extends SubsystemBase {
             .withMotionMagic(
                 new MotionMagicConfigs()
                     .withMotionMagicCruiseVelocity(kMaxPivotSpeed)
-                    .withMotionMagicAcceleration(kMaxPivotSpeed)
+                    .withMotionMagicAcceleration(kMaxPivotAcceleration)
             )
             .withSlot0(
                 new Slot0Configs()
