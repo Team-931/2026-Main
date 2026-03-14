@@ -178,12 +178,15 @@ public class Intake extends SubsystemBase {
         );
     }
 
-    public Command stowedCommand() {
-        return startEnd(
+    public Command stowedCommand(boolean stow) {
+        return runOnce(
             () -> {
-                set(Position.STOWED);
-            },
-            () -> set(Speed.STOP)
+                if (stow){
+                    set(Position.STOWED);
+                } else {
+                    set(Position.INTAKE);
+                }
+            }
         );
     }
 

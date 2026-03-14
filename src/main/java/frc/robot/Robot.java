@@ -202,7 +202,10 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     }
 
     if(opController.getRawButtonPressed(ButtonBoard.IntakeUp)){
-      intake.stowedCommand().schedule();
+      intake.stowedCommand(true).schedule();
+    }
+    if(opController.getRawButtonPressed(ButtonBoard.IntakeDown)){
+      intake.stowedCommand(false).schedule();
     }
 
     if(opController.getRawButtonPressed(ButtonBoard.FuelIn)){
