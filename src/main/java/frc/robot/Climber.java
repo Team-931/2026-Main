@@ -49,7 +49,10 @@ class Climber extends SubsystemBase {
     }
     /** holds the motion plan */
     final MotionMagicVoltage extensionRequest = 
-        new MotionMagicVoltage(0);
+            new MotionMagicVoltage(0),
+                            liftRequest = 
+            new MotionMagicVoltage(Constants.Climber.climbedUnwind)
+                .withFeedForward(Constants.Climber.feedForwardVoltage);
     final VoltageOut rewindRequest = 
         new VoltageOut(-Constants.Climber.rewindVoltage)
             .withIgnoreSoftwareLimits(true);

@@ -18,6 +18,7 @@ import static edu.wpi.first.units.Units.RPM;
 final class Constants {
     static final double deadBand = .05;
     static final double nominalVoltage = 12; /* Volts */
+    static final double stallTorque = 7.16; /* Newton-meters */
     static final double krakenFreeSpeed = (6000/60); /* RPS */
     /** operator buttons */
     static final class ButtonBoard {
@@ -170,9 +171,15 @@ final class Constants {
         public static final double gearing = 12;
         static final double maxUnwind = 2.644 /* output rotations to top of range */,
                             littleUnWind = .305, /* rotations to free hopper */
+                            climbedUnwind = 1, // TODO: check this!!
                             maxUnwindTime = 1 /* second */,
                             accel = maxUnwind/ maxUnwindTime/ maxUnwindTime;
-		public static final double rewindVoltage = nominalVoltage / 20;
+        private static final double NewtonsperLb = 4.448;
+        static final double shaftCircumference = .05, //5 cm TODO: check!!
+                            robotWeight = NewtonsperLb*(120), // TODO: check!!
+                            fFtorque = robotWeight * shaftCircumference / gearing;
+		public static final double rewindVoltage = nominalVoltage / 20,
+                                   feedForwardVoltage = nominalVoltage * fFtorque / stallTorque;
         public static final double rewoundAmps = .4;
         public static final int motorID = 18;
         //
