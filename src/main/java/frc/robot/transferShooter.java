@@ -32,11 +32,11 @@ public class transferShooter extends SubsystemBase {
     transfer=new TalonFX(ShootConstants.transferMotorID);
     {configureMotor(shooterRight, InvertedValue.Clockwise_Positive);}
     Follower followRight = new Follower(ShootConstants.RightShootID, MotorAlignmentValue.Opposed);
-    {
+    /* {
         shooterMid.setControl(followRight); 
         shooterLeft.setControl(followRight);
     }
-    VelocityVoltage velocityRequest = new VelocityVoltage(0);
+ */    VelocityVoltage velocityRequest = new VelocityVoltage(0);
     /**  */
 //TODO orientation & prefomance activities
 void shoot_with_voltage(boolean on){
@@ -54,6 +54,8 @@ double target_velocity = 0;
 void shoot_with_velocity(double velocity){
     target_velocity = velocity;
     shooterRight.setControl(velocityRequest.withVelocity(target_velocity));
+    shooterLeft.setControl(velocityRequest);
+    shooterMid.setControl(velocityRequest);
 }
 
 boolean get_shooter_ready(double v_tollerance){
