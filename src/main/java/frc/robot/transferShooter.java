@@ -6,6 +6,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -14,6 +15,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShootConstants;
 
@@ -28,19 +30,45 @@ public class transferShooter extends SubsystemBase {
 
     TalonFX shooterLeft=new TalonFX(ShootConstants.leftShooterID), shooterMid=new TalonFX(ShootConstants.midShootID), shooterRight=new TalonFX(ShootConstants.RightShootID), 
     transfer=new TalonFX(ShootConstants.transferMotorID);
-    {configureMotor(shooterRight, InvertedValue.Clockwise_Positive);}
-    Follower followRight = new Follower(ShootConstants.RightShootID, MotorAlignmentValue.Opposed);
     {
+        configureMotor(shooterRight, InvertedValue.Clockwise_Positive);
+        configureMotor(shooterLeft, InvertedValue.CounterClockwise_Positive);
+        configureMotor(shooterMid, InvertedValue.CounterClockwise_Positive);
+    }
+    Follower followRight = new Follower(ShootConstants.RightShootID, MotorAlignmentValue.Opposed);
+    /* {
         shooterMid.setControl(followRight); 
         shooterLeft.setControl(followRight);
     }
+ */    VelocityVoltage velocityRequest = new VelocityVoltage(0);
+    /**  */
 //TODO orientation & prefomance activities
-void shoot(boolean on){
+void shoot_with_voltage(boolean on){
     shooterRight.setVoltage (on ? Constants.nominalVoltage * ShootConstants.launch_speed : 0);
 }
+/** @param velocity double in RPS
+ * PIH: I was wrong and WCP confused me.
+ * They give RPM TalonFX uses RPS.
+ * 80 RPS is probably top speed.
+ * 2600 RPM / 60 ~ 43.3 RPS
+ * @see VelocityVoltage#withVelocity
+ */
+double target_velocity = 0;
 
-void setTransfer(boolean on) {
-    transfer.set(on ? ShootConstants.transferPower : 0);
+void shoot_with_velocity(double velocity){
+    target_velocity = velocity;
+    shooterRight.setControl(velocityRequest.withVelocity(target_velocity));
+    shooterLeft.setControl(velocityRequest);
+    shooterMid.setControl(velocityRequest);
+}
+
+boolean get_shooter_ready(double v_tollerance){
+    return Math.abs(shooterRight.getVelocity().getValueAsDouble()-target_velocity) < v_tollerance;
+}
+
+
+void setTransfer(boolean on, boolean reverse) {
+    transfer.set((on ? ShootConstants.transferPower : 0)*(reverse ? -1 : 1));
 }
 
 Timer hoodTimer = new Timer();

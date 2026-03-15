@@ -9,14 +9,33 @@ import com.revrobotics.spark.ClosedLoopSlot;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import static edu.wpi.first.units.Units.RPM;
+
 
 final class Constants {
     static final double deadBand = .05;
     static final double nominalVoltage = 12; /* Volts */
-    static final double krakenFreeSpeed = (6000); /* RPM */
-  
+    static final double krakenFreeSpeed = (6000/60); /* RPS */
+    /** operator buttons */
+    static final class ButtonBoard {
+        static final int /** Folded away */
+                        IntakeUp = 1,
+                        /** Unfolded */
+                        IntakeDown = 2,
+                        FuelIn = 3,
+                        FuelOut = 4,
+                        FeederReverse = 10,
+                        HoodLong = 9,
+                        HoodShort = 8,
+                        ClimberDown = 7,
+                        ClimberUp = 6,
+                        Shoot = 5;
+        
+    }
+    /** used by {@link Drivetrain} */
     static final class DrvConst {
          static final double kMaxSpeed = 3.0, overloadSpeed = SwvModConst.freeVeloc/* or kMaxSpeed */; // meters per second
          static final double kMaxAngularSpeed = 1*Math.PI; // 0.5 rotation per second, was 0.5 rad/s before
@@ -38,7 +57,7 @@ final class Constants {
          }
 
          static final double baseOffset = .1875; // 67.5 degrees or 3/16 circle
-         /** each {@link absOffet} is 1/4 circle rotated from the adjacent one.*/
+         /** each {@link DrvConst#absOffset} is 1/4 circle rotated from the adjacent one.*/
          static Setup frontLeft = new Setup(3, 5, baseOffset + .75, "FL"),
                      frontRight = new Setup(9, 6, baseOffset, "FR"),
                      backLeft = new Setup(2, 4, baseOffset + .5, "BL"),
@@ -66,12 +85,12 @@ final class Constants {
          * units of proportion / sec
          */
          static final double traj_kP = 2;
-         static final double attitudeP = 0;
+         static final double orientationttitudeP = 0;
 
     }
     static final class SwvModConst {
         // factors to translate encoder readings into useful units
-        static final double kWheelRadius = .05931 / 2; //meter //diameter: 2.335 in, 59.31 mm
+        static final double kWheelRadius = 0.03175; //Units.inchesToMeters(2.5)/2; // old -> .05931 / 2; //meter //diameter: 2.335 in, 59.31 mm
         static final double freeVeloc = 4.63; // meters / sec, full power, no load
         static final int turnGearing = 28, driveGearing = 4;
         static final double driveConversion = 2 * Math.PI * kWheelRadius / driveGearing, // motor rotations to output meters
@@ -118,7 +137,7 @@ final class Constants {
         static final int RightShootID = 17;
         static final int transferMotorID = 14;
         // PWM Id.s match the ports they plug into
-        static final int leftServoID = 1;
+        static final int leftServoID = 8;
         static final int rightServoID = 9;
     }
     static final class FeederConst {
@@ -158,4 +177,20 @@ final class Constants {
         //
         
     }
+
+    public static class IntakeConstants {
+        public static final int fuelIntakeID = 11;
+        public static final int outInID = 12;
+
+    }
+
+    public static class ClimberConstants {
+        public static final int climberID = 18;
+    
+    }
+
+    public static class KrakenX60 {
+        public static final AngularVelocity kFreeSpeed = RPM.of(6000);
+    }
+
 }

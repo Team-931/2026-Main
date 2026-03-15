@@ -193,7 +193,7 @@ public final class SplineParameterizerHack {
    *     with approximately opposing headings)
    */
   public static List<PoseWithCurvature> parameterize(Spline spline, int splineIn, int splinesOut,
-       LandmarkInfo[] landmarks, IntRef landmarkIx) {
+       final LandmarkInfo[] landmarks, final IntRef landmarkIx) {
     return parameterize(spline, splineIn, splinesOut,
         landmarks, landmarkIx, 0.0, 1.0);
   }
@@ -216,7 +216,7 @@ public final class SplineParameterizerHack {
    */
   public static List<PoseWithCurvature> parameterize(
        Spline spline, int splineIn, int splinesOut,
-       LandmarkInfo[] landmarks, IntRef landmarkIx, double t0, double t1) {
+       final LandmarkInfo[] landmarks, final IntRef landmarkIx, double t0, double t1) {
     var splinePoints = new ArrayList<PoseWithCurvature>();
 
     // The parameterization does not add the initial point. Let's add that.

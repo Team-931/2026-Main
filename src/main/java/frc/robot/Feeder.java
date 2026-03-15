@@ -46,9 +46,7 @@ class Feeder extends SubsystemBase {
     /** On/off control
      * @param on : {@code true} turns on {@code false} turns off.
      */
-    void run(boolean on) {
-        if(on)
-            motor.set(FeederConst.runPower) ; 
-        else motor.set(0);
+    void run(boolean on,boolean reverse) {
+        motor.set((on ? FeederConst.runPower : 0) * (reverse ? -1 : 1)) ; 
     }
 }
