@@ -18,7 +18,7 @@ import static edu.wpi.first.units.Units.RPM;
 final class Constants {
     static final double deadBand = .05;
     static final double nominalVoltage = 12; /* Volts */
-    static final double krakenFreeSpeed = (6000); /* RPM */
+    static final double krakenFreeSpeed = (6000/60); /* RPS */
     /** operator buttons */
     static final class ButtonBoard {
         static final int /** Folded away */
