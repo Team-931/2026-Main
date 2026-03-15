@@ -180,10 +180,12 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     CommandScheduler.getInstance().run();
     // Temporary testing
 
-    
+
 //button board not working at all?
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
       shooter.shoot_with_velocity(50);
+      current_intake_command = intake.agitateCommand();
+      current_intake_command.schedule();
     }
     if(opController.getRawButton(ButtonBoard.Shoot)){
       //43.3 - Juggling speed. Doesn't shoot far.
@@ -197,6 +199,7 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
       feeder.run(false,false); 
       shooter.setTransfer(false,false);
       shooter.shoot_with_velocity(0); //we don't really care what it returns
+      current_intake_command.cancel();
     }
     if(opController.getRawButtonPressed(ButtonBoard.FeederReverse)){
       shooter.setTransfer(true,true);
