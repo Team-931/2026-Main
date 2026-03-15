@@ -168,12 +168,13 @@ final class Constants {
     static final class Climber {
 
         public static final double gearing = 12;
-        static final double maxUnwind = 6 /* output rotations */,
+        static final double maxUnwind = 2.644 /* output rotations to top of range */,
+                            littleUnWind = .305, /* rotations to free hopper */
                             maxUnwindTime = 1 /* second */,
                             accel = maxUnwind/ maxUnwindTime/ maxUnwindTime;
 		public static final double rewindVoltage = nominalVoltage / 20;
         public static final double rewoundAmps = .4;
-        public static int motorID;
+        public static final int motorID = 18;
         //
         
     }

@@ -13,6 +13,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 class Climber extends SubsystemBase {
@@ -26,6 +28,10 @@ class Climber extends SubsystemBase {
      */
     void unwind(double rots) {
         motor.setControl(extensionRequest.withPosition(rots));
+    }
+
+    Command rewindCommand() {
+        return runOnce(this::rewindInit) . andThen(Commands.waitUntil(this::rewindFinished)) . andThen(runOnce(this::afterRewind));
     }
     /** starts a slow rewind which ignores the limit */
     void rewindInit() {
