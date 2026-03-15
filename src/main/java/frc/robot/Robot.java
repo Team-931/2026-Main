@@ -171,6 +171,17 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
   Command current_intake_command = intake.intakeCommand(true);
 
+  double shooter_velocity = 30;
+
+  {
+    SmartDashboard.putNumber("shooter_velocity",shooter_velocity);
+  }
+  
+  double long_hood_distance = 0.7;
+  {
+    SmartDashboard.putNumber("long_hood_distance",long_hood_distance);
+  }
+
   @Override
   public void teleopPeriodic() {
     SmartDashboard.putBoolean("vision target found", LimelightHelpers.getTV("limelight-a"));
@@ -181,9 +192,12 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     // Temporary testing
 
 
+    
+
 //button board not working at all?
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
-      shooter.shoot_with_velocity(50);
+      shooter_velocity = SmartDashboard.getNumber("shooter_velocity", kDefaultPeriod);
+      shooter.shoot_with_velocity(shooter_velocity);
       current_intake_command = intake.agitateCommand();
       current_intake_command.schedule();
     }
@@ -209,12 +223,16 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
       shooter.setTransfer(false,false);
       feeder.run(false,false);
     }
+
+    //hood stuff!!
+
     if(opController.getRawButton(ButtonBoard.HoodShort)){
       shooter.adjustHood(ShootConstants.kMinPosition); //.77 is the mechanical limit
     }
 
     if(opController.getRawButton(ButtonBoard.HoodLong)){
-      shooter.adjustHood(ShootConstants.kMaxPosition*0.6); //.77 is the mechanical limit
+      long_hood_distance = SmartDashboard.getNumber("long_hood_distance", kDefaultPeriod);
+      shooter.adjustHood(ShootConstants.kMaxPosition*long_hood_distance); //.77 is the mechanical limit
     }
 
     if(opController.getRawButtonPressed(ButtonBoard.IntakeUp)){
