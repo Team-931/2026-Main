@@ -52,8 +52,8 @@ void shoot_with_velocity(double velocity){
     shooterRight.setControl(velocityRequest.withVelocity(velocity));
 }
 
-void setTransfer(boolean on) {
-    transfer.set(on ? ShootConstants.transferPower : 0);
+void setTransfer(boolean on, boolean reverse) {
+    transfer.set((on ? -ShootConstants.transferPower : 0)*(reverse ? -1 : 1));
 }
 
 Timer hoodTimer = new Timer();

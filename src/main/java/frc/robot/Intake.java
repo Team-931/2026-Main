@@ -169,10 +169,9 @@ public class Intake extends SubsystemBase {
         return startEnd(
             () -> {
                 set(Position.INTAKE);
-                if (intake_in){
-                    set(Speed.INTAKE);
-                }
-                set(Speed.OUTTAKE);
+
+                set((intake_in ? Speed.INTAKE : Speed.OUTTAKE));
+                
             },
             () -> set(Speed.STOP)
         );

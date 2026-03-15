@@ -183,16 +183,23 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     
 //button board not working at all?
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
-      feeder.run(true);
-      shooter.setTransfer(true);
+      feeder.run(true,false);
+      shooter.setTransfer(true,false);
       shooter.shoot_with_velocity(43.3); //This speed juggles the fuel, doesn't shoot em very far.
     }
     if(opController.getRawButtonReleased(ButtonBoard.Shoot)) {
-      feeder.run(false); 
-      shooter.setTransfer(false);
+      feeder.run(false,false); 
+      shooter.setTransfer(false,false);
       shooter.shoot_with_velocity(0);
     }
-
+    if(opController.getRawButtonPressed(ButtonBoard.FeederReverse)){
+      shooter.setTransfer(true,true);
+      feeder.run(true,true);
+    }
+    if(opController.getRawButtonReleased(ButtonBoard.FeederReverse)){
+      shooter.setTransfer(false,false);
+      feeder.run(false,false);
+    }
     if(opController.getRawButton(ButtonBoard.HoodShort)){
       shooter.adjustHood(ShootConstants.kMinPosition); //.77 is the mechanical limit
     }
