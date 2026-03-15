@@ -48,12 +48,20 @@ void shoot_with_voltage(boolean on){
  * 2600 RPM / 60 ~ 43.3 RPS
  * @see VelocityVoltage#withVelocity
  */
+double target_velocity = 0;
+
 void shoot_with_velocity(double velocity){
-    shooterRight.setControl(velocityRequest.withVelocity(velocity));
+    target_velocity = velocity;
+    shooterRight.setControl(velocityRequest.withVelocity(target_velocity));
 }
 
+boolean get_shooter_ready(double v_tollerance){
+    return Math.abs(shooterRight.getVelocity().getValueAsDouble()-target_velocity) < v_tollerance;
+}
+
+
 void setTransfer(boolean on, boolean reverse) {
-    transfer.set((on ? -ShootConstants.transferPower : 0)*(reverse ? -1 : 1));
+    transfer.set((on ? ShootConstants.transferPower : 0)*(reverse ? -1 : 1));
 }
 
 Timer hoodTimer = new Timer();
