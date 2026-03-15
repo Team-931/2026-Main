@@ -30,7 +30,11 @@ public class transferShooter extends SubsystemBase {
 
     TalonFX shooterLeft=new TalonFX(ShootConstants.leftShooterID), shooterMid=new TalonFX(ShootConstants.midShootID), shooterRight=new TalonFX(ShootConstants.RightShootID), 
     transfer=new TalonFX(ShootConstants.transferMotorID);
-    {configureMotor(shooterRight, InvertedValue.Clockwise_Positive);}
+    {
+        configureMotor(shooterRight, InvertedValue.Clockwise_Positive);
+        configureMotor(shooterLeft, InvertedValue.CounterClockwise_Positive);
+        configureMotor(shooterMid, InvertedValue.CounterClockwise_Positive);
+    }
     Follower followRight = new Follower(ShootConstants.RightShootID, MotorAlignmentValue.Opposed);
     /* {
         shooterMid.setControl(followRight); 
