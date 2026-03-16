@@ -76,14 +76,6 @@ public class transferShooter extends SubsystemBase {
         shooterRight.setVoltage (on ? Constants.nominalVoltage * ShootConstants.launch_speed : 0);
     }
 
-    /** Feeder On/off control
-     * @param on : {@code true} turns on {@code false} turns off.
-     * @param reverse : {@code true} reverse the flow {@code false} spin forward, normal activity.
-     */
-    void run_feeder(boolean on,boolean reverse) {
-        feeder_motor.set((on ? FeederConst.runPower : 0) * (reverse ? -1 : 1)) ; 
-    }
-
 /** @param velocity double in RPS
  * PIH: I was wrong and WCP confused me.
  * They give RPM TalonFX uses RPS.
@@ -106,7 +98,9 @@ boolean get_shooter_ready(double v_tollerance){
 
 
 void setTransfer(boolean on, boolean reverse) {
-    transfer.set((on ? ShootConstants.transferPower : 0)*(reverse ? -1 : 1));
+    double power = (on ? ShootConstants.transferPower : 0)*(reverse ? -1 : 1);
+    transfer.set(power);
+    feeder_motor.set(power);
 }
 
 Timer hoodTimer = new Timer();

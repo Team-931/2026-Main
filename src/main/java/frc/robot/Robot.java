@@ -204,23 +204,19 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
       //43.3 - Juggling speed. Doesn't shoot far.
       //60 - untested
       if (shooter.get_shooter_ready(3)){
-        shooter.run_feeder(true,false);
         shooter.setTransfer(true,false);
       }
     }
     if(opController.getRawButtonReleased(ButtonBoard.Shoot)) {
-      shooter.run_feeder(false,false); 
       shooter.setTransfer(false,false);
       shooter.shoot_with_velocity(0); //we don't really care what it returns
       current_intake_command.cancel();
     }
     if(opController.getRawButtonPressed(ButtonBoard.FeederReverse)){
       shooter.setTransfer(true,true);
-      shooter.run_feeder(true,true);
     }
     if(opController.getRawButtonReleased(ButtonBoard.FeederReverse)){
       shooter.setTransfer(false,false);
-      shooter.run_feeder(false,false);
     }
 
     //hood stuff!!
