@@ -30,7 +30,6 @@ public class Robot extends TimedRobot {
   private final GenericHID opController = new XboxController(1);
   private final Drivetrain m_swerve = new Drivetrain();
   private final transferShooter shooter = new transferShooter();
-  private final Feeder feeder = new Feeder();
   private final Intake intake = new Intake();
 
 // Generate trajectories, and their landmarks, before game starts.
@@ -205,23 +204,23 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
       //43.3 - Juggling speed. Doesn't shoot far.
       //60 - untested
       if (shooter.get_shooter_ready(3)){
-        feeder.run(true,false);
+        shooter.run_feeder(true,false);
         shooter.setTransfer(true,false);
       }
     }
     if(opController.getRawButtonReleased(ButtonBoard.Shoot)) {
-      feeder.run(false,false); 
+      shooter.run_feeder(false,false); 
       shooter.setTransfer(false,false);
       shooter.shoot_with_velocity(0); //we don't really care what it returns
       current_intake_command.cancel();
     }
     if(opController.getRawButtonPressed(ButtonBoard.FeederReverse)){
       shooter.setTransfer(true,true);
-      feeder.run(true,true);
+      shooter.run_feeder(true,true);
     }
     if(opController.getRawButtonReleased(ButtonBoard.FeederReverse)){
       shooter.setTransfer(false,false);
-      feeder.run(false,false);
+      shooter.run_feeder(false,false);
     }
 
     //hood stuff!!
