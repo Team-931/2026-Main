@@ -9,6 +9,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -185,8 +186,14 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   public void teleopPeriodic() {
     SmartDashboard.putBoolean("vision target found", LimelightHelpers.getTV("limelight-a"));
     SmartDashboard.putBoolean("april tag found", LimelightHelpers.getTV("limelight-b"));
+
+    Pose2d ll_pose = LimelightHelpers.getBotPose2d("limelight-b");
+
+    SmartDashboard.putNumber("ll_b pose x", ll_pose.getX());
+    SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
+    SmartDashboard.putNumber("ll_b pose orientation degrees", ll_pose.getRotation().getDegrees());
+
     driveWithJoystick(useField);
-    m_swerve.updateOdometry();
     CommandScheduler.getInstance().run();
     // Temporary testing
 
