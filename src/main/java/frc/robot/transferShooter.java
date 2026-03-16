@@ -53,13 +53,6 @@ public class transferShooter extends SubsystemBase {
         
         feeder_motor.getConfigurator().apply(config);
     }
-    /** On/off control
-     * @param on : {@code true} turns on {@code false} turns off.
-     */
-    void run_feeder(boolean on,boolean reverse) {
-        feeder_motor.set((on ? FeederConst.runPower : 0) * (reverse ? -1 : 1)) ; 
-    }
-
 
     Servo leftServo=new Servo(ShootConstants.leftServoID), rightServo=new Servo(ShootConstants.rightServoID);
     {
@@ -76,16 +69,22 @@ public class transferShooter extends SubsystemBase {
         configureMotor(shooterMid, InvertedValue.CounterClockwise_Positive);
     }
     Follower followRight = new Follower(ShootConstants.RightShootID, MotorAlignmentValue.Opposed);
-    /* {
-        shooterMid.setControl(followRight); 
-        shooterLeft.setControl(followRight);
-    }
- */    VelocityVoltage velocityRequest = new VelocityVoltage(0);
+    VelocityVoltage velocityRequest = new VelocityVoltage(0);
+
     /**  */
-//TODO orientation & prefomance activities
-void shoot_with_voltage(boolean on){
-    shooterRight.setVoltage (on ? Constants.nominalVoltage * ShootConstants.launch_speed : 0);
-}
+    //TODO orientation & performance activities
+    void shoot_with_voltage(boolean on){
+        shooterRight.setVoltage (on ? Constants.nominalVoltage * ShootConstants.launch_speed : 0);
+    }
+
+    /** Feeder On/off control
+     * @param on : {@code true} turns on {@code false} turns off.
+     * @param reverse : {@code true} reverse the flow {@code false} spin forward, normal activity.
+     */
+    void run_feeder(boolean on,boolean reverse) {
+        feeder_motor.set((on ? FeederConst.runPower : 0) * (reverse ? -1 : 1)) ; 
+    }
+
 /** @param velocity double in RPS
  * PIH: I was wrong and WCP confused me.
  * They give RPM TalonFX uses RPS.
