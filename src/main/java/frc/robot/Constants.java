@@ -43,25 +43,39 @@ final class Constants {
          static final class Setup {
             /** motor CAN IDs */
             final int driveId, turnId;
+            /** Use RoboRIO analog port for an absolute encoder, if this is
+             * a valid analog port number, otherwise
+             * try to use the motor's attached analog encoder.
+             * I suggest using {@code analogPort = -1} if indending to 
+             * use an attached encoder.
+             */
+            final int analogPort;
             /** known orientation of absolute encoder (when wheel is forward) */
             final double absOffset;
             /** identifying string to label reports with */
             final String name;
-            /** just fill the data in */
-            Setup(int drv, int trn, double offset, String name) {
+            /** just fill the data in:
+             * @param drv {@link Setup#driveID}
+             * @param trn  {@link Setup#turnId}
+             * @param analog  {@link Setup#analogPort}
+             * @param offset {@link Setup#absOffset}
+             * @param name  {@link Setup#name}
+             */
+            Setup(int drv, int trn, int analog, double offset, String name) {
                 driveId = drv;
                 turnId = trn;
+                analogPort = analog;    
                 absOffset = offset;
                 this.name = name;
             }
          }
 
          static final double baseOffset = .1875; // 67.5 degrees or 3/16 circle
-         /** each {@link DrvConst#absOffset} is 1/4 circle rotated from the adjacent one.*/
-         static Setup frontLeft = new Setup(3, 5, baseOffset + .75, "FL"),
-                     frontRight = new Setup(9, 6, baseOffset, "FR"),
-                     backLeft = new Setup(2, 4, baseOffset + .5, "BL"),
-                     backRight = new Setup(8, 7, baseOffset + .25, "BR");
+         /**  each {@link DrvConst#absOffset} is 1/4 circle rotated from the adjacent one.*/
+         static Setup frontLeft = new Setup(3, 5, 2, baseOffset + .75, "FL"),
+                     frontRight = new Setup(9, 6, 3, baseOffset, "FR"),
+                     backLeft = new Setup(2, 4, 0, baseOffset + .5, "BL"),
+                     backRight = new Setup(8, 7, 1, baseOffset + .25, "BR");
         
          static final double halfWidth = Units.inchesToMeters(10.75), halfLength = Units.inchesToMeters(11.5);
          static final Translation2d frontLeftLocation = new Translation2d(halfWidth, halfLength); // unit: meters; x is forward dist from center, y is leftward

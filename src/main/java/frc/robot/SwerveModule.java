@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.SwvModConst;
 import frc.robot.Constants.DrvConst.Setup;
@@ -37,6 +38,7 @@ public class SwerveModule {
   private final RelativeEncoder turningEncoder;
   // encoder external to turning motor, but reporting to its controller
   private final SparkAnalogSensor absoluteEncoder;
+  private final AnalogEncoder analogEncoder;
 
   // feed-back routines run by motor controllers
   private final SparkClosedLoopController drivePIDController;
@@ -56,7 +58,13 @@ SwerveModule (Setup setup){
     driveEncoder = driveMotor.getEncoder();
     turningEncoder = turningMotor.getEncoder();
     absoluteEncoder = turningMotor.getAnalog();
-
+    {// if the port number is valid, use it
+      int port = setup.analogPort;
+      analogEncoder =
+         port >= 0 && port < 4 ? 
+         new AnalogEncoder(port) : 
+         null;
+    }
     drivePIDController = driveMotor.getClosedLoopController();
     turningPIDController =
       turningMotor.getClosedLoopController();
@@ -90,10 +98,18 @@ SwerveModule (Setup setup){
     turningMotor.configure(configTrn, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     setRelOffset();
 }
+/** Use the external encoder if it's valid, otherwise an attached one.
+ * @return a value 0.0 to 1.0 representing the wheel's rotation from -{@link SwerveModule#absOffset}
+ */
+  final double getAbsPosition() {
+    return analogEncoder == null ? 
+      absoluteEncoder.getPosition() :
+      analogEncoder.get();
+  }
 
   /** sets conversion between absolute and relative encoders on turning motor */
    final void setRelOffset() {
-    relOffset = absoluteEncoder.getPosition() - absOffset - turningEncoder.getPosition();
+    relOffset = getAbsPosition() - absOffset - turningEncoder.getPosition();
    }
 
    /** converts a relative encoder reading of current orientation to correct value */
@@ -135,8 +151,8 @@ SwerveModule (Setup setup){
   void report() {
     SmartDashboard.putNumber(info.name + " angle", turnRots());
     SmartDashboard.putNumber(info.name + " speed", driveEncoder.getVelocity());
-    SmartDashboard.putNumber(info.name + " abs. angle", absoluteEncoder.getPosition() - absOffset);
-    SmartDashboard.putNumber(info.name + " angle diff", absoluteEncoder.getPosition() - absOffset - turnRots());
+    SmartDashboard.putNumber(info.name + " abs. angle", getAbsPosition() - absOffset);
+    SmartDashboard.putNumber(info.name + " angle diff", getAbsPosition() - absOffset - turnRots());
   }
 
   /** used by {@link Drivetrain#fullSpeed()} */
