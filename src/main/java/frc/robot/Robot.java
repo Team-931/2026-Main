@@ -121,13 +121,13 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   {addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   {addPeriodic(() -> {
                       m_swerve.updateOdometry();
-
+/* TODO: why does this fail??
                       //limelight localisation
                       //https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization
 
                       var pose = LimelightHelpers.getBotPose2d("limelght-b");
                       if (pose != null) m_swerve.visualOdometryUpdate(pose, Timer.getFPGATimestamp());
-                      }
+ */                      }
             , kDefaultPeriod);}
   
 
