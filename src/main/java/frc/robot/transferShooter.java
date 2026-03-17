@@ -15,12 +15,44 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.FeederConst;
 import frc.robot.Constants.ShootConstants;
 
 
 public class transferShooter extends SubsystemBase { 
+
+    final TalonFX feeder_motor = new TalonFX(FeederConst.motorID);
+    /* The following bracketed code is run at set-up */
+    {
+        final TalonFXConfiguration config = new TalonFXConfiguration()
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    /* If the motor gets installed backward change this */
+                    .withInverted(InvertedValue.Clockwise_Positive)
+                    /* Don't brake when set at zero */
+                    .withNeutralMode(NeutralModeValue.Coast)
+            )
+            .withCurrentLimits(
+                /* Keep the motors from burning out if they jam */
+                new CurrentLimitsConfigs()
+                    .withStatorCurrentLimit((120))
+                    .withStatorCurrentLimitEnable(true)
+                    .withSupplyCurrentLimit((50))
+                    .withSupplyCurrentLimitEnable(true)
+            )
+            .withSlot0(
+                /* for velocity control if we need it */
+                new Slot0Configs()
+                    .withKP(1)
+                    .withKI(0)
+                    .withKD(0)
+                    .withKV(Constants.nominalVoltage / Constants.krakenFreeSpeed) // 12 volts when requesting max RPS
+            );
+        
+        feeder_motor.getConfigurator().apply(config);
+    }
+
     Servo leftServo=new Servo(ShootConstants.leftServoID), rightServo=new Servo(ShootConstants.rightServoID);
     {
         leftServo.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
@@ -36,16 +68,14 @@ public class transferShooter extends SubsystemBase {
         configureMotor(shooterMid, InvertedValue.CounterClockwise_Positive);
     }
     Follower followRight = new Follower(ShootConstants.RightShootID, MotorAlignmentValue.Opposed);
-    /* {
-        shooterMid.setControl(followRight); 
-        shooterLeft.setControl(followRight);
-    }
- */    VelocityVoltage velocityRequest = new VelocityVoltage(0);
+    VelocityVoltage velocityRequest = new VelocityVoltage(0);
+
     /**  */
-//TODO orientation & prefomance activities
-void shoot_with_voltage(boolean on){
-    shooterRight.setVoltage (on ? Constants.nominalVoltage * ShootConstants.launch_speed : 0);
-}
+    //TODO orientation & performance activities
+    void shoot_with_voltage(boolean on){
+        shooterRight.setVoltage (on ? Constants.nominalVoltage * ShootConstants.launch_speed : 0);
+    }
+
 /** @param velocity double in RPS
  * PIH: I was wrong and WCP confused me.
  * They give RPM TalonFX uses RPS.
@@ -68,7 +98,9 @@ boolean get_shooter_ready(double v_tollerance){
 
 
 void setTransfer(boolean on, boolean reverse) {
-    transfer.set((on ? ShootConstants.transferPower : 0)*(reverse ? -1 : 1));
+    double power = (on ? ShootConstants.transferPower : 0)*(reverse ? -1 : 1);
+    transfer.set(power);
+    feeder_motor.set(power);
 }
 
 Timer hoodTimer = new Timer();

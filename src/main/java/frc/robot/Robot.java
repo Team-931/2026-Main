@@ -9,6 +9,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -30,7 +31,6 @@ public class Robot extends TimedRobot {
   private final GenericHID opController = new XboxController(1);
   private final Drivetrain m_swerve = new Drivetrain();
   private final transferShooter shooter = new transferShooter();
-  private final Feeder feeder = new Feeder();
   private final Intake intake = new Intake();
   private final Climber climber = new Climber();
 
@@ -122,6 +122,10 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   {addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   {addPeriodic(() -> {
                       m_swerve.updateOdometry();
+
+                      //limelight localisation
+                      //https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization
+                      
                       var pose = LimelightHelpers.getBotPose2d("limelght-b");
                       if (pose != null) m_swerve.visualOdometryUpdate(pose, Timer.getFPGATimestamp());
                       }
@@ -187,8 +191,14 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   public void teleopPeriodic() {
     SmartDashboard.putBoolean("vision target found", LimelightHelpers.getTV("limelight-a"));
     SmartDashboard.putBoolean("april tag found", LimelightHelpers.getTV("limelight-b"));
+
+    Pose2d ll_pose = LimelightHelpers.getBotPose2d("limelight-b");
+
+    SmartDashboard.putNumber("ll_b pose x", ll_pose.getX());
+    SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
+    SmartDashboard.putNumber("ll_b pose orientation degrees", ll_pose.getRotation().getDegrees());
+
     driveWithJoystick(useField);
-    m_swerve.updateOdometry();
     CommandScheduler.getInstance().run();
     // Temporary testing
 
@@ -197,6 +207,7 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
 //button board not working at all?
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
+      //TODO -- kDefaultPeriod is almost certainly not the right default for shooter_velocity
       shooter_velocity = SmartDashboard.getNumber("shooter_velocity", kDefaultPeriod);
       shooter.shoot_with_velocity(shooter_velocity);
       current_intake_command = intake.agitateCommand();
@@ -206,23 +217,19 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
       //43.3 - Juggling speed. Doesn't shoot far.
       //60 - untested
       if (shooter.get_shooter_ready(3)){
-        feeder.run(true,false);
         shooter.setTransfer(true,false);
       }
     }
     if(opController.getRawButtonReleased(ButtonBoard.Shoot)) {
-      feeder.run(false,false); 
       shooter.setTransfer(false,false);
       shooter.shoot_with_velocity(0); //we don't really care what it returns
       current_intake_command.cancel();
     }
     if(opController.getRawButtonPressed(ButtonBoard.FeederReverse)){
       shooter.setTransfer(true,true);
-      feeder.run(true,true);
     }
     if(opController.getRawButtonReleased(ButtonBoard.FeederReverse)){
       shooter.setTransfer(false,false);
-      feeder.run(false,false);
     }
 
     //hood stuff!!
