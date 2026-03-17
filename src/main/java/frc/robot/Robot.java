@@ -124,7 +124,7 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
                       //limelight localisation
                       //https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization
-                      
+
                       var pose = LimelightHelpers.getBotPose2d("limelght-b");
                       if (pose != null) m_swerve.visualOdometryUpdate(pose, Timer.getFPGATimestamp());
                       }
@@ -191,13 +191,20 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     SmartDashboard.putBoolean("vision target found", LimelightHelpers.getTV("limelight-a"));
     SmartDashboard.putBoolean("april tag found", LimelightHelpers.getTV("limelight-b"));
 
-    Pose2d ll_pose = LimelightHelpers.getBotPose2d("limelight-b");
+    double heading_from_swerve = m_swerve.reportOdometry().getRotation().getDegrees();
+
+    LimelightHelpers.SetRobotOrientation("limelight", heading_from_swerve, 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-b");
+    Pose2d ll_pose = mt2.pose;
+
+    SmartDashboard.putNumber("heading_from_swerve", heading_from_swerve);
 
     SmartDashboard.putNumber("ll_b pose x", ll_pose.getX());
     SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
     SmartDashboard.putNumber("ll_b pose orientation degrees", ll_pose.getRotation().getDegrees());
 
     driveWithJoystick(useField);
+    m_swerve.updateOdometry();
     CommandScheduler.getInstance().run();
     // Temporary testing
 
@@ -308,13 +315,10 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
       m_swerve.fullSpeed();
       return;
     }
-    if(drive_controller.getYButtonPressed()) {
-      setMaxSpeed(DrvConst.kMaxSpeed/4);
-      setMaxAngularSpeed(DrvConst.kMaxAngularSpeed/4);
-    }
-    if(drive_controller.getYButtonReleased()) {
-      setMaxSpeed(DrvConst.kMaxSpeed);
-      setMaxAngularSpeed(DrvConst.kMaxAngularSpeed);
+    if(true) { //there are better ways to call this stuff less.
+      double slowdown_multiplier = 1-drive_controller.getLeftTriggerAxis()*0.75;
+      setMaxSpeed(DrvConst.kMaxSpeed*slowdown_multiplier);
+      setMaxAngularSpeed(DrvConst.kMaxAngularSpeed*slowdown_multiplier);
     }
    
     // DONE: have max speed modifiable
