@@ -206,6 +206,10 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     
 
 //button board not working at all?
+    if (opController.getRawButtonPressed(ButtonBoard.ClimberUp))
+      climber.unwind(Constants.Climber.maxUnwind);
+    if (opController.getRawButtonPressed(ButtonBoard.ClimberDown))
+      climber.unwind(Constants.Climber.littleUnWind);
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
       //TODO -- kDefaultPeriod is almost certainly not the right default for shooter_velocity
       shooter_velocity = SmartDashboard.getNumber("shooter_velocity", kDefaultPeriod);
