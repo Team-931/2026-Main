@@ -113,7 +113,10 @@ public class Drivetrain extends SubsystemBase {
       );
   }
 
-  // Whichever way we are facing is now considered forward
+  /**  Whichever way we are facing is now considered forward.
+   * Now informs odometry of this; the wait is for thr gyro
+   * to finish processing its command.
+   */
   void zeroYaw() {
     gyro.zeroYaw();
     new WaitCommand(.02)
