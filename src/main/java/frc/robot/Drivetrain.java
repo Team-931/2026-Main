@@ -12,6 +12,7 @@ import com.studica.frc.AHRS;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -114,6 +115,7 @@ public class Drivetrain extends SubsystemBase {
   // Whichever way we are facing is now considered forward
   void zeroYaw() {
     gyro.zeroYaw();
+    odometry.resetRotation(Rotation2d.kZero);
   }
 
   // Resets the translation of relative turn encoders to match the absolute
@@ -187,6 +189,7 @@ void fullSpeed() {
     SmartDashboard.putNumber("estd. X", pose.getX());
     SmartDashboard.putNumber("estd. Y", pose.getY());
     SmartDashboard.putNumber("estd. Angle", pose.getRotation().getRotations());
+    SmartDashboard.putNumber("gyro angle", gyro.getRotation2d().getRotations());
   }
   /** base future odometry at {@code currentPose} --
    * ignores orientation
