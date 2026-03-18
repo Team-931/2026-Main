@@ -3,73 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.0,
-        "y": 7.0
+        "x": 2.0553703703703707,
+        "y": 5.456225071229711
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6186666666630352,
-        "y": 6.388880952380159
+        "x": 2.455897435897436,
+        "y": 5.430384615389256
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.3205119047582734,
-        "y": 6.464464285713493
+        "x": 3.1406695156695155,
+        "y": 5.456225071229711
       },
       "prevControl": {
-        "x": 2.358526200821759,
-        "y": 6.711557210126148
-      },
-      "nextControl": {
-        "x": 2.2334780728348007,
-        "y": 5.89874437821093
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 1.79142857142494,
-        "y": 6.064952380951588
-      },
-      "prevControl": {
-        "x": 2.036243676301715,
-        "y": 6.115603781960576
-      },
-      "nextControl": {
-        "x": 1.478297619043988,
-        "y": 6.000166666665874
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 1.3595238095201785,
-        "y": 6.464464285713493
-      },
-      "prevControl": {
-        "x": 1.4270089285677974,
-        "y": 6.1810267857134935
-      },
-      "nextControl": {
-        "x": 1.2920386904725596,
-        "y": 6.747901785713493
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.0,
-        "y": 7.0
-      },
-      "prevControl": {
-        "x": 1.6402619047582738,
-        "y": 6.83158333333254
+        "x": 2.533418803418803,
+        "y": 5.4691452991453
       },
       "nextControl": null,
       "isLocked": false,
@@ -90,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 5.005357779637733
+    "rotation": -0.550903979218532
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 3.9095698002053543
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

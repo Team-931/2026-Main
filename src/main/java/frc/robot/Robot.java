@@ -121,7 +121,29 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   {addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   {addPeriodic(() -> {
                       m_swerve.updateOdometry();
-/* TODO: why does this fail??
+
+                      SmartDashboard.putBoolean("vision target found", LimelightHelpers.getTV("limelight-a"));
+                      SmartDashboard.putBoolean("april tag found", LimelightHelpers.getTV("limelight-b"));
+
+                      double heading_from_swerve = m_swerve.reportOdometry().getRotation().getDegrees();
+
+                      LimelightHelpers.SetRobotOrientation("limelight-b", heading_from_swerve, 0, 0, 0, 0, 0);
+                      LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-b");
+                      boolean valid_pose = LimelightHelpers.validPoseEstimate(mt2);
+
+                      SmartDashboard.putNumber("heading_from_swerve", heading_from_swerve);
+                      
+                      if (valid_pose){
+                        Pose2d ll_pose = mt2.pose;
+                        //TODO: verify this pose is accurate before doing any visual odo updates
+                        // m_swerve.visualOdometryUpdate(ll_pose, Timer.getFPGATimestamp());
+
+                        SmartDashboard.putNumber("ll_b pose x", ll_pose.getX());
+                        SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
+                        SmartDashboard.putNumber("ll_b pose orientation degrees", ll_pose.getRotation().getDegrees());
+                      }
+                      
+                      /* TODO: bellow is old code that does not work. likley issue is that limelight is returning a 0,0,0 pose instead of null.
                       //limelight localisation
                       //https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization
 
@@ -188,21 +210,6 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
   @Override
   public void teleopPeriodic() {
-    SmartDashboard.putBoolean("vision target found", LimelightHelpers.getTV("limelight-a"));
-    SmartDashboard.putBoolean("april tag found", LimelightHelpers.getTV("limelight-b"));
-
-    double heading_from_swerve = m_swerve.reportOdometry().getRotation().getDegrees();
-
-    LimelightHelpers.SetRobotOrientation("limelight", heading_from_swerve, 0, 0, 0, 0, 0);
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-b");
-    Pose2d ll_pose = mt2.pose;
-
-    SmartDashboard.putNumber("heading_from_swerve", heading_from_swerve);
-
-    SmartDashboard.putNumber("ll_b pose x", ll_pose.getX());
-    SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
-    SmartDashboard.putNumber("ll_b pose orientation degrees", ll_pose.getRotation().getDegrees());
-
     driveWithJoystick(useField);
     m_swerve.updateOdometry();
     CommandScheduler.getInstance().run();
