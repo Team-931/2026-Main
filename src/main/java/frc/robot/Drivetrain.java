@@ -21,6 +21,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.DrvConst;
 
 /** Represents a swerve drive style drivetrain. */
@@ -115,7 +116,9 @@ public class Drivetrain extends SubsystemBase {
   // Whichever way we are facing is now considered forward
   void zeroYaw() {
     gyro.zeroYaw();
-    odometry.resetRotation(Rotation2d.kZero);
+    new WaitCommand(.02)
+      .andThen(() -> odometry.resetRotation(Rotation2d.kZero), this)
+      .schedule();
   }
 
   // Resets the translation of relative turn encoders to match the absolute
