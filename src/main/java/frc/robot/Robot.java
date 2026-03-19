@@ -124,8 +124,33 @@ boolean limelight_pose_valid;
     
     }
     
-//TODO: make a team set call like I did in ftc that is called at init.
+  //TODO: make a team set call like I did in ftc that is called at init.
+    
+  public Alliance currentAlliance;
+
+  Rotation2d allience_rotation_offset = Rotation2d.kZero;
+
+  Pose2d hub_pose = new Pose2d(0.0,0.0,Rotation2d.kZero); //to prevent throwing nulls
   
+  Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);  
+
+  public void set_allience_constants(){
+    //get what allience we are from the driver station and store it
+    currentAlliance = DriverStation.getAlliance().get();
+
+    //if we are red..
+    if (currentAlliance == Alliance.Red){
+      allience_rotation_offset = Rotation2d.k180deg;
+      hub_pose = new Pose2d(11.94,4.0,Rotation2d.kZero);
+
+    //if we are blue..
+    } else if (currentAlliance == Alliance.Blue){
+      allience_rotation_offset = Rotation2d.kZero;
+      hub_pose = new Pose2d(4.6,4.0,Rotation2d.kZero);
+
+    }
+  }
+
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
   {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);}
@@ -203,31 +228,6 @@ boolean limelight_pose_valid;
   public void teleopInit(){
     intake.homingCommand().schedule();
     set_allience_constants();
-  }
-
-  public Alliance currentAlliance;
-
-  Rotation2d allience_rotation_offset = Rotation2d.kZero;
-
-  Pose2d hub_pose = new Pose2d(0.0,0.0,Rotation2d.kZero); //to prevent throwing nulls
-  
-  Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);  
-
-  public void set_allience_constants(){
-    //get what allience we are from the driver station and store it
-    currentAlliance = DriverStation.getAlliance().get();
-
-    //if we are red..
-    if (currentAlliance == Alliance.Red){
-      allience_rotation_offset = Rotation2d.k180deg;
-      hub_pose = new Pose2d(11.94,4.0,Rotation2d.kZero);
-
-    //if we are blue..
-    } else if (currentAlliance == Alliance.Blue){
-      allience_rotation_offset = Rotation2d.kZero;
-      hub_pose = new Pose2d(4.6,4.0,Rotation2d.kZero);
-
-    }
   }
 
   @Override
