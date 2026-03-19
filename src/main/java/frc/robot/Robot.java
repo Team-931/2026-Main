@@ -8,6 +8,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -97,6 +98,7 @@ public class Robot extends TimedRobot {
 TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
 double distance_to_goal;
+Rotation2d angle_to_goal;
 boolean limelight_pose_valid;
 
 // TODO: allow setting current OrientationPlan
@@ -126,8 +128,8 @@ boolean limelight_pose_valid;
     
 //TODO: make a team set call like I did in ftc that is called at init.
   Pose2d hub_pose = new Pose2d(0.0,0.0,Rotation2d.kZero); //to prevent throwing nulls
-  Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);
-    
+  Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);  
+  
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
   {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);}
@@ -169,8 +171,10 @@ boolean limelight_pose_valid;
                         SmartDashboard.putNumber("ll_b pose orientation degrees", ll_pose.getRotation().getDegrees());
 
                         distance_to_goal = ll_pose.getTranslation().getDistance(hub_pose.getTranslation());
-
                         SmartDashboard.putNumber("distance_to_goal", distance_to_goal);
+
+                        angle_to_goal = hub_pose.minus(ll_pose).getTranslation().getAngle();
+                        SmartDashboard.putNumber("angle_to_goal", angle_to_goal.getDegrees());
                       }
                       
                       /* TODO: bellow is old code that does not work. likley issue is that limelight is returning a 0,0,0 pose instead of null.
@@ -380,6 +384,9 @@ boolean limelight_pose_valid;
   private void showFieldCtr() {
     SmartDashboard.putBoolean("Field Centered", useField);
   }
+
+  PIDController turning_pid = new PIDController(1, 0, 0);
+
   private void driveWithJoystick(boolean fieldRelative) {
     if(drive_controller.getLeftBumperButtonPressed()) m_swerve.setXPosture();
     if(drive_controller.getAButtonPressed()) m_swerve.zeroYaw(); /* useVelCtrl ^= true; */
@@ -417,12 +424,16 @@ boolean limelight_pose_valid;
     // positive value when we pull to the left (remember, CCW is positive in
     // mathematics). Xbox controllers return positive values when you pull to
     // the right by default.
+
+    //currently this will just stop you from rotating while shooting. 
+    //TODO: implement the pid so shooting causes the robot to target the goal
     final var rot = (
       opController.getRawButton(ButtonBoard.Shoot) ?
       //gamepad related tuning
       - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
       :
       //PID for hitting a target position
+      Rotation2d target_rotation = Pose2d
       0
     );
         
