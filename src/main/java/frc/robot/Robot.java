@@ -122,7 +122,8 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     }
     
 //TODO: make a team set call like I did in ftc that is called at init.
-  Pose2d hub_pose;
+  Pose2d hub_pose = new Pose2d(0.0,0.0,Rotation2d.kZero); //to prevent throwing nulls
+  Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);
     
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
@@ -138,14 +139,27 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
                       LimelightHelpers.SetRobotOrientation("limelight-b", (heading_from_swerve.plus(allience_rotation_offset)).getDegrees(), 0, 0, 0, 0, 0);
                       LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-b");
+                      
                       boolean valid_pose = LimelightHelpers.validPoseEstimate(mt2);
+
+                      //This used to cause crashes before checking if valid pose before doing.
+                      if (valid_pose){
+                        SmartDashboard.putNumber("ambiguity",mt2.rawFiducials[0].ambiguity);
+                      }
+                      if (mt2.pose == feild_center_pose){
+                        valid_pose = false;
+                      }
+                      if (mt2.tagCount == 0) {
+                        valid_pose = false;
+                      }
+                      //TODO: do a check for if we are turning quickly and redject updates
 
                       SmartDashboard.putNumber("heading_from_swerve", heading_from_swerve.getDegrees());
                       
                       if (valid_pose){
                         Pose2d ll_pose = mt2.pose;
                         //TODO: verify this pose is accurate before doing any visual odo updates
-                        // m_swerve.visualOdometryUpdate(ll_pose, Timer.getFPGATimestamp());
+                        m_swerve.visualOdometryUpdate(ll_pose, mt2.timestampSeconds);
 
                         SmartDashboard.putNumber("ll_b pose x", ll_pose.getX());
                         SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
