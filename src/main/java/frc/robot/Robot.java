@@ -65,8 +65,6 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
   final private TrajectoryTranslator ctrlr = new TrajectoryTranslator(); 
 
-  Rotation2d allience_rotation_offset = Rotation2d.kZero;
-
   class TrajectoryWrap {
     Trajectory currentTrajectory;
     private final Timer timer = new Timer();
@@ -127,8 +125,6 @@ boolean limelight_pose_valid;
     }
     
 //TODO: make a team set call like I did in ftc that is called at init.
-  Pose2d hub_pose = new Pose2d(0.0,0.0,Rotation2d.kZero); //to prevent throwing nulls
-  Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);  
   
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
@@ -210,6 +206,12 @@ boolean limelight_pose_valid;
   }
 
   public Alliance currentAlliance;
+
+  Rotation2d allience_rotation_offset = Rotation2d.kZero;
+
+  Pose2d hub_pose = new Pose2d(0.0,0.0,Rotation2d.kZero); //to prevent throwing nulls
+  
+  Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);  
 
   public void set_allience_constants(){
     //get what allience we are from the driver station and store it
@@ -433,7 +435,7 @@ boolean limelight_pose_valid;
       - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
       :
       //PID for hitting a target position
-      Rotation2d target_rotation = Pose2d
+      
       0
     );
         
