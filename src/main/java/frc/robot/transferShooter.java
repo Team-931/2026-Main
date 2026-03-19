@@ -110,6 +110,9 @@ public class transferShooter extends SubsystemBase {
 
         shooterHoodMap.put(3.17,0.5);
         shooterVelocityMap.put(3.17,60.0);
+
+        shooterHoodMap.put(4.6,0.7);
+        shooterVelocityMap.put(4.6,65.0);
     }
     
     public rangefinderResults rangefind(double distance){
