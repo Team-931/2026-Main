@@ -158,8 +158,8 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
                       
                       if (valid_pose){
                         Pose2d ll_pose = mt2.pose;
-                        //TODO: verify this pose is accurate before doing any visual odo updates
-                        m_swerve.visualOdometryUpdate(ll_pose, mt2.timestampSeconds);
+                        //TODO: This code causes the heading to spin constantly - it's wrong. need to fix it before implementing.
+                        // m_swerve.visualOdometryUpdate(ll_pose, mt2.timestampSeconds);
 
                         SmartDashboard.putNumber("ll_b pose x", ll_pose.getX());
                         SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
