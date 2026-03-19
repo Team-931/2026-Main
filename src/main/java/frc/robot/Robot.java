@@ -121,6 +121,9 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     
     }
     
+//TODO: make a team set call like I did in ftc that is called at init.
+  Pose2d hub_pose;
+    
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
   {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);}
@@ -147,6 +150,10 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
                         SmartDashboard.putNumber("ll_b pose x", ll_pose.getX());
                         SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
                         SmartDashboard.putNumber("ll_b pose orientation degrees", ll_pose.getRotation().getDegrees());
+
+                        double distance_to_goal = ll_pose.getTranslation().getDistance(hub_pose.getTranslation());
+
+                        SmartDashboard.putNumber("distance_to_goal", distance_to_goal);
                       }
                       
                       /* TODO: bellow is old code that does not work. likley issue is that limelight is returning a 0,0,0 pose instead of null.
@@ -178,11 +185,26 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   @Override
   public void teleopInit(){
     intake.homingCommand().schedule();
-    allience_rotation_offset = get_allience_rotation_offset();
+    set_allience_constants();
   }
 
-  public Rotation2d get_allience_rotation_offset(){
-    return (DriverStation.getAlliance().get() == Alliance.Red ? Rotation2d.k180deg : Rotation2d.kZero);
+  public Alliance currentAlliance;
+
+  public void set_allience_constants(){
+    //get what allience we are from the driver station and store it
+    currentAlliance = DriverStation.getAlliance().get();
+
+    //if we are red..
+    if (currentAlliance == Alliance.Red){
+      allience_rotation_offset = Rotation2d.k180deg;
+      hub_pose = new Pose2d(11.94,4.0,Rotation2d.kZero);
+
+    //if we are blue..
+    } else if (currentAlliance == Alliance.Blue){
+      allience_rotation_offset = Rotation2d.kZero;
+      hub_pose = new Pose2d(4.6,4.0,Rotation2d.kZero);
+
+    }
   }
 
   @Override
@@ -191,7 +213,7 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     if(autoCommand != null) autoCommand.schedule();
     //TODO: Command based:
     intake.homingCommand().schedule();
-    allience_rotation_offset = get_allience_rotation_offset();
+    set_allience_constants();
   }
   @Override
   public void autonomousExit() {

@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -95,6 +96,10 @@ void shoot_with_velocity(double velocity){
 boolean get_shooter_ready(double v_tollerance){
     return Math.abs(shooterRight.getVelocity().getValueAsDouble()-target_velocity) < v_tollerance;
 }
+
+//this is how we will automatically find shooting range. Need to get distance from limelight first.
+InterpolatingDoubleTreeMap shooterHoodMap = new InterpolatingDoubleTreeMap();
+InterpolatingDoubleTreeMap shooterVelocityMap = new InterpolatingDoubleTreeMap();
 
 
 void setTransfer(boolean on, boolean reverse) {
