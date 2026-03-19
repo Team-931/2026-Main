@@ -77,61 +77,88 @@ public class transferShooter extends SubsystemBase {
         shooterRight.setVoltage (on ? Constants.nominalVoltage * ShootConstants.launch_speed : 0);
     }
 
-/** @param velocity double in RPS
- * PIH: I was wrong and WCP confused me.
- * They give RPM TalonFX uses RPS.
- * 80 RPS is probably top speed.
- * 2600 RPM / 60 ~ 43.3 RPS
- * @see VelocityVoltage#withVelocity
- */
-double target_velocity = 0;
+    /** @param velocity double in RPS
+     * PIH: I was wrong and WCP confused me.
+     * They give RPM TalonFX uses RPS.
+     * 80 RPS is probably top speed.
+     * 2600 RPM / 60 ~ 43.3 RPS
+     * @see VelocityVoltage#withVelocity
+     */
+    double target_velocity = 0;
 
-void shoot_with_velocity(double velocity){
-    target_velocity = velocity;
-    shooterRight.setControl(velocityRequest.withVelocity(target_velocity));
-    shooterLeft.setControl(velocityRequest);
-    shooterMid.setControl(velocityRequest);
-}
+    void shoot_with_velocity(double velocity){
+        target_velocity = velocity;
+        shooterRight.setControl(velocityRequest.withVelocity(target_velocity));
+        shooterLeft.setControl(velocityRequest);
+        shooterMid.setControl(velocityRequest);
+    }
 
-boolean get_shooter_ready(double v_tollerance){
-    return Math.abs(shooterRight.getVelocity().getValueAsDouble()-target_velocity) < v_tollerance;
-}
+    boolean get_shooter_ready(double v_tollerance){
+        return Math.abs(shooterRight.getVelocity().getValueAsDouble()-target_velocity) < v_tollerance;
+    }
 
-//this is how we will automatically find shooting range. Need to get distance from limelight first.
-InterpolatingDoubleTreeMap shooterHoodMap = new InterpolatingDoubleTreeMap();
-InterpolatingDoubleTreeMap shooterVelocityMap = new InterpolatingDoubleTreeMap();
+    //this is how we will automatically find shooting range. Need to get distance from limelight first.
+    InterpolatingDoubleTreeMap shooterHoodMap = new InterpolatingDoubleTreeMap();
+    InterpolatingDoubleTreeMap shooterVelocityMap = new InterpolatingDoubleTreeMap();
+    {
+        populate_interpolate_maps();
+    }
 
+    public void populate_interpolate_maps(){
+        shooterHoodMap.put(1.2,0.2);
+        shooterVelocityMap.put(1.2,52.0);
 
-void setTransfer(boolean on, boolean reverse) {
-    double power = (on ? ShootConstants.transferPower : 0)*(reverse ? -1 : 1);
-    transfer.set(power);
-    feeder_motor.set(power);
-}
+        shooterHoodMap.put(3.17,0.5);
+        shooterVelocityMap.put(3.17,60.0);
+    }
+    
+    public rangefinderResults rangefind(double distance){
+        return new rangefinderResults(
+            shooterHoodMap.get(distance),
+            shooterVelocityMap.get(distance)
+        );
+    }
 
-Timer hoodTimer = new Timer();
-double hoodReadyTime;
-double hoodDirection;
-double hoodLastSet; 
+    public class rangefinderResults{
+        double hood_angle;
+        double shooter_velocity;
 
-//TODO check if the requested position is too far
-void adjustHood(double out) {
-    out = MathUtil.clamp(out, ShootConstants.kMinPosition, ShootConstants.kMaxPosition);
-    rightServo.setPosition(out); leftServo.setPosition(out);
-    double x
-        = (hoodTimer.isRunning() && (x = hoodReadyTime - hoodTimer.get()) > 0) ?
-         x *= hoodDirection : 0;
-    hoodTimer.restart();
-    hoodReadyTime = x + (out - hoodLastSet) * ShootConstants.hoodFullLengthTime;
-    hoodDirection = Math.signum(hoodReadyTime);
-    hoodReadyTime = Math.abs(hoodReadyTime);
-    hoodLastSet = out;
-}
+        public rangefinderResults(double new_hood_angle,double new_shooter_velocity){
+            this.hood_angle = new_hood_angle;
+            this.shooter_velocity = new_shooter_velocity;
+        }
+    }
 
-boolean hoodReady() {
-    return !hoodTimer.isRunning() || hoodTimer.get() >= hoodReadyTime;
-}
+    void setTransfer(boolean on, boolean reverse) {
+        double power = (on ? ShootConstants.transferPower : 0)*(reverse ? -1 : 1);
+        transfer.set(power);
+        feeder_motor.set(power);
+    }
 
-// Copied from West Coast Products
+    Timer hoodTimer = new Timer();
+    double hoodReadyTime;
+    double hoodDirection;
+    double hoodLastSet; 
+
+    //TODO check if the requested position is too far
+    void adjustHood(double out) {
+        out = MathUtil.clamp(out, ShootConstants.kMinPosition, ShootConstants.kMaxPosition);
+        rightServo.setPosition(out); leftServo.setPosition(out);
+        double x
+            = (hoodTimer.isRunning() && (x = hoodReadyTime - hoodTimer.get()) > 0) ?
+            x *= hoodDirection : 0;
+        hoodTimer.restart();
+        hoodReadyTime = x + (out - hoodLastSet) * ShootConstants.hoodFullLengthTime;
+        hoodDirection = Math.signum(hoodReadyTime);
+        hoodReadyTime = Math.abs(hoodReadyTime);
+        hoodLastSet = out;
+    }
+
+    boolean hoodReady() {
+        return !hoodTimer.isRunning() || hoodTimer.get() >= hoodReadyTime;
+    }
+
+    // Copied from West Coast Products
     private void configureMotor(TalonFX motor, InvertedValue invertDirection) {
         final TalonFXConfiguration config = new TalonFXConfiguration()
             .withMotorOutput(

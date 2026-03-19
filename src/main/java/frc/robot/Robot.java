@@ -96,6 +96,9 @@ public class Robot extends TimedRobot {
 
 TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
+double distance_to_goal;
+boolean limelight_pose_valid;
+
 // TODO: allow setting current OrientationPlan
   public class OrientationWrap {
     OrientationPlan current;
@@ -140,23 +143,23 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
                       LimelightHelpers.SetRobotOrientation("limelight-b", (heading_from_swerve.plus(allience_rotation_offset)).getDegrees(), 0, 0, 0, 0, 0);
                       LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-b");
                       
-                      boolean valid_pose = LimelightHelpers.validPoseEstimate(mt2);
+                      limelight_pose_valid = LimelightHelpers.validPoseEstimate(mt2);
 
                       //This used to cause crashes before checking if valid pose before doing.
-                      if (valid_pose){
+                      if (limelight_pose_valid){
                         SmartDashboard.putNumber("ambiguity",mt2.rawFiducials[0].ambiguity);
                       }
                       if (mt2.pose == feild_center_pose){
-                        valid_pose = false;
+                        limelight_pose_valid = false;
                       }
                       if (mt2.tagCount == 0) {
-                        valid_pose = false;
+                        limelight_pose_valid = false;
                       }
                       //TODO: do a check for if we are turning quickly and redject updates
 
                       SmartDashboard.putNumber("heading_from_swerve", heading_from_swerve.getDegrees());
                       
-                      if (valid_pose){
+                      if (limelight_pose_valid){
                         Pose2d ll_pose = mt2.pose;
                         //TODO: This code causes the heading to spin constantly - it's wrong. need to fix it before implementing.
                         // m_swerve.visualOdometryUpdate(ll_pose, mt2.timestampSeconds);
@@ -165,7 +168,7 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
                         SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
                         SmartDashboard.putNumber("ll_b pose orientation degrees", ll_pose.getRotation().getDegrees());
 
-                        double distance_to_goal = ll_pose.getTranslation().getDistance(hub_pose.getTranslation());
+                        distance_to_goal = ll_pose.getTranslation().getDistance(hub_pose.getTranslation());
 
                         SmartDashboard.putNumber("distance_to_goal", distance_to_goal);
                       }
@@ -264,12 +267,8 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     // Temporary testing
 
 
-    
-
 //button board not working at all?
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
-      //TODO -- kDefaultPeriod is almost certainly not the right default for shooter_velocity
-      shooter_velocity = SmartDashboard.getNumber("shooter_velocity", kDefaultPeriod);
       shooter.shoot_with_velocity(shooter_velocity);
       current_intake_command = intake.agitateCommand();
       current_intake_command.schedule();
@@ -299,13 +298,31 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
     //hood stuff!!
 
+    //currently this serves as my "automatic shot", not neccecarily short.
     if(opController.getRawButton(ButtonBoard.HoodShort)){
-      shooter.adjustHood(ShootConstants.kMinPosition); //.77 is the mechanical limit
+      // shooter.adjustHood(ShootConstants.kMinPosition); //.77 is the mechanical limit
+
+      if (limelight_pose_valid){
+        //use recorded data to guess what hood angle and velocity to use
+        transferShooter.rangefinderResults results = shooter.rangefind(distance_to_goal);
+        shooter.adjustHood(ShootConstants.kMaxPosition*results.hood_angle); //.77 is the mechanical limit
+        shooter_velocity = results.shooter_velocity;
+
+        SmartDashboard.putNumber("auto_shooter_velocity",results.shooter_velocity);
+        SmartDashboard.putNumber("auto_hood_angle",results.hood_angle);
+      } else {
+        //what to do if limelight broke or can't see etc
+      }
+      
     }
 
+    //currently this serves as my "manual shot", not neccecarily long.
     if(opController.getRawButton(ButtonBoard.HoodLong)){
       long_hood_distance = SmartDashboard.getNumber("long_hood_distance", kDefaultPeriod);
       shooter.adjustHood(ShootConstants.kMaxPosition*long_hood_distance); //.77 is the mechanical limit
+
+      //TODO -- kDefaultPeriod is almost certainly not the right default for shooter_velocity
+      shooter_velocity = SmartDashboard.getNumber("shooter_velocity", kDefaultPeriod);
     }
 
     if(opController.getRawButtonPressed(ButtonBoard.IntakeUp)){
