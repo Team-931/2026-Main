@@ -417,9 +417,15 @@ boolean limelight_pose_valid;
     // positive value when we pull to the left (remember, CCW is positive in
     // mathematics). Xbox controllers return positive values when you pull to
     // the right by default.
-    final var rot =
-        - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))
-            * maxAngularSpeed;
+    final var rot = (
+      opController.getRawButton(ButtonBoard.Shoot) ?
+      //gamepad related tuning
+      - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
+      :
+      //PID for hitting a target position
+      0
+    );
+        
 
     m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative);
   }
