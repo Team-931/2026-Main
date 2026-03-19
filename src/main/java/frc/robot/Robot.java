@@ -10,11 +10,15 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -59,6 +63,8 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
   final private TrajectoryTranslator ctrlr = new TrajectoryTranslator(); 
+
+  Rotation2d allience_rotation_offset = Rotation2d.kZero;
 
   class TrajectoryWrap {
     Trajectory currentTrajectory;
@@ -125,13 +131,13 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
                       SmartDashboard.putBoolean("vision target found", LimelightHelpers.getTV("limelight-a"));
                       SmartDashboard.putBoolean("april tag found", LimelightHelpers.getTV("limelight-b"));
 
-                      double heading_from_swerve = m_swerve.reportOdometry().getRotation().getDegrees();
+                      Rotation2d heading_from_swerve = m_swerve.reportOdometry().getRotation();
 
-                      LimelightHelpers.SetRobotOrientation("limelight-b", heading_from_swerve, 0, 0, 0, 0, 0);
+                      LimelightHelpers.SetRobotOrientation("limelight-b", (heading_from_swerve.plus(allience_rotation_offset)).getDegrees(), 0, 0, 0, 0, 0);
                       LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-b");
                       boolean valid_pose = LimelightHelpers.validPoseEstimate(mt2);
 
-                      SmartDashboard.putNumber("heading_from_swerve", heading_from_swerve);
+                      SmartDashboard.putNumber("heading_from_swerve", heading_from_swerve.getDegrees());
                       
                       if (valid_pose){
                         Pose2d ll_pose = mt2.pose;
@@ -172,6 +178,11 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   @Override
   public void teleopInit(){
     intake.homingCommand().schedule();
+    allience_rotation_offset = get_allience_rotation_offset();
+  }
+
+  public Rotation2d get_allience_rotation_offset(){
+    return (DriverStation.getAlliance().get() == Alliance.Red ? Rotation2d.k180deg : Rotation2d.kZero);
   }
 
   @Override
@@ -180,6 +191,7 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     if(autoCommand != null) autoCommand.schedule();
     //TODO: Command based:
     intake.homingCommand().schedule();
+    allience_rotation_offset = get_allience_rotation_offset();
   }
   @Override
   public void autonomousExit() {
@@ -240,6 +252,10 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
     }
     if(opController.getRawButtonPressed(ButtonBoard.FeederReverse)){
       shooter.setTransfer(true,true);
+
+      //force feild centric when shooting
+      useField = true;
+      showFieldCtr();
     }
     if(opController.getRawButtonReleased(ButtonBoard.FeederReverse)){
       shooter.setTransfer(false,false);
@@ -314,7 +330,9 @@ TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
   private void driveWithJoystick(boolean fieldRelative) {
     if(drive_controller.getLeftBumperButtonPressed()) m_swerve.setXPosture();
     if(drive_controller.getAButtonPressed()) m_swerve.zeroYaw(); /* useVelCtrl ^= true; */
-    if(drive_controller.getBButtonPressed()) {
+
+    //swap between feild centric and robot centric but only if we're not shooting
+    if(drive_controller.getBButtonPressed() && !opController.getRawButton(ButtonBoard.Shoot)) {
       useField ^= true;
       showFieldCtr();
     }
