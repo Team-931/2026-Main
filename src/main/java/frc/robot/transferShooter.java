@@ -108,6 +108,10 @@ public class transferShooter extends SubsystemBase {
         shooterHoodMap.put(1.2,0.2);
         shooterVelocityMap.put(1.2,52.0);
 
+        //3/20/2026
+        shooterHoodMap.put(2.4,0.29);
+        shooterVelocityMap.put(2.4,54.0);
+
         shooterHoodMap.put(3.17,0.5);
         shooterVelocityMap.put(3.17,60.0);
 
