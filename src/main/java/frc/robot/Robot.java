@@ -431,12 +431,11 @@ boolean limelight_pose_valid;
     //TODO: implement the pid so shooting causes the robot to target the goal
     final var rot = (
       opController.getRawButton(ButtonBoard.Shoot) ?
+      //PID for hitting a target position - not done
+      0
+      :
       //gamepad related tuning
       - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
-      :
-      //PID for hitting a target position
-      
-      0
     );
         
 
