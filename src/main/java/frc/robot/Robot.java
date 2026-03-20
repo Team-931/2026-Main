@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Climber.Position;
 import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.DrvConst;
 import frc.robot.Constants.ShootConstants;
@@ -37,6 +38,7 @@ public class Robot extends TimedRobot {
   private final Drivetrain m_swerve = new Drivetrain();
   private final transferShooter shooter = new transferShooter();
   private final Intake intake = new Intake();
+  private final Climber climber = new Climber();
 
 // Generate trajectories, and their landmarks, before game starts.
   {
@@ -273,7 +275,6 @@ boolean limelight_pose_valid;
     // Temporary testing
 
 
-//button board not working at all?
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
       shooter.shoot_with_velocity(shooter_velocity);
       current_intake_command = intake.agitateCommand();
@@ -301,7 +302,11 @@ boolean limelight_pose_valid;
     if(opController.getRawButtonReleased(ButtonBoard.FeederReverse)){
       shooter.setTransfer(false,false);
     }
-
+ /** @see Climber#java */
+    if(opController.getRawButtonPressed(ButtonBoard.ClimberUp))
+        climber.set(Position.HANGING);
+    if(opController.getRawButtonPressed(ButtonBoard.ClimberDown))
+        climber.set(Position.HUNG);
     //hood stuff!!
 
     //currently this serves as my "automatic shot", not neccecarily short.
