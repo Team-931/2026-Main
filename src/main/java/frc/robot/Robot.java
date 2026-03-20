@@ -254,13 +254,13 @@ boolean limelight_pose_valid;
 
   Command current_intake_command = intake.intakeCommand(true);
 
-  double shooter_velocity = 30;
+  double shooter_velocity = 70;
 
   {
     SmartDashboard.putNumber("shooter_velocity",shooter_velocity);
   }
   
-  double long_hood_distance = 0.7;
+  double long_hood_distance = 1;
   {
     SmartDashboard.putNumber("long_hood_distance",long_hood_distance);
   }
