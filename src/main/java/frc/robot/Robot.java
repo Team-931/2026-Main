@@ -124,8 +124,33 @@ boolean limelight_pose_valid;
     
     }
     
-//TODO: make a team set call like I did in ftc that is called at init.
+  //TODO: make a team set call like I did in ftc that is called at init.
+    
+  public Alliance currentAlliance;
+
+  Rotation2d allience_rotation_offset = Rotation2d.kZero;
+
+  Pose2d hub_pose = new Pose2d(0.0,0.0,Rotation2d.kZero); //to prevent throwing nulls
   
+  Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);  
+
+  public void set_allience_constants(){
+    //get what allience we are from the driver station and store it
+    currentAlliance = DriverStation.getAlliance().get();
+
+    //if we are red..
+    if (currentAlliance == Alliance.Red){
+      allience_rotation_offset = Rotation2d.k180deg;
+      hub_pose = new Pose2d(11.94,4.0,Rotation2d.kZero);
+
+    //if we are blue..
+    } else if (currentAlliance == Alliance.Blue){
+      allience_rotation_offset = Rotation2d.kZero;
+      hub_pose = new Pose2d(4.6,4.0,Rotation2d.kZero);
+
+    }
+  }
+
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
   {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);}
@@ -205,31 +230,6 @@ boolean limelight_pose_valid;
     set_allience_constants();
   }
 
-  public Alliance currentAlliance;
-
-  Rotation2d allience_rotation_offset = Rotation2d.kZero;
-
-  Pose2d hub_pose = new Pose2d(0.0,0.0,Rotation2d.kZero); //to prevent throwing nulls
-  
-  Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);  
-
-  public void set_allience_constants(){
-    //get what allience we are from the driver station and store it
-    currentAlliance = DriverStation.getAlliance().get();
-
-    //if we are red..
-    if (currentAlliance == Alliance.Red){
-      allience_rotation_offset = Rotation2d.k180deg;
-      hub_pose = new Pose2d(11.94,4.0,Rotation2d.kZero);
-
-    //if we are blue..
-    } else if (currentAlliance == Alliance.Blue){
-      allience_rotation_offset = Rotation2d.kZero;
-      hub_pose = new Pose2d(4.6,4.0,Rotation2d.kZero);
-
-    }
-  }
-
   @Override
   public void autonomousInit() {
     autoCommand = autoChooser.getSelected();
@@ -254,13 +254,13 @@ boolean limelight_pose_valid;
 
   Command current_intake_command = intake.intakeCommand(true);
 
-  double shooter_velocity = 30;
+  double shooter_velocity = 70;
 
   {
     SmartDashboard.putNumber("shooter_velocity",shooter_velocity);
   }
   
-  double long_hood_distance = 0.7;
+  double long_hood_distance = 1;
   {
     SmartDashboard.putNumber("long_hood_distance",long_hood_distance);
   }
@@ -431,12 +431,11 @@ boolean limelight_pose_valid;
     //TODO: implement the pid so shooting causes the robot to target the goal
     final var rot = (
       opController.getRawButton(ButtonBoard.Shoot) ?
+      //PID for hitting a target position - not done
+      0
+      :
       //gamepad related tuning
       - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
-      :
-      //PID for hitting a target position
-      
-      0
     );
         
 

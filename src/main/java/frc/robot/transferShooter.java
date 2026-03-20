@@ -108,11 +108,29 @@ public class transferShooter extends SubsystemBase {
         shooterHoodMap.put(1.2,0.2);
         shooterVelocityMap.put(1.2,52.0);
 
-        shooterHoodMap.put(3.17,0.5);
-        shooterVelocityMap.put(3.17,60.0);
+        //3/20/2026
+        shooterHoodMap.put(2.4,0.29);
+        shooterVelocityMap.put(2.4,54.0);
 
-        shooterHoodMap.put(4.6,0.7);
-        shooterVelocityMap.put(4.6,65.0);
+        //not tuned for center
+        // shooterHoodMap.put(3.17,0.5);
+        // shooterVelocityMap.put(3.17,60.0);
+
+        //tuned for center
+        shooterHoodMap.put(2.9,0.38);
+        shooterVelocityMap.put(2.9,57.5);
+
+        //tuned for center
+        shooterHoodMap.put(3.4,0.47);
+        shooterVelocityMap.put(3.4,60.0);
+
+        //tuned for center
+        shooterHoodMap.put(4.34,0.65);
+        shooterVelocityMap.put(4.34,60.0);
+
+        //tuned for center
+        shooterHoodMap.put(4.92,0.75);
+        shooterVelocityMap.put(4.92,63.0);
     }
     
     public rangefinderResults rangefind(double distance){
