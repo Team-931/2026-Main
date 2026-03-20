@@ -100,6 +100,8 @@ final class Constants {
          */
          static final double traj_kP = 2;
          static final double orientationttitudeP = 0;
+         /** Distrust vision about heading. */
+         static final double VisionStvDev = 100;
 
     }
     static final class SwvModConst {

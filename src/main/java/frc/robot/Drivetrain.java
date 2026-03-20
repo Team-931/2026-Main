@@ -10,6 +10,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -53,6 +54,7 @@ public class Drivetrain extends SubsystemBase {
           },
           Pose2d.kZero);
 
+  {odometry.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, DrvConst.VisionStvDev));}
   // basic set-up, may not be needed
   public Drivetrain() {
     gyro.reset();//TODO: Is this line needed? - Phill
