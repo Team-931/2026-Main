@@ -53,7 +53,7 @@ public class Climber extends SubsystemBase {
         }
     }
 
-    private static final Per<DistanceUnit, AngleUnit> kHangerExtensionPerMotorAngle = Inches.of(6).div(Rotations.of(142));
+    private static final Per<DistanceUnit, AngleUnit> kHangerExtensionPerMotorAngle = Inches.of(6).div(Rotations.of(20)); //This last number is entirely a guess. There is no logic to this number.
     private static final Distance kExtensionTolerance = Inches.of(1);
 
     private final TalonFX climbMotor;
@@ -73,7 +73,7 @@ public class Climber extends SubsystemBase {
             )
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(20))
+                    .withStatorCurrentLimit(Amps.of(35)) //was 20 before
                     .withStatorCurrentLimitEnable(true)
                     .withSupplyCurrentLimit(Amps.of(70))
                     .withSupplyCurrentLimitEnable(true)
