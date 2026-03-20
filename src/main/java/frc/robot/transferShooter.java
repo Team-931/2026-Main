@@ -117,8 +117,12 @@ public class transferShooter extends SubsystemBase {
         // shooterVelocityMap.put(3.17,60.0);
 
         //tuned for center
+        shooterHoodMap.put(2.9,0.38);
+        shooterVelocityMap.put(2.9,57.5);
+
+        //tuned for center
         shooterHoodMap.put(3.4,0.47);
-        shooterVelocityMap.put(3.,60.0);
+        shooterVelocityMap.put(3.4,60.0);
 
         //tuned for center
         shooterHoodMap.put(4.34,0.65);
