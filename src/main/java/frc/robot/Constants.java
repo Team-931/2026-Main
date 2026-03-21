@@ -71,7 +71,7 @@ final class Constants {
          }
 
          static final double baseOffset = .1875; // 67.5 degrees or 3/16 circle
-         /**  each {@link DrvConst#absOffset} is 1/4 circle rotated from the adjacent one.*/
+         /**  each {@link DrvConst.Setup#absOffset} is 1/4 circle rotated from the adjacent one.*/
          static Setup frontLeft = new Setup(3, 5, 2, baseOffset + .75, "FL"),
                      frontRight = new Setup(9, 6, 3, baseOffset, "FR"),
                      backLeft = new Setup(2, 4, 0, baseOffset + .5, "BL"),
