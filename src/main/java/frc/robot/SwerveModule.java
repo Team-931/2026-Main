@@ -162,7 +162,7 @@ SwerveModule (Setup setup){
 /*   
 private boolean noLaborSaving = false;
 
-  void doAngle360(boolean yes) {//TODO: don't need after abs encoders are in
+  void doAngle360(boolean yes) {//don't need after abs encoders are in
     noLaborSaving = yes;
     double range = yes ? .5: .25;
     var config = new SparkMaxConfig(); config.closedLoop.positionWrappingInputRange(-range, range);
