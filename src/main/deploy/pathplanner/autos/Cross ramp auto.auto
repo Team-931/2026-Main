@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right over-ramp"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "sweep and return"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Shoot from ramp right"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

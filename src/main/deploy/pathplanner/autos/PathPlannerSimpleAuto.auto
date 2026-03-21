@@ -9,12 +9,6 @@
           "data": {
             "pathName": "Small Test Path"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "hey"
-          }
         }
       ]
     }
