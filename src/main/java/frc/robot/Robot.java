@@ -228,7 +228,7 @@ boolean limelight_pose_valid;
 
   @Override
   public void teleopInit(){
-    intake.homingCommand().schedule();
+    //intake.homingCommand().schedule(); //moved to disabledExit
     set_allience_constants();
   }
 
@@ -237,7 +237,7 @@ boolean limelight_pose_valid;
     autoCommand = autoChooser.getSelected();
     if(autoCommand != null) autoCommand.schedule();
     //TODO: Command based:
-    intake.homingCommand().schedule();
+    //intake.homingCommand().schedule(); //moved to disabledExit
     set_allience_constants();
   }
   @Override
@@ -358,6 +358,11 @@ boolean limelight_pose_valid;
     }
   }
 
+  @Override
+  public void disabledExit() {
+    climber.homingCommand().schedule();
+    intake.homingCommand().schedule();
+  }
   private boolean firstTimeDisabled = true;
 
   @Override
