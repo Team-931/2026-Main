@@ -249,7 +249,7 @@ boolean limelight_pose_valid;
   public void autonomousPeriodic() {
     //TODO: Command based:
     CommandScheduler.getInstance().run();
-    runTrajectory();
+    //runTrajectory();
   }
 
   static boolean useField = true, useVelCtrl = false;
