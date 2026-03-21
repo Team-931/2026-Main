@@ -53,7 +53,7 @@ public class Climber extends SubsystemBase {
         }
     }
     /** I changed your guess, Elliot, to {@code 142/5} as slightly smaller than my first guess, 30, annd an integer divisor from WCP's 142 */
-    private static final Per<DistanceUnit, AngleUnit> kHangerExtensionPerMotorAngle = Inches.of(6).div(Rotations.of(28.4)); //This last number is entirely a guess. There is no logic to this number.
+    private static final Per<DistanceUnit, AngleUnit> kHangerExtensionPerMotorAngle = Inches.of(6).div(Rotations.of(143.775)); //This last number is entirely a guess. There is no logic to this number.
     private static final Distance kExtensionTolerance = Inches.of(1);
 
     private final TalonFX climbMotor;
