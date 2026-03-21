@@ -38,7 +38,7 @@ public class Climber extends SubsystemBase {
     public enum Position {
         HOMED(0),
         RELEASE_HOPPER(2),
-        HANGING(6),
+        HANGING(5), //TODO: once the permenant knots are done this will likley need to be re-done.
         HUNG(0.2);
 
         private final double inches;
@@ -73,7 +73,7 @@ public class Climber extends SubsystemBase {
             )
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(35)) //was 20 before
+                    .withStatorCurrentLimit(Amps.of(20))
                     .withStatorCurrentLimitEnable(true)
                     .withSupplyCurrentLimit(Amps.of(70))
                     .withSupplyCurrentLimitEnable(true)
