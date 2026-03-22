@@ -379,7 +379,8 @@ boolean limelight_pose_valid;
       PortForwarder.add(5808, "172.28.0.1", 5808);
       PortForwarder.add(5809, "172.28.0.1", 5809);
     }
-    LimelightHelpers.setLEDMode_ForceOff("limelight-a");
+    //TODO: uncomment this if we do install the limelght 2; remove if we never want it.
+    //LimelightHelpers.setLEDMode_ForceOff("limelight-b");
     m_swerve.setRelOffset();
   }
 
