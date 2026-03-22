@@ -90,8 +90,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "intakeSweep",
-      "waypointRelativePos": 0.0,
+      "name": "intakeCommand",
+      "waypointRelativePos": 0,
       "endWaypointRelativePos": 3.0,
       "command": {
         "type": "named",
