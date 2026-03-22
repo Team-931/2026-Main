@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.667891737891737,
-        "y": 1.8127207977207989
+        "x": 7.107179487179487,
+        "y": 0.8178632478632482
       },
       "isLocked": false,
       "linkedName": "Right over ramp"
@@ -48,16 +48,16 @@
     },
     {
       "anchor": {
-        "x": 6.099401709401709,
-        "y": 3.3760683760683765
+        "x": 5.66011396011396,
+        "y": 2.458732193732195
       },
       "prevControl": {
-        "x": 6.603290598290597,
-        "y": 3.9445584045584052
+        "x": 6.419775019296454,
+        "y": 2.458732193732195
       },
       "nextControl": {
-        "x": 5.3042026992807045,
-        "y": 2.4789207749062148
+        "x": 5.03994301994302,
+        "y": 2.458732193732195
       },
       "isLocked": false,
       "linkedName": null
@@ -80,6 +80,10 @@
     {
       "waypointRelativePos": 1.05,
       "rotationDegrees": 90.0
+    },
+    {
+      "waypointRelativePos": 3.002132196162017,
+      "rotationDegrees": 0.0
     }
   ],
   "constraintZones": [],
