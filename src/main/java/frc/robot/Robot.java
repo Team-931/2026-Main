@@ -40,6 +40,7 @@ public class Robot extends TimedRobot {
   private final transferShooter shooter = new transferShooter();
   private final Intake intake = new Intake();
   private final Climber climber = new Climber();
+  private final Drivetrain m_swerve = new Drivetrain();
 
   //create pathfollower commands
   {
@@ -49,8 +50,6 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("stowedCommand", intake.outtakeCommand());
   }
 
-  private final Drivetrain m_swerve = new Drivetrain();
-  
 // Generate trajectories, and their landmarks, before game starts.
   {
     new OurTrajectories();
@@ -220,42 +219,6 @@ boolean limelight_pose_valid;
  */                      }
             , kDefaultPeriod);}
   
-
-  private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser();
-  // This sets up the choices for auto
-  // now only simple examples 
-  {
-    autoChooser.setDefaultOption("No autonomous", null);
-    // autoChooser.addOption("Move hood", 
-    //   setHoodCommand(.77)
-    //   .andThen(setHoodCommand(.05), 
-    //     setHoodCommand((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2)));
-    // autoChooser.addOption("Circle trajectory", Commands.runOnce(() -> trajectoryWrap.set(OurTrajectories.circleTrajectory)));
-    
-    SmartDashboard.putData("Auto chooser", autoChooser);//TODO: add a label
-  }
-
-  private Command autoCommand;
-
-  @Override
-  public void autonomousInit() {
-    autoCommand = autoChooser.getSelected();
-    if(autoCommand != null) autoCommand.schedule();
-    //TODO: Command based:
-    //intake.homingCommand().schedule(); //moved to disabledExit
-    //set_allience_constants();
-  }
-  @Override
-  public void autonomousExit() {
-    if(autoCommand != null) autoCommand.cancel();
-  }
-
-  @Override
-  public void autonomousPeriodic() {
-    //TODO: Command based:
-    CommandScheduler.getInstance().run();
-    //runTrajectory();
-  }
 
   static boolean useField = true, useVelCtrl = false;
 
@@ -494,5 +457,43 @@ boolean limelight_pose_valid;
         
 
     m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative);
+  }
+
+  //auto stuff
+
+  private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser();
+  // This sets up the choices for auto
+  // now only simple examples 
+  {
+    autoChooser.setDefaultOption("No autonomous", null);
+    // autoChooser.addOption("Move hood", 
+    //   setHoodCommand(.77)
+    //   .andThen(setHoodCommand(.05), 
+    //     setHoodCommand((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2)));
+    // autoChooser.addOption("Circle trajectory", Commands.runOnce(() -> trajectoryWrap.set(OurTrajectories.circleTrajectory)));
+    
+    SmartDashboard.putData("Auto chooser", autoChooser);//TODO: add a label
+  }
+
+  private Command autoCommand;
+
+  @Override
+  public void autonomousInit() {
+    autoCommand = autoChooser.getSelected();
+    if(autoCommand != null) autoCommand.schedule();
+    //TODO: Command based:
+    //intake.homingCommand().schedule(); //moved to disabledExit
+    //set_allience_constants();
+  }
+  @Override
+  public void autonomousExit() {
+    if(autoCommand != null) autoCommand.cancel();
+  }
+
+  @Override
+  public void autonomousPeriodic() {
+    //TODO: Command based:
+    CommandScheduler.getInstance().run();
+    //runTrajectory();
   }
 }

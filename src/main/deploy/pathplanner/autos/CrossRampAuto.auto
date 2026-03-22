@@ -21,6 +21,12 @@
           "data": {
             "pathName": "Shoot from ramp right"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intakeCommand"
+          }
         }
       ]
     }
