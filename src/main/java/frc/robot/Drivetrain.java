@@ -62,7 +62,7 @@ public class Drivetrain extends SubsystemBase {
 
     // wait till gyro is ready
     while(gyro.isCalibrating());
-    zeroYaw();
+    zeroYaw(false);
 
     // These comments are from pathplanner example vv
 
@@ -119,11 +119,17 @@ public class Drivetrain extends SubsystemBase {
    * Now informs odometry of this; the wait is for thr gyro
    * to finish processing its command.
    */
-  void zeroYaw() {
+  void zeroYaw(boolean isred) {
     gyro.zeroYaw();
-    new WaitCommand(.02)
+    if (isred){
+      new WaitCommand(.02)
       .andThen(() -> odometry.resetRotation(Rotation2d.kZero), this)
       .schedule();
+    } else {
+      new WaitCommand(.02)
+      .andThen(() -> odometry.resetRotation(Rotation2d.k180deg), this)
+      .schedule();
+    }
   }
 
   // Resets the translation of relative turn encoders to match the absolute

@@ -114,6 +114,7 @@ public class Robot extends TimedRobot {
 
 double distance_to_goal;
 Rotation2d angle_to_goal;
+Rotation2d angle_of_robot_from_ll;
 boolean limelight_pose_valid;
 /* 
 // TODO: allow setting current OrientationPlan
@@ -145,27 +146,13 @@ boolean limelight_pose_valid;
     
   public Alliance currentAlliance;
 
-  Rotation2d allience_rotation_offset = Rotation2d.kZero;
-
-  Pose2d hub_pose = new Pose2d(0.0,0.0,Rotation2d.kZero); //to prevent throwing nulls
+  Pose2d hub_pose = new Pose2d(4.6,4.0,Rotation2d.kZero); //to prevent throwing nulls
   
   Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);  
 
   public void set_allience_constants(){
     //get what allience we are from the driver station and store it
     currentAlliance = DriverStation.getAlliance().get();
-
-    //if we are red..
-    if (currentAlliance == Alliance.Red){
-      allience_rotation_offset = Rotation2d.k180deg;
-      hub_pose = new Pose2d(11.94,4.0,Rotation2d.kZero);
-
-    //if we are blue..
-    } else if (currentAlliance == Alliance.Blue){
-      allience_rotation_offset = Rotation2d.kZero;
-      hub_pose = new Pose2d(4.6,4.0,Rotation2d.kZero);
-
-    }
   }
 
   // Report swerve drive data
@@ -180,7 +167,7 @@ boolean limelight_pose_valid;
 
                       Rotation2d heading_from_swerve = m_swerve.reportOdometry().getRotation();
 
-                      LimelightHelpers.SetRobotOrientation("limelight-a", (heading_from_swerve.plus(allience_rotation_offset)).getDegrees(), 0, 0, 0, 0, 0);
+                      LimelightHelpers.SetRobotOrientation("limelight-a", heading_from_swerve.getDegrees(), 0, 0, 0, 0, 0);
                       LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-a");
                       
                       limelight_pose_valid = LimelightHelpers.validPoseEstimate(mt2);
@@ -202,7 +189,10 @@ boolean limelight_pose_valid;
                       if (limelight_pose_valid){
                         Pose2d ll_pose = mt2.pose;
                         //TODO: This code causes the heading to spin constantly - it's wrong. need to fix it before implementing.
-                        // m_swerve.visualOdometryUpdate(ll_pose, mt2.timestampSeconds);
+
+                        Pose2d rotationless_pose = new Pose2d(ll_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
+
+                        m_swerve.visualOdometryUpdate(rotationless_pose, mt2.timestampSeconds);
 
                         SmartDashboard.putNumber("ll_b pose x", ll_pose.getX());
                         SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
@@ -211,8 +201,13 @@ boolean limelight_pose_valid;
                         distance_to_goal = ll_pose.getTranslation().getDistance(hub_pose.getTranslation());
                         SmartDashboard.putNumber("distance_to_goal", distance_to_goal);
 
-                        angle_to_goal = hub_pose.minus(ll_pose).getTranslation().getAngle();
+                        //TODO: why does this go to 0 when facing the goal? since it's just translational components it should not change when we rotate.
+                        //angle_to_goal = hub_pose.minus(ll_pose).getTranslation().getAngle(); //This gives the diverence between the current angle and goal angle
+                        angle_to_goal = hub_pose.getTranslation().minus(ll_pose.getTranslation()).getAngle(); //This should be global angle reguardless of robot orientation
+                        angle_of_robot_from_ll = ll_pose.getRotation();
+
                         SmartDashboard.putNumber("angle_to_goal", angle_to_goal.getDegrees());
+                        SmartDashboard.putNumber("angle_of_robot_from_ll", angle_of_robot_from_ll.getDegrees());
                       }
                       
                       /* TODO: bellow is old code that does not work. likley issue is that limelight is returning a 0,0,0 pose instead of null.
@@ -409,11 +404,11 @@ boolean limelight_pose_valid;
     SmartDashboard.putBoolean("Field Centered", useField);
   }
 
-  PIDController turning_pid = new PIDController(1, 0, 0);
+  PIDController turning_pid = new PIDController(3, 0, 0);
 
   private void driveWithJoystick(boolean fieldRelative) {
     if(drive_controller.getLeftBumperButtonPressed()) m_swerve.setXPosture();
-    if(drive_controller.getAButtonPressed()) m_swerve.zeroYaw(); /* useVelCtrl ^= true; */
+    if(drive_controller.getAButtonPressed()) m_swerve.zeroYaw(currentAlliance == Alliance.Red); /* useVelCtrl ^= true; */
 
     //swap between feild centric and robot centric but only if we're not shooting
     if(drive_controller.getBButtonPressed() && !opController.getRawButton(ButtonBoard.Shoot)) {
@@ -454,7 +449,8 @@ boolean limelight_pose_valid;
     final var rot = (
       opController.getRawButton(ButtonBoard.Shoot) ?
       //PID for hitting a target position - not done
-      0
+        turning_pid.calculate(
+            m_swerve.reportOdometry().getRotation().getRadians(), angle_to_goal.getRadians())
       :
       //gamepad related tuning
       - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
