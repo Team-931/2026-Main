@@ -283,6 +283,10 @@ boolean limelight_pose_valid;
       shooter.shoot_with_velocity(shooter_velocity);
       current_intake_command = intake.agitateCommand();
       current_intake_command.schedule();
+      
+      //force feild centric when shooting
+      useField = true;
+      showFieldCtr();
     }
     if(opController.getRawButton(ButtonBoard.Shoot)){
       //43.3 - Juggling speed. Doesn't shoot far.
@@ -298,10 +302,6 @@ boolean limelight_pose_valid;
     }
     if(opController.getRawButtonPressed(ButtonBoard.FeederReverse)){
       shooter.setTransfer(true,true);
-
-      //force feild centric when shooting
-      useField = true;
-      showFieldCtr();
     }
     if(opController.getRawButtonReleased(ButtonBoard.FeederReverse)){
       shooter.setTransfer(false,false);

@@ -188,6 +188,7 @@ public class Intake extends SubsystemBase {
         );
     }
 
+    //TODO: change to a stow and deploy command with no arguments
     public Command stowedCommand(boolean stow) {
         return runOnce(
             () -> {
