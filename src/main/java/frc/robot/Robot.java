@@ -271,7 +271,7 @@ boolean limelight_pose_valid;
 
   Command current_rangefind_command = rangeFind();
 
-  Timer time_since_ll_target;
+  Timer time_since_ll_target = new Timer();
 
   public Command rangeFind() {
     return Commands.startRun(
