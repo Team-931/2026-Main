@@ -271,8 +271,13 @@ boolean limelight_pose_valid;
 
   Command current_rangefind_command = rangeFind();
 
+  Timer time_since_ll_target;
+
   public Command rangeFind() {
-    return Commands.run(
+    return Commands.startRun(
+      () -> {
+        time_since_ll_target.start();
+      },
       () ->{
           // shooter.adjustHood(ShootConstants.kMinPosition); //.77 is the mechanical limit
 
@@ -285,8 +290,13 @@ boolean limelight_pose_valid;
 
             SmartDashboard.putNumber("auto_shooter_velocity",results.shooter_velocity);
             SmartDashboard.putNumber("auto_hood_angle",results.hood_angle);
-        } else {
+            time_since_ll_target.reset();
+        } else if (time_since_ll_target.hasElapsed(1)){
             //what to do if limelight broke or can't see etc
+            transferShooter.rangefinderResults results = shooter.rangefind(2);
+            shooter.adjustHood(ShootConstants.kMaxPosition*results.hood_angle); //.77 is the mechanical limit
+            shooter_velocity = results.shooter_velocity;
+            shooter.target_velocity = shooter_velocity;
         }
       }
     );
