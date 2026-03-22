@@ -123,11 +123,11 @@ public class Drivetrain extends SubsystemBase {
     gyro.zeroYaw();
     if (isred){
       new WaitCommand(.02)
-      .andThen(() -> odometry.resetRotation(Rotation2d.kZero), this)
+      .andThen(() -> odometry.resetRotation(Rotation2d.k180deg), this)
       .schedule();
     } else {
       new WaitCommand(.02)
-      .andThen(() -> odometry.resetRotation(Rotation2d.k180deg), this)
+      .andThen(() -> odometry.resetRotation(Rotation2d.kZero), this)
       .schedule();
     }
   }

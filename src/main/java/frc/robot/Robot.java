@@ -34,6 +34,7 @@ import frc.robot.Climber.Position;
 import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.DrvConst;
 import frc.robot.Constants.ShootConstants;
+import frc.robot.LimelightHelpers.PoseEstimate;
 
 public class Robot extends TimedRobot {
   private final XboxController drive_controller = new XboxController(0);
@@ -202,19 +203,24 @@ boolean limelight_pose_valid;
 
                         m_swerve.visualOdometryUpdate(rotationless_pose, mt2.timestampSeconds);
 
+                        Pose2d m_swerve_pose_estimate = m_swerve.reportOdometry();
+
                         SmartDashboard.putNumber("ll_b pose x", ll_pose.getX());
                         SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
                         SmartDashboard.putNumber("ll_b pose orientation degrees", ll_pose.getRotation().getDegrees());
 
-                        distance_to_goal = ll_pose.getTranslation().getDistance(hub_pose.getTranslation());
-                        SmartDashboard.putNumber("distance_to_goal", distance_to_goal);
+                        double distance_to_goal_ll = ll_pose.getTranslation().getDistance(hub_pose.getTranslation());
+                        SmartDashboard.putNumber("distance_to_goal_ll (unused)", distance_to_goal_ll);
+
+                        distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());
+                        SmartDashboard.putNumber("distance_to_goal_est (used)", distance_to_goal);
 
                         //TODO: why does this go to 0 when facing the goal? since it's just translational components it should not change when we rotate.
                         //angle_to_goal = hub_pose.minus(ll_pose).getTranslation().getAngle(); //This gives the diverence between the current angle and goal angle
-                        angle_to_goal = hub_pose.getTranslation().minus(ll_pose.getTranslation()).getAngle(); //This should be global angle reguardless of robot orientation
+                        angle_to_goal = hub_pose.getTranslation().minus(m_swerve_pose_estimate.getTranslation()).getAngle(); //This should be global angle reguardless of robot orientation
                         angle_of_robot_from_ll = ll_pose.getRotation();
 
-                        SmartDashboard.putNumber("angle_to_goal", angle_to_goal.getDegrees());
+                        SmartDashboard.putNumber("angle_to_goal_est", angle_to_goal.getDegrees());
                         SmartDashboard.putNumber("angle_of_robot_from_ll", angle_of_robot_from_ll.getDegrees());
                       }
                       
@@ -458,7 +464,7 @@ boolean limelight_pose_valid;
       opController.getRawButton(ButtonBoard.Shoot) ?
       //PID for hitting a target position - not done
         turning_pid.calculate(
-            m_swerve.reportOdometry().getRotation().getRadians(), angle_to_goal.getRadians())
+            m_swerve.reportOdometry().getRotation().minus(angle_to_goal).getRadians(),0)
       :
       //gamepad related tuning
       - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
