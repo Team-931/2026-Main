@@ -37,7 +37,6 @@ import frc.robot.Constants.ShootConstants;
 public class Robot extends TimedRobot {
   private final XboxController drive_controller = new XboxController(0);
   private final GenericHID opController = new XboxController(1);
-  private final Drivetrain m_swerve = new Drivetrain();
   private final transferShooter shooter = new transferShooter();
   private final Intake intake = new Intake();
   private final Climber climber = new Climber();
@@ -49,6 +48,8 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("agitateCommand", intake.outtakeCommand());
     NamedCommands.registerCommand("stowedCommand", intake.outtakeCommand());
   }
+
+  private final Drivetrain m_swerve = new Drivetrain();
   
 // Generate trajectories, and their landmarks, before game starts.
 /*   {
