@@ -168,13 +168,21 @@ public class Intake extends SubsystemBase {
     }
 
     //TODO: make sure intake and outtake do not run while the wrist is flipped up
-    public Command intakeCommand(boolean intake_in) {
+    public Command intakeCommand() {
         return startEnd(
             () -> {
                 set(Position.INTAKE);
+                set(Speed.INTAKE);
+            },
+            () -> set(Speed.STOP)
+        );
+    }
 
-                set((intake_in ? Speed.INTAKE : Speed.OUTTAKE));
-                
+    public Command outtakeCommand() {
+        return startEnd(
+            () -> {
+                set(Position.INTAKE);
+                set(Speed.OUTTAKE);
             },
             () -> set(Speed.STOP)
         );

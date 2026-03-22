@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.MathUtil;
@@ -41,6 +42,14 @@ public class Robot extends TimedRobot {
   private final Intake intake = new Intake();
   private final Climber climber = new Climber();
 
+  //create pathfollower commands
+  {
+    NamedCommands.registerCommand("intakeCommand", intake.intakeCommand());
+    NamedCommands.registerCommand("outtakeCommand", intake.outtakeCommand());
+    NamedCommands.registerCommand("agitateCommand", intake.outtakeCommand());
+    NamedCommands.registerCommand("stowedCommand", intake.outtakeCommand());
+  }
+  
 // Generate trajectories, and their landmarks, before game starts.
   {
     new OurTrajectories();
@@ -249,7 +258,7 @@ boolean limelight_pose_valid;
 
   static boolean useField = true, useVelCtrl = false;
 
-  Command current_intake_command = intake.intakeCommand(true);
+  Command current_intake_command = intake.intakeCommand();
 
   double shooter_velocity = 70;
 
@@ -339,12 +348,12 @@ boolean limelight_pose_valid;
     }
 
     if(opController.getRawButtonPressed(ButtonBoard.FuelIn)){
-      current_intake_command = intake.intakeCommand(true);
+      current_intake_command = intake.intakeCommand();
       current_intake_command.schedule();
     }
 
     if(opController.getRawButtonPressed(ButtonBoard.FuelOut)){
-      current_intake_command = intake.intakeCommand(false);
+      current_intake_command = intake.outtakeCommand();
       current_intake_command.schedule();
     }
 
