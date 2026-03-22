@@ -8,11 +8,27 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.107179487179487,
-        "y": 0.8178632478632482
+        "x": 6.1968571428571435,
+        "y": 2.4045595238095245
       },
       "isLocked": false,
       "linkedName": "Right over ramp"
+    },
+    {
+      "anchor": {
+        "x": 6.8231190476190475,
+        "y": 1.5083571428571427
+      },
+      "prevControl": {
+        "x": 6.272440476190477,
+        "y": 1.5083571428571427
+      },
+      "nextControl": {
+        "x": 7.2981797309237955,
+        "y": 1.5083571428571427
+      },
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -64,11 +80,11 @@
     },
     {
       "anchor": {
-        "x": 3.6445584045584045,
+        "x": 3.3786785714285723,
         "y": 2.458732193732195
       },
       "prevControl": {
-        "x": 4.510213675213675,
+        "x": 4.244333842083844,
         "y": 2.407051282051283
       },
       "nextControl": null,
@@ -78,11 +94,11 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.05,
+      "waypointRelativePos": 2.05,
       "rotationDegrees": 90.0
     },
     {
-      "waypointRelativePos": 3.002132196162017,
+      "waypointRelativePos": 4.002132196162017,
       "rotationDegrees": 0.0
     }
   ],

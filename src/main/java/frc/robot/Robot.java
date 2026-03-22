@@ -47,13 +47,11 @@ public class Robot extends TimedRobot {
   {
     //NamedCommands ONLY supports runonce commands, so you need this goofy stack for it to work without event triggers.
 
-    NamedCommands.registerCommand("intakeCommand", Commands.runOnce(()->{intake.intakeCommand().schedule();}));
-    NamedCommands.registerCommand("outtakeCommand", Commands.runOnce(()->{intake.outtakeCommand().schedule();}));
-    NamedCommands.registerCommand("agitateCommand", Commands.runOnce(()->{intake.outtakeCommand().schedule();}));
-    NamedCommands.registerCommand("stowedCommand", Commands.runOnce(()->{intake.outtakeCommand().schedule();}));
-    NamedCommands.registerCommand("cancelCommand", Commands.runOnce(()->{intake.cancelCommand().schedule();}));
-
-    NamedCommands.registerCommand("evil", Commands.runOnce(()->{intake.intakeCommand().schedule();} ));
+    NamedCommands.registerCommand("intake", Commands.runOnce(()->{intake.intakeCommand().schedule();}));
+    NamedCommands.registerCommand("outtake", Commands.runOnce(()->{intake.outtakeCommand().schedule();}));
+    NamedCommands.registerCommand("agitate", Commands.runOnce(()->{intake.agitateCommand().schedule();}));
+    NamedCommands.registerCommand("stowed", Commands.runOnce(()->{intake.stowedCommand(true).schedule();}));
+    NamedCommands.registerCommand("cancelIntake", Commands.runOnce(()->{intake.cancelCommand().schedule();}));
   }
 
 // Generate trajectories, and their landmarks, before game starts.

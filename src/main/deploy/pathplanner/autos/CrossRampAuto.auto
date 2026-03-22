@@ -13,19 +13,13 @@
         {
           "type": "named",
           "data": {
-            "name": "evil"
+            "name": "intake"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "sweep and return"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Shoot from ramp right"
           }
         }
       ]
