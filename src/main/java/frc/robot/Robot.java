@@ -45,14 +45,15 @@ public class Robot extends TimedRobot {
 
   //create pathfollower commands
   {
-    NamedCommands.registerCommand("say", Commands.runOnce(()->{System.out.println("wtf is wrong with you pathplaner");}));
+    //NamedCommands ONLY supports runonce commands, so you need this goofy stack for it to work without event triggers.
 
-    NamedCommands.registerCommand("goob", Commands.runOnce(()->{intake.intakeCommand().schedule();}));
+    NamedCommands.registerCommand("intakeCommand", Commands.runOnce(()->{intake.intakeCommand().schedule();}));
+    NamedCommands.registerCommand("outtakeCommand", Commands.runOnce(()->{intake.outtakeCommand().schedule();}));
+    NamedCommands.registerCommand("agitateCommand", Commands.runOnce(()->{intake.outtakeCommand().schedule();}));
+    NamedCommands.registerCommand("stowedCommand", Commands.runOnce(()->{intake.outtakeCommand().schedule();}));
+    NamedCommands.registerCommand("cancelCommand", Commands.runOnce(()->{intake.cancelCommand().schedule();}));
 
-    NamedCommands.registerCommand("intakeCommand", intake.intakeCommand());
-    NamedCommands.registerCommand("outtakeCommand", intake.outtakeCommand());
-    NamedCommands.registerCommand("agitateCommand", intake.outtakeCommand());
-    NamedCommands.registerCommand("stowedCommand", intake.outtakeCommand());
+    NamedCommands.registerCommand("evil", Commands.runOnce(()->{intake.intakeCommand().schedule();} ));
   }
 
 // Generate trajectories, and their landmarks, before game starts.
