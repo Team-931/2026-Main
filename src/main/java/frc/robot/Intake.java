@@ -167,6 +167,11 @@ public class Intake extends SubsystemBase {
         );
     }
 
+    public Command cancelCommand() {
+        return runOnce(
+            () -> {}
+        );
+    }
     //TODO: make sure intake and outtake do not run while the wrist is flipped up
     public Command intakeCommand() {
         return startEnd(

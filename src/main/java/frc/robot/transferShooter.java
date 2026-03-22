@@ -16,6 +16,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.FeederConst;
 import frc.robot.Constants.ShootConstants;
@@ -70,6 +73,55 @@ public class transferShooter extends SubsystemBase {
     }
     Follower followRight = new Follower(ShootConstants.RightShootID, MotorAlignmentValue.Opposed);
     VelocityVoltage velocityRequest = new VelocityVoltage(0);
+
+
+
+
+    //fucntions and commands
+
+    public Command exhaustCommand() {
+        return startEnd(
+            () -> {
+                setTransfer(true,true);
+            },
+            () -> {
+                setTransfer(false,false);
+            }
+        );
+    };
+
+    boolean launching;
+
+    public Command cancelCommand() {
+        return runOnce(
+            () -> {}
+        );
+    }
+
+    public Command launchCommand() {
+        return startRun(
+            () -> {
+                launching = false;
+                shoot_with_velocity(target_velocity);
+            },
+            () -> {
+                //implement the autoranging here?
+                shoot_with_velocity(target_velocity);
+                if (!launching){
+                    if (get_shooter_ready(3)){
+                        setTransfer(true,false);
+                        launching = true;
+                    }
+                }
+            }
+        ).finallyDo(
+            ()->{
+                setTransfer(false,false);
+                shoot_with_velocity(0);
+            }
+        );
+    };
+
 
     /**  */
     void shoot_with_voltage(boolean on){

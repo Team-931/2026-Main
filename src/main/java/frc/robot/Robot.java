@@ -258,8 +258,6 @@ boolean limelight_pose_valid;
 
   static boolean useField = true, useVelCtrl = false;
 
-  Command current_intake_command = intake.intakeCommand();
-
   double shooter_velocity = 70;
 
   {
@@ -269,6 +267,29 @@ boolean limelight_pose_valid;
   double long_hood_distance = 1;
   {
     SmartDashboard.putNumber("long_hood_distance",long_hood_distance);
+  }
+
+  Command current_rangefind_command = rangeFind();
+
+  public Command rangeFind() {
+    return Commands.run(
+      () ->{
+          // shooter.adjustHood(ShootConstants.kMinPosition); //.77 is the mechanical limit
+
+        if (limelight_pose_valid){
+            //use recorded data to guess what hood angle and velocity to use
+            transferShooter.rangefinderResults results = shooter.rangefind(distance_to_goal);
+            shooter.adjustHood(ShootConstants.kMaxPosition*results.hood_angle); //.77 is the mechanical limit
+            shooter_velocity = results.shooter_velocity;
+            shooter.target_velocity = shooter_velocity;
+
+            SmartDashboard.putNumber("auto_shooter_velocity",results.shooter_velocity);
+            SmartDashboard.putNumber("auto_hood_angle",results.hood_angle);
+        } else {
+            //what to do if limelight broke or can't see etc
+        }
+      }
+    );
   }
 
   @Override
@@ -282,10 +303,9 @@ boolean limelight_pose_valid;
 //transfershooter related things
 
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
-      shooter.shoot_with_velocity(shooter_velocity);
-      current_intake_command = intake.agitateCommand();
-      current_intake_command.schedule();
-
+      intake.agitateCommand().schedule();
+      shooter.target_velocity = shooter_velocity;
+      shooter.launchCommand().schedule();
       //force feild centric when shooting
       useField = true;
       showFieldCtr();
@@ -298,10 +318,11 @@ boolean limelight_pose_valid;
       }
     }
     if(opController.getRawButtonReleased(ButtonBoard.Shoot)) {
-      shooter.setTransfer(false,false);
-      shooter.shoot_with_velocity(0); //we don't really care what it returns
-      current_intake_command.cancel();
+      shooter.cancelCommand().schedule();
+      intake.cancelCommand().schedule();
     }
+
+
     if(opController.getRawButtonPressed(ButtonBoard.FeederReverse)){
       shooter.setTransfer(true,true);
     }
@@ -310,22 +331,16 @@ boolean limelight_pose_valid;
     }
     //hood stuff
 
+
+    //TODO: figure out if this is the behavior we want - only rangefinding when short is pressed
+
     //currently this serves as my "automatic shot", not neccecarily short.
-    if(opController.getRawButton(ButtonBoard.HoodShort)){
-      // shooter.adjustHood(ShootConstants.kMinPosition); //.77 is the mechanical limit
-
-      if (limelight_pose_valid){
-        //use recorded data to guess what hood angle and velocity to use
-        transferShooter.rangefinderResults results = shooter.rangefind(distance_to_goal);
-        shooter.adjustHood(ShootConstants.kMaxPosition*results.hood_angle); //.77 is the mechanical limit
-        shooter_velocity = results.shooter_velocity;
-
-        SmartDashboard.putNumber("auto_shooter_velocity",results.shooter_velocity);
-        SmartDashboard.putNumber("auto_hood_angle",results.hood_angle);
-      } else {
-        //what to do if limelight broke or can't see etc
-      }
-      
+    if(opController.getRawButtonPressed(ButtonBoard.HoodShort)){
+      current_rangefind_command.schedule();
+    }
+    //currently this serves as my "automatic shot", not neccecarily short.
+    if(opController.getRawButtonReleased(ButtonBoard.HoodShort)){
+      current_rangefind_command.cancel();
     }
 
     //currently this serves as my "manual shot", not neccecarily long.
@@ -338,7 +353,6 @@ boolean limelight_pose_valid;
     }
 
 
-
     /** @see Climber#java */
     if(opController.getRawButtonPressed(ButtonBoard.ClimberUp))
         climber.set(Position.HANGING);
@@ -349,26 +363,20 @@ boolean limelight_pose_valid;
 
     //intake related stuff
 
-    if(opController.getRawButtonPressed(ButtonBoard.IntakeUp)){
+    if(opController.getRawButtonPressed(ButtonBoard.IntakeUp))
       intake.stowedCommand(true).schedule();
-    }
-    if(opController.getRawButtonPressed(ButtonBoard.IntakeDown)){
+
+    if(opController.getRawButtonPressed(ButtonBoard.IntakeDown))
       intake.stowedCommand(false).schedule();
-    }
 
-    if(opController.getRawButtonPressed(ButtonBoard.FuelIn)){
-      current_intake_command = intake.intakeCommand();
-      current_intake_command.schedule();
-    }
+    if(opController.getRawButtonPressed(ButtonBoard.FuelIn))
+      intake.intakeCommand().schedule();;
 
-    if(opController.getRawButtonPressed(ButtonBoard.FuelOut)){
-      current_intake_command = intake.outtakeCommand();
-      current_intake_command.schedule();
-    }
+    if(opController.getRawButtonPressed(ButtonBoard.FuelOut))
+      intake.outtakeCommand().schedule();
 
-    if(opController.getRawButtonReleased(ButtonBoard.FuelIn)||opController.getRawButtonReleased(ButtonBoard.FuelOut)){
-      current_intake_command.cancel();
-    }
+    if(opController.getRawButtonReleased(ButtonBoard.FuelIn)||opController.getRawButtonReleased(ButtonBoard.FuelOut))
+      intake.cancelCommand().schedule();
   }
 
   @Override
