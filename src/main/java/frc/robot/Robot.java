@@ -14,7 +14,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
+//import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,8 +23,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.PS4Controller.Button;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+//import edu.wpi.first.wpilibj.PS4Controller.Button;
+//import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,21 +38,22 @@ import frc.robot.Constants.ShootConstants;
 public class Robot extends TimedRobot {
   private final XboxController drive_controller = new XboxController(0);
   private final GenericHID opController = new XboxController(1);
-  private final Drivetrain m_swerve = new Drivetrain();
   private final transferShooter shooter = new transferShooter();
   private final Intake intake = new Intake();
   private final Climber climber = new Climber();
+  private final Drivetrain m_swerve = new Drivetrain();
 
   //create pathfollower commands
   {
+    NamedCommands.registerCommand("say", Commands.runOnce(()->{System.out.println("wtf is wrong with you pathplaner");}));
     NamedCommands.registerCommand("intakeCommand", intake.intakeCommand());
     NamedCommands.registerCommand("outtakeCommand", intake.outtakeCommand());
     NamedCommands.registerCommand("agitateCommand", intake.outtakeCommand());
     NamedCommands.registerCommand("stowedCommand", intake.outtakeCommand());
   }
-  
+
 // Generate trajectories, and their landmarks, before game starts.
-  {
+/*   {
     new OurTrajectories();
     SmartDashboard.putNumber("landmark time", OurTrajectories.circlelandmarks.get(0).state.timeSeconds);
     SmartDashboard.putNumber("landmark time1", OurTrajectories.circlelandmarks.get(1).state.timeSeconds);
@@ -68,6 +69,7 @@ public class Robot extends TimedRobot {
     field.getObject("toBalls").setTrajectory(OurTrajectories.centerBalls);
     field.getObject("near balls").setPose(OurTrajectories.centerBall2Landmark.state.poseMeters);
   }
+ */
 // Temporary version: combining a hood movement with a wait for the hood to catch up.
   Command setHoodCommand(double level) {
     return Commands.waitSeconds(1).andThen(() -> shooter.adjustHood(level)) .andThen(Commands.waitUntil(shooter::hoodReady));
@@ -76,8 +78,8 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
-  final private TrajectoryTranslator ctrlr = new TrajectoryTranslator(); 
-
+  //final private TrajectoryTranslator ctrlr = new TrajectoryTranslator(); 
+/* 
   class TrajectoryWrap {
     Trajectory currentTrajectory;
     private final Timer timer = new Timer();
@@ -105,13 +107,13 @@ public class Robot extends TimedRobot {
         done = true;
     }
   }
-
-TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
+ */
+//TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
 double distance_to_goal;
 Rotation2d angle_to_goal;
 boolean limelight_pose_valid;
-
+/* 
 // TODO: allow setting current OrientationPlan
   public class OrientationWrap {
     OrientationPlan current;
@@ -136,7 +138,7 @@ boolean limelight_pose_valid;
     m_swerve.drive(desiredSpds.vxMetersPerSecond, desiredSpds.vyMetersPerSecond, desiredSpds.omegaRadiansPerSecond, true);
     
     }
-    
+ */    
   //TODO: make a team set call like I did in ftc that is called at init.
     
   public Alliance currentAlliance;
@@ -167,7 +169,7 @@ boolean limelight_pose_valid;
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
   {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);}
-  {addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
+  //{addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   {addPeriodic(() -> {
                       m_swerve.updateOdometry();
 
@@ -221,42 +223,6 @@ boolean limelight_pose_valid;
             , kDefaultPeriod);}
   
 
-  private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser();
-  // This sets up the choices for auto
-  // now only simple examples 
-  {
-    autoChooser.setDefaultOption("No autonomous", null);
-    // autoChooser.addOption("Move hood", 
-    //   setHoodCommand(.77)
-    //   .andThen(setHoodCommand(.05), 
-    //     setHoodCommand((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2)));
-    // autoChooser.addOption("Circle trajectory", Commands.runOnce(() -> trajectoryWrap.set(OurTrajectories.circleTrajectory)));
-    
-    SmartDashboard.putData("Auto chooser", autoChooser);//TODO: add a label
-  }
-
-  private Command autoCommand;
-
-  @Override
-  public void autonomousInit() {
-    autoCommand = autoChooser.getSelected();
-    if(autoCommand != null) autoCommand.schedule();
-    //TODO: Command based:
-    //intake.homingCommand().schedule(); //moved to disabledExit
-    //set_allience_constants();
-  }
-  @Override
-  public void autonomousExit() {
-    if(autoCommand != null) autoCommand.cancel();
-  }
-
-  @Override
-  public void autonomousPeriodic() {
-    //TODO: Command based:
-    CommandScheduler.getInstance().run();
-    //runTrajectory();
-  }
-
   static boolean useField = true, useVelCtrl = false;
 
   double shooter_velocity = 70;
@@ -272,8 +238,13 @@ boolean limelight_pose_valid;
 
   Command current_rangefind_command = rangeFind();
 
+  Timer time_since_ll_target = new Timer();
+
   public Command rangeFind() {
-    return Commands.run(
+    return Commands.startRun(
+      () -> {
+        time_since_ll_target.start();
+      },
       () ->{
           // shooter.adjustHood(ShootConstants.kMinPosition); //.77 is the mechanical limit
 
@@ -286,8 +257,13 @@ boolean limelight_pose_valid;
 
             SmartDashboard.putNumber("auto_shooter_velocity",results.shooter_velocity);
             SmartDashboard.putNumber("auto_hood_angle",results.hood_angle);
-        } else {
+            time_since_ll_target.reset();
+        } else if (time_since_ll_target.hasElapsed(1)){
             //what to do if limelight broke or can't see etc
+            transferShooter.rangefinderResults results = shooter.rangefind(2);
+            shooter.adjustHood(ShootConstants.kMaxPosition*results.hood_angle); //.77 is the mechanical limit
+            shooter_velocity = results.shooter_velocity;
+            shooter.target_velocity = shooter_velocity;
         }
       }
     );
@@ -484,5 +460,43 @@ boolean limelight_pose_valid;
         
 
     m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative);
+  }
+
+  //auto stuff
+
+  private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser();
+  // This sets up the choices for auto
+  // now only simple examples 
+  {
+    autoChooser.setDefaultOption("No autonomous", null);
+    // autoChooser.addOption("Move hood", 
+    //   setHoodCommand(.77)
+    //   .andThen(setHoodCommand(.05), 
+    //     setHoodCommand((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2)));
+    // autoChooser.addOption("Circle trajectory", Commands.runOnce(() -> trajectoryWrap.set(OurTrajectories.circleTrajectory)));
+    
+    SmartDashboard.putData("Auto chooser", autoChooser);//TODO: add a label
+  }
+
+  private Command autoCommand;
+
+  @Override
+  public void autonomousInit() {
+    autoCommand = autoChooser.getSelected();
+    if(autoCommand != null) autoCommand.schedule();
+    //TODO: Command based:
+    //intake.homingCommand().schedule(); //moved to disabledExit
+    //set_allience_constants();
+  }
+  @Override
+  public void autonomousExit() {
+    if(autoCommand != null) autoCommand.cancel();
+  }
+
+  @Override
+  public void autonomousPeriodic() {
+    //TODO: Command based:
+    CommandScheduler.getInstance().run();
+    //runTrajectory();
   }
 }

@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 5.66011396011396,
+        "x": 6.369619047619048,
         "y": 2.458732193732195
       },
       "prevControl": {
-        "x": 4.66011396011396,
+        "x": 5.369619047619048,
         "y": 2.458732193732195
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Right over ramp"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],

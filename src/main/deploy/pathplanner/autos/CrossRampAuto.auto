@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right over-ramp"
+            "pathName": "RightOverRamp"
           }
         },
         {
@@ -20,6 +20,12 @@
           "type": "path",
           "data": {
             "pathName": "Shoot from ramp right"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "say"
           }
         }
       ]
