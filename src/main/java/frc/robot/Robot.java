@@ -157,7 +157,7 @@ boolean limelight_pose_valid;
 
     //if we are red..
     if (currentAlliance == Alliance.Red){
-      hub_pose = new Pose2d(11.94,4.0,Rotation2d.kZero);
+      hub_pose = new Pose2d(12.0,4.0,Rotation2d.kZero);
     //if we are blue..
     } else if (currentAlliance == Alliance.Blue){
       hub_pose = new Pose2d(4.6,4.0,Rotation2d.kZero);
