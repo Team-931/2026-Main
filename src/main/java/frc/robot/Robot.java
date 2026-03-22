@@ -13,7 +13,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
+//import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -22,8 +22,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.PS4Controller.Button;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+//import edu.wpi.first.wpilibj.PS4Controller.Button;
+//import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -51,7 +51,7 @@ public class Robot extends TimedRobot {
   }
   
 // Generate trajectories, and their landmarks, before game starts.
-  {
+/*   {
     new OurTrajectories();
     SmartDashboard.putNumber("landmark time", OurTrajectories.circlelandmarks.get(0).state.timeSeconds);
     SmartDashboard.putNumber("landmark time1", OurTrajectories.circlelandmarks.get(1).state.timeSeconds);
@@ -67,6 +67,7 @@ public class Robot extends TimedRobot {
     field.getObject("toBalls").setTrajectory(OurTrajectories.centerBalls);
     field.getObject("near balls").setPose(OurTrajectories.centerBall2Landmark.state.poseMeters);
   }
+ */
 // Temporary version: combining a hood movement with a wait for the hood to catch up.
   Command setHoodCommand(double level) {
     return Commands.waitSeconds(1).andThen(() -> shooter.adjustHood(level)) .andThen(Commands.waitUntil(shooter::hoodReady));
@@ -75,8 +76,8 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
-  final private TrajectoryTranslator ctrlr = new TrajectoryTranslator(); 
-
+  //final private TrajectoryTranslator ctrlr = new TrajectoryTranslator(); 
+/* 
   class TrajectoryWrap {
     Trajectory currentTrajectory;
     private final Timer timer = new Timer();
@@ -104,13 +105,13 @@ public class Robot extends TimedRobot {
         done = true;
     }
   }
-
-TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
+ */
+//TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
 double distance_to_goal;
 Rotation2d angle_to_goal;
 boolean limelight_pose_valid;
-
+/* 
 // TODO: allow setting current OrientationPlan
   public class OrientationWrap {
     OrientationPlan current;
@@ -135,7 +136,7 @@ boolean limelight_pose_valid;
     m_swerve.drive(desiredSpds.vxMetersPerSecond, desiredSpds.vyMetersPerSecond, desiredSpds.omegaRadiansPerSecond, true);
     
     }
-    
+ */    
   //TODO: make a team set call like I did in ftc that is called at init.
     
   public Alliance currentAlliance;
@@ -166,7 +167,7 @@ boolean limelight_pose_valid;
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
   {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);}
-  {addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
+  //{addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   {addPeriodic(() -> {
                       m_swerve.updateOdometry();
 
