@@ -46,6 +46,9 @@ public class Robot extends TimedRobot {
   //create pathfollower commands
   {
     NamedCommands.registerCommand("say", Commands.runOnce(()->{System.out.println("wtf is wrong with you pathplaner");}));
+
+    NamedCommands.registerCommand("goob", Commands.runOnce(()->{intake.intakeCommand().schedule();}));
+
     NamedCommands.registerCommand("intakeCommand", intake.intakeCommand());
     NamedCommands.registerCommand("outtakeCommand", intake.outtakeCommand());
     NamedCommands.registerCommand("agitateCommand", intake.outtakeCommand());
@@ -347,7 +350,7 @@ boolean limelight_pose_valid;
       intake.stowedCommand(false).schedule();
 
     if(opController.getRawButtonPressed(ButtonBoard.FuelIn))
-      intake.intakeCommand().schedule();;
+      intake.intakeCommand().schedule();
 
     if(opController.getRawButtonPressed(ButtonBoard.FuelOut))
       intake.outtakeCommand().schedule();
