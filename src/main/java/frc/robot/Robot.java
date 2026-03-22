@@ -146,13 +146,21 @@ boolean limelight_pose_valid;
     
   public Alliance currentAlliance;
 
-  Pose2d hub_pose = new Pose2d(4.6,4.0,Rotation2d.kZero); //to prevent throwing nulls
+  Pose2d hub_pose = new Pose2d(0.0,0.0,Rotation2d.kZero); //to prevent throwing nulls
   
   Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);  
 
   public void set_allience_constants(){
     //get what allience we are from the driver station and store it
     currentAlliance = DriverStation.getAlliance().get();
+
+    //if we are red..
+    if (currentAlliance == Alliance.Red){
+      hub_pose = new Pose2d(11.94,4.0,Rotation2d.kZero);
+    //if we are blue..
+    } else if (currentAlliance == Alliance.Blue){
+      hub_pose = new Pose2d(4.6,4.0,Rotation2d.kZero);
+    }
   }
 
   // Report swerve drive data
