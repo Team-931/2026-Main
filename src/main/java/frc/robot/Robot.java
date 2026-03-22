@@ -279,11 +279,13 @@ boolean limelight_pose_valid;
     // Temporary testing
 
 
+//transfershooter related things
+
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
       shooter.shoot_with_velocity(shooter_velocity);
       current_intake_command = intake.agitateCommand();
       current_intake_command.schedule();
-      
+
       //force feild centric when shooting
       useField = true;
       showFieldCtr();
@@ -306,12 +308,7 @@ boolean limelight_pose_valid;
     if(opController.getRawButtonReleased(ButtonBoard.FeederReverse)){
       shooter.setTransfer(false,false);
     }
- /** @see Climber#java */
-    if(opController.getRawButtonPressed(ButtonBoard.ClimberUp))
-        climber.set(Position.HANGING);
-    if(opController.getRawButtonPressed(ButtonBoard.ClimberDown))
-        climber.set(Position.HUNG);
-    //hood stuff!!
+    //hood stuff
 
     //currently this serves as my "automatic shot", not neccecarily short.
     if(opController.getRawButton(ButtonBoard.HoodShort)){
@@ -339,6 +336,18 @@ boolean limelight_pose_valid;
       //TODO -- kDefaultPeriod is almost certainly not the right default for shooter_velocity
       shooter_velocity = SmartDashboard.getNumber("shooter_velocity", kDefaultPeriod);
     }
+
+
+
+    /** @see Climber#java */
+    if(opController.getRawButtonPressed(ButtonBoard.ClimberUp))
+        climber.set(Position.HANGING);
+    if(opController.getRawButtonPressed(ButtonBoard.ClimberDown))
+        climber.set(Position.HUNG);
+
+
+
+    //intake related stuff
 
     if(opController.getRawButtonPressed(ButtonBoard.IntakeUp)){
       intake.stowedCommand(true).schedule();
