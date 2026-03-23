@@ -166,6 +166,7 @@ boolean limelight_b_pose_valid;
  */    
   
   boolean teleop_angle_hold = false;
+  double teleop_angle_hold_output = 0.0;
   {
     //once
     SmartDashboard.putBoolean("teleop_angle_hold",teleop_angle_hold);
@@ -539,6 +540,11 @@ boolean limelight_b_pose_valid;
     
     if (Math.pow(drive_controller.getRightX(),2)+Math.pow(drive_controller.getRightY(),2)>Math.pow(0.2,2)){
       rotation_from_joystick = new Rotation2d(drive_controller.getRightY(),drive_controller.getRightX()).minus(allience_flip_rotation);
+
+      teleop_angle_hold_output = turning_pid.calculate(
+            m_swerve.reportOdometry().getRotation().minus(rotation_from_joystick).getRadians(),0);
+    } else {
+      teleop_angle_hold_output = 0;
     }
   //This is so ugly.. lol
     final var rot = (
@@ -549,8 +555,7 @@ boolean limelight_b_pose_valid;
       :
       //gamepad related tuning
       teleop_angle_hold ? 
-        turning_pid.calculate(
-            m_swerve.reportOdometry().getRotation().minus(rotation_from_joystick).getRadians(),0)
+        teleop_angle_hold_output
       :
         - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
     );
