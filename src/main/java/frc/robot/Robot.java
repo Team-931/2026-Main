@@ -54,6 +54,9 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("agitate", Commands.runOnce(()->{intake.agitateCommand().schedule();}));
     NamedCommands.registerCommand("stowed", Commands.runOnce(()->{intake.stowedCommand(true).schedule();}));
     NamedCommands.registerCommand("cancelIntake", Commands.runOnce(()->{intake.cancelCommand().schedule();}));
+
+    NamedCommands.registerCommand("hanging", Commands.runOnce(()->{climber.positionCommand(Position.HANGING).schedule();}));
+    NamedCommands.registerCommand("hung", Commands.runOnce(()->{climber.positionCommand(Position.HUNG).schedule();}));
   }
 
 // Generate trajectories, and their landmarks, before game starts.

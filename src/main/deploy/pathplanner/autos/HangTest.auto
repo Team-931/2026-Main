@@ -5,9 +5,21 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "hang"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "GoHang"
+            "pathName": "Hang with creative rotate"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "hung"
           }
         }
       ]
