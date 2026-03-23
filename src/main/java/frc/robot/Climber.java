@@ -27,7 +27,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Per;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
@@ -115,16 +114,18 @@ public class Climber extends SubsystemBase {
             .andThen(Commands.waitUntil(this::isExtensionWithinTolerance));
     }
 
-    Timer homingTimer = new Timer();
+    public void setHomed(){
+        climbMotor.setPosition(Position.HOMED.motorAngle());
+        isHomed = true;
+        set(Position.RELEASE_HOPPER);
+    }
 
     public Command homingCommand() {
         return Commands.sequence(
-            runOnce(() -> {setPercentOutput(-0.1); homingTimer.start();}), //make this 4x stronger/faster bc its so slow
-            Commands.waitUntil(() -> (climbMotor.getSupplyCurrent().getValue().in(Amps) > 1) || homingTimer.hasElapsed(1)),//original was 0.4
+            runOnce(() -> setPercentOutput(-0.2)), //make this 4x stronger/faster bc its so slow
+            Commands.waitUntil(() -> climbMotor.getSupplyCurrent().getValue().in(Amps) > 1),//original was 0.4
             runOnce(() -> {
-                climbMotor.setPosition(Position.HOMED.motorAngle());
-                isHomed = true;
-                set(Position.RELEASE_HOPPER);
+                setHomed();
             })
         )
         .unless(() -> isHomed)
