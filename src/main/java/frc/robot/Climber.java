@@ -102,6 +102,10 @@ public class Climber extends SubsystemBase {
         );
     }
 
+    public void get_position() {
+        climbMotor.getPosition();
+    }
+
     public void setPercentOutput(double percentOutput) {
         climbMotor.setControl(
             voltageRequest

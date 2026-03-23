@@ -15,6 +15,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.jni.WPIMathJNI;
 //import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.units.measure.Angle;
@@ -474,7 +475,7 @@ boolean limelight_b_pose_valid;
   PIDController turning_pid = new PIDController(5, 3, 0);
 
   {
-    turning_pid.setIZone(0.3); //10 degrees to radians. about 1.5x the finnal error I was seeing.
+    turning_pid.setIZone(0.3); //0.3 radians
   }
 
   Rotation2d rotation_from_joystick = Rotation2d.kZero;
@@ -540,7 +541,7 @@ boolean limelight_b_pose_valid;
     );
         
 
-    m_swerve.drive(xSpeed, ySpeed, Math.min(rot,maxAngularSpeed), fieldRelative);
+    m_swerve.drive(xSpeed, ySpeed, MathUtil.clamp(rot,-maxAngularSpeed,maxAngularSpeed), fieldRelative);
   }
 
   //auto stuff
