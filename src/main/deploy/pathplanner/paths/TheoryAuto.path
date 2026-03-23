@@ -108,7 +108,14 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "blank",
+      "waypointRelativePos": 1.2529439472444712,
+      "endWaypointRelativePos": 2.359868111163455,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
