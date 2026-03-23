@@ -116,8 +116,8 @@ public class Climber extends SubsystemBase {
 
     public Command homingCommand() {
         return Commands.sequence(
-            runOnce(() -> setPercentOutput(-0.05)),
-            Commands.waitUntil(() -> climbMotor.getSupplyCurrent().getValue().in(Amps) > 0.4),
+            runOnce(() -> setPercentOutput(-0.1)), //make this 4x stronger/faster bc its so slow
+            Commands.waitUntil(() -> climbMotor.getSupplyCurrent().getValue().in(Amps) > 1),//original was 0.4
             runOnce(() -> {
                 climbMotor.setPosition(Position.HOMED.motorAngle());
                 isHomed = true;

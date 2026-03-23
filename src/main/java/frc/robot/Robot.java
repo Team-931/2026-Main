@@ -423,10 +423,10 @@ boolean limelight_pose_valid = false;
     SmartDashboard.putBoolean("Field Centered", useField);
   }
 
-  PIDController turning_pid = new PIDController(3, 0.1, 0);
+  PIDController turning_pid = new PIDController(5, 3, 0);
 
   {
-    turning_pid.setIZone(0.174533); //10 degrees to radians. about 1.5x the finnal error I was seeing.
+    turning_pid.setIZone(0.3); //10 degrees to radians. about 1.5x the finnal error I was seeing.
   }
 
   private void driveWithJoystick(boolean fieldRelative) {
