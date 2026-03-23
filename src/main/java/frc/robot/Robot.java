@@ -47,15 +47,25 @@ public class Robot extends TimedRobot {
   private final Drivetrain m_swerve = new Drivetrain();
 
   //create pathfollower commands
+  //a compound command automatically requires everything that any peice requires
+  Command intakeCommand = intake.intakeCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
+  Command outtakeCommand = intake.outtakeCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
+  Command agitageCommand = intake.agitateCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
+  Command stowCommand = intake.stowCommand(true);
+  Command unstowCommand = intake.stowCommand(false);
+  Command cancelIntakeCommand = intake.cancelCommand();
+
+  Command hangingCommand = climber.positionCommand(Position.HANGING).beforeStarting(Commands.waitUntil(climber::isNotBusy));
+  Command hungCommand = climber.positionCommand(Position.HUNG).beforeStarting(Commands.waitUntil(climber::isNotBusy));
   {
     //NamedCommands ONLY supports runonce commands, so you need this goofy stack for it to work without event triggers.
 
-    NamedCommands.registerCommand("intake", Commands.runOnce(()->{intake.intakeCommand().schedule();}));
-    NamedCommands.registerCommand("outtake", Commands.runOnce(()->{intake.outtakeCommand().schedule();}));
-    NamedCommands.registerCommand("agitate", Commands.runOnce(()->{intake.agitateCommand().schedule();}));
-    NamedCommands.registerCommand("stowed", Commands.runOnce(()->{intake.stowedCommand(true).schedule();}));
-    NamedCommands.registerCommand("cancelIntake", Commands.runOnce(()->{intake.cancelCommand().schedule();}));
-
+    NamedCommands.registerCommand("intake", Commands.runOnce(()->{intakeCommand.schedule();}));
+    NamedCommands.registerCommand("outtake", Commands.runOnce(()->{outtakeCommand.schedule();}));
+    NamedCommands.registerCommand("agitate", Commands.runOnce(()->{agitageCommand.schedule();}));
+    NamedCommands.registerCommand("stow", Commands.runOnce(()->{stowCommand.schedule();}));
+    NamedCommands.registerCommand("cancelIntake", Commands.runOnce(()->{cancelIntakeCommand.schedule();}));
+  
     NamedCommands.registerCommand("hanging", Commands.runOnce(()->{climber.positionCommand(Position.HANGING).schedule();}));
     NamedCommands.registerCommand("hung", Commands.runOnce(()->{climber.positionCommand(Position.HUNG).schedule();}));
   }
@@ -345,7 +355,7 @@ boolean limelight_b_pose_valid;
 //transfershooter related things
 
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
-      intake.agitateCommand().schedule();
+      agitageCommand.schedule();
       shooter.target_velocity = shooter_velocity;
       shooter.launchCommand().schedule();
       //force feild centric when shooting
@@ -361,7 +371,7 @@ boolean limelight_b_pose_valid;
     }
     if(opController.getRawButtonReleased(ButtonBoard.Shoot)) {
       shooter.cancelCommand().schedule();
-      intake.cancelCommand().schedule();
+      cancelIntakeCommand.schedule();
     }
 
 
@@ -406,19 +416,19 @@ boolean limelight_b_pose_valid;
     //intake related stuff
 
     if(opController.getRawButtonPressed(ButtonBoard.IntakeUp))
-      intake.stowedCommand(true).schedule();
+      stowCommand.schedule();
 
     if(opController.getRawButtonPressed(ButtonBoard.IntakeDown))
-      intake.stowedCommand(false).schedule();
+      unstowCommand.schedule();
 
     if(opController.getRawButtonPressed(ButtonBoard.FuelIn))
-      intake.intakeCommand().schedule();
+      intakeCommand.schedule();
 
     if(opController.getRawButtonPressed(ButtonBoard.FuelOut))
-      intake.outtakeCommand().schedule();
+      outtakeCommand.schedule();
 
     if(opController.getRawButtonReleased(ButtonBoard.FuelIn)||opController.getRawButtonReleased(ButtonBoard.FuelOut))
-      intake.cancelCommand().schedule();
+      cancelIntakeCommand.schedule();
   }
 
   @Override

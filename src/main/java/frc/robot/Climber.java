@@ -95,6 +95,10 @@ public class Climber extends SubsystemBase {
         SmartDashboard.putData(this);
     }
 
+    public boolean isNotBusy(){
+        return getCurrentCommand() == null;
+    }
+
     public void set(Position position) {
         climbMotor.setControl(
             motionMagicRequest
@@ -116,6 +120,10 @@ public class Climber extends SubsystemBase {
     public Command positionCommand(Position position) {
         return runOnce(() -> set(position))
             .andThen(Commands.waitUntil(this::isExtensionWithinTolerance));
+    }
+
+    public boolean isReleased(){
+        return climbMotor.getPosition().getValueAsDouble() >= 0.95*Position.RELEASE_HOPPER.motorAngle().in(Rotations);
     }
 
     public void setHomed(){
