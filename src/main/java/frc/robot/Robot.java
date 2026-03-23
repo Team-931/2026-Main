@@ -50,7 +50,7 @@ public class Robot extends TimedRobot {
   //a compound command automatically requires everything that any peice requires
   Command intakeCommand = intake.intakeCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
   Command outtakeCommand = intake.outtakeCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
-  Command agitageCommand = intake.agitateCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
+  Command agitateCommand = intake.agitateCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
   Command stowCommand = intake.stowCommand(true);
   Command unstowCommand = intake.stowCommand(false);
   Command cancelIntakeCommand = intake.cancelCommand();
@@ -62,7 +62,7 @@ public class Robot extends TimedRobot {
 
     NamedCommands.registerCommand("intake", Commands.runOnce(()->{intakeCommand.schedule();}));
     NamedCommands.registerCommand("outtake", Commands.runOnce(()->{outtakeCommand.schedule();}));
-    NamedCommands.registerCommand("agitate", Commands.runOnce(()->{agitageCommand.schedule();}));
+    NamedCommands.registerCommand("agitate", Commands.runOnce(()->{agitateCommand.schedule();}));
     NamedCommands.registerCommand("stow", Commands.runOnce(()->{stowCommand.schedule();}));
     NamedCommands.registerCommand("cancelIntake", cancelIntakeCommand);
   
@@ -255,8 +255,6 @@ boolean limelight_b_pose_valid;
                       Pose2d ll_b_pose = llb_mt2.pose;
                       
                       if (limelight_a_pose_valid){
-                        
-                        //TODO: This code causes the heading to spin constantly - it's wrong. need to fix it before implementing.
 
                         Pose2d rotationless_pose = new Pose2d(ll_a_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
 
@@ -272,7 +270,7 @@ boolean limelight_b_pose_valid;
 
                       if (limelight_b_pose_valid){
                         
-                        //TODO: This code causes the heading to spin constantly - it's wrong. need to fix it before implementing.
+                       
 
                         Pose2d rotationless_pose = new Pose2d(ll_b_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
 
@@ -286,8 +284,6 @@ boolean limelight_b_pose_valid;
                       distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());
                       SmartDashboard.putNumber("distance_to_goal_est (used)", distance_to_goal);
 
-                      //TODO: why does this go to 0 when facing the goal? since it's just translational components it should not change when we rotate.
-                      //angle_to_goal = hub_pose.minus(ll_pose).getTranslation().getAngle(); //This gives the diverence between the current angle and goal angle
                       angle_to_goal = hub_pose.getTranslation().minus(m_swerve_pose_estimate.getTranslation()).getAngle(); //This should be global angle reguardless of robot orientation
                       angle_of_robot_from_ll = ll_a_pose.getRotation();
 
@@ -361,7 +357,7 @@ boolean limelight_b_pose_valid;
 //transfershooter related things
 
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
-      agitageCommand.schedule();
+      agitateCommand.schedule();
       shooter.target_velocity = shooter_velocity;
       shooter.launchCommand().schedule();
       //force feild centric when shooting
@@ -450,7 +446,6 @@ boolean limelight_b_pose_valid;
     if (firstTimeDisabled)
     {
       firstTimeDisabled = false;
-      //m_swerve.zeroYaw();//TODO: check if need
       showFieldCtr();
 
       PortForwarder.add(5801, "172.28.0.1", 5801);

@@ -38,7 +38,7 @@ public class Climber extends SubsystemBase {
     public enum Position {
         HOMED(0),
         RELEASE_HOPPER(2),
-        HANGING(5), //TODO: once the permenant knots are done this will likley need to be re-done.
+        HANGING(5), //TODO: once the permenant knots are done this will likley need to be re-done. IMPORTANT!!!
         HUNG(0.2);
 
         private final double inches;
