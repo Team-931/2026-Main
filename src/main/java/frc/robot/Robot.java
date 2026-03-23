@@ -116,7 +116,8 @@ public class Robot extends TimedRobot {
 double distance_to_goal = 0.0;
 Rotation2d angle_to_goal = Rotation2d.kZero;
 Rotation2d angle_of_robot_from_ll = Rotation2d.kZero;
-boolean limelight_pose_valid = false;
+boolean limelight_a_pose_valid;
+boolean limelight_b_pose_valid;
 /* 
 // TODO: allow setting current OrientationPlan
   public class OrientationWrap {
@@ -177,20 +178,29 @@ boolean limelight_pose_valid = false;
                       Rotation2d heading_from_swerve = m_swerve.reportOdometry().getRotation();
 
                       LimelightHelpers.SetRobotOrientation("limelight-a", heading_from_swerve.getDegrees(), 0, 0, 0, 0, 0);
-                      LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-a");
+                      LimelightHelpers.SetRobotOrientation("limelight-b", heading_from_swerve.getDegrees(), 0, 0, 0, 0, 0);
                       
-                      limelight_pose_valid = LimelightHelpers.validPoseEstimate(mt2);
+                      LimelightHelpers.PoseEstimate lla_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-a");
+                      LimelightHelpers.PoseEstimate llb_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-b");
+                      
+                      limelight_a_pose_valid = LimelightHelpers.validPoseEstimate(lla_mt2);
+                      limelight_b_pose_valid = LimelightHelpers.validPoseEstimate(llb_mt2);
 
-                      //This used to cause crashes before checking if valid pose before doing.
-                      if (limelight_pose_valid){
-                        SmartDashboard.putNumber("ambiguity",mt2.rawFiducials[0].ambiguity);
+                      if (lla_mt2.pose == feild_center_pose){
+                        limelight_a_pose_valid = false;
                       }
-                      if (mt2.pose == feild_center_pose){
-                        limelight_pose_valid = false;
+                      if (lla_mt2.tagCount == 0) {
+                        limelight_a_pose_valid = false;
                       }
-                      if (mt2.tagCount == 0) {
-                        limelight_pose_valid = false;
+
+                      if (llb_mt2.pose == feild_center_pose){
+                        limelight_b_pose_valid = false;
                       }
+                      if (llb_mt2.tagCount == 0) {
+                        limelight_b_pose_valid = false;
+                      }
+
+
                       //TODO: do a check for if we are turning quickly and redject updates
 
                       SmartDashboard.putNumber("heading_from_swerve_deg", heading_from_swerve.getDegrees());
@@ -198,23 +208,24 @@ boolean limelight_pose_valid = false;
                       
                       Pose2d m_swerve_pose_estimate = m_swerve.reportOdometry();
 
-                      Pose2d ll_pose = mt2.pose;
+                      Pose2d ll_a_pose = lla_mt2.pose;
+                      Pose2d ll_b_pose = llb_mt2.pose;
                       
-                      if (limelight_pose_valid){
+                      if (limelight_a_pose_valid){
                         
                         //TODO: This code causes the heading to spin constantly - it's wrong. need to fix it before implementing.
 
-                        Pose2d rotationless_pose = new Pose2d(ll_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
+                        Pose2d rotationless_pose = new Pose2d(ll_a_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
 
-                        m_swerve.visualOdometryUpdate(rotationless_pose, mt2.timestampSeconds);
+                        m_swerve.visualOdometryUpdate(rotationless_pose, lla_mt2.timestampSeconds);
 
                         
 
-                        SmartDashboard.putNumber("ll_b pose x", ll_pose.getX());
-                        SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
-                        SmartDashboard.putNumber("ll_b pose orientation degrees", ll_pose.getRotation().getDegrees());
+                        SmartDashboard.putNumber("ll_a pose x", ll_a_pose.getX());
+                        SmartDashboard.putNumber("ll_a pose y", ll_a_pose.getY());
+                        SmartDashboard.putNumber("ll_a pose orientation degrees", ll_a_pose.getRotation().getDegrees());
 
-                        double distance_to_goal_ll = ll_pose.getTranslation().getDistance(hub_pose.getTranslation());
+                        double distance_to_goal_ll = ll_a_pose.getTranslation().getDistance(hub_pose.getTranslation());
                         SmartDashboard.putNumber("distance_to_goal_ll (unused)", distance_to_goal_ll);
                       }
 
@@ -224,7 +235,7 @@ boolean limelight_pose_valid = false;
                       //TODO: why does this go to 0 when facing the goal? since it's just translational components it should not change when we rotate.
                       //angle_to_goal = hub_pose.minus(ll_pose).getTranslation().getAngle(); //This gives the diverence between the current angle and goal angle
                       angle_to_goal = hub_pose.getTranslation().minus(m_swerve_pose_estimate.getTranslation()).getAngle(); //This should be global angle reguardless of robot orientation
-                      angle_of_robot_from_ll = ll_pose.getRotation();
+                      angle_of_robot_from_ll = ll_a_pose.getRotation();
 
                       SmartDashboard.putNumber("angle_to_goal_est", angle_to_goal.getDegrees());
                       SmartDashboard.putNumber("angle_of_robot_from_ll", angle_of_robot_from_ll.getDegrees());
