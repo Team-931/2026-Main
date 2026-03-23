@@ -14,6 +14,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 //import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.units.measure.Angle;
@@ -144,7 +145,22 @@ boolean limelight_b_pose_valid;
     
     }
  */    
-  //TODO: make a team set call like I did in ftc that is called at init.
+  
+  boolean teleop_angle_hold = false;
+  {
+    //once
+    SmartDashboard.putBoolean("teleop_angle_hold",teleop_angle_hold);
+    //
+    addPeriodic(()->{
+      boolean dashboard_result = SmartDashboard.getBoolean("teleop_angle_hold",false);
+      if (teleop_angle_hold != dashboard_result){
+        rotation_from_joystick = m_swerve.reportOdometry().getRotation();
+      }
+
+      teleop_angle_hold = dashboard_result;
+    }
+    , kDefaultPeriod);
+  }
     
   public Alliance currentAlliance;
 
@@ -152,9 +168,14 @@ boolean limelight_b_pose_valid;
   
   Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);  
 
+  Rotation2d allience_flip_rotation;
+
   public void set_allience_constants(){
     //get what allience we are from the driver station and store it
     currentAlliance = DriverStation.getAlliance().get();
+
+    allience_flip_rotation = (currentAlliance== Alliance.Blue ? Rotation2d.kZero : Rotation2d.k180deg);
+    rotation_from_joystick = allience_flip_rotation;
 
     //if we are red..
     if (currentAlliance == Alliance.Red){
@@ -167,7 +188,9 @@ boolean limelight_b_pose_valid;
 
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
-  {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);}
+  {addPeriodic(() -> 
+    SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);
+  }
   //{addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   {addPeriodic(() -> {
                       m_swerve.updateOdometry();
@@ -219,14 +242,25 @@ boolean limelight_b_pose_valid;
 
                         m_swerve.visualOdometryUpdate(rotationless_pose, lla_mt2.timestampSeconds);
 
-                        
-
                         SmartDashboard.putNumber("ll_a pose x", ll_a_pose.getX());
                         SmartDashboard.putNumber("ll_a pose y", ll_a_pose.getY());
-                        SmartDashboard.putNumber("ll_a pose orientation degrees", ll_a_pose.getRotation().getDegrees());
+                        // SmartDashboard.putNumber("ll_a pose orientation degrees", ll_a_pose.getRotation().getDegrees());
 
-                        double distance_to_goal_ll = ll_a_pose.getTranslation().getDistance(hub_pose.getTranslation());
-                        SmartDashboard.putNumber("distance_to_goal_ll (unused)", distance_to_goal_ll);
+                        // double distance_to_goal_ll = ll_a_pose.getTranslation().getDistance(hub_pose.getTranslation());
+                        // SmartDashboard.putNumber("distance_to_goal_ll (unused)", distance_to_goal_ll);
+                      }
+
+                      if (limelight_b_pose_valid){
+                        
+                        //TODO: This code causes the heading to spin constantly - it's wrong. need to fix it before implementing.
+
+                        Pose2d rotationless_pose = new Pose2d(ll_b_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
+
+                        m_swerve.visualOdometryUpdate(rotationless_pose, lla_mt2.timestampSeconds);
+
+                        SmartDashboard.putNumber("ll_b pose x", ll_a_pose.getX());
+                        SmartDashboard.putNumber("ll_b pose y", ll_a_pose.getY());
+                        // SmartDashboard.putNumber("ll_b pose orientation degrees", ll_a_pose.getRotation().getDegrees());
                       }
 
                       distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());
@@ -440,6 +474,8 @@ boolean limelight_b_pose_valid;
     turning_pid.setIZone(0.3); //10 degrees to radians. about 1.5x the finnal error I was seeing.
   }
 
+  Rotation2d rotation_from_joystick = Rotation2d.kZero;
+
   private void driveWithJoystick(boolean fieldRelative) {
     if(drive_controller.getLeftBumperButtonPressed()) m_swerve.setXPosture();
     if(drive_controller.getAButtonPressed()) m_swerve.zeroYaw(currentAlliance == Alliance.Red); /* useVelCtrl ^= true; */
@@ -481,18 +517,27 @@ boolean limelight_b_pose_valid;
 
     //currently this will just stop you from rotating while shooting. 
     //TODO: implement the pid so shooting causes the robot to target the goal
+    
+    if (Math.pow(drive_controller.getRightX(),2)+Math.pow(drive_controller.getRightY(),2)>Math.pow(0.2,2)){
+      rotation_from_joystick = new Rotation2d(drive_controller.getRightY(),drive_controller.getRightX()).minus(allience_flip_rotation);
+    }
+  //This is so ugly.. lol
     final var rot = (
       opController.getRawButton(ButtonBoard.Shoot) ?
-      //PID for hitting a target position - not done
+      //PID for hitting a target position
         turning_pid.calculate(
             m_swerve.reportOdometry().getRotation().minus(angle_to_goal).getRadians(),0)
       :
       //gamepad related tuning
-      - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
+      teleop_angle_hold ? 
+        turning_pid.calculate(
+            m_swerve.reportOdometry().getRotation().minus(rotation_from_joystick).getRadians(),0)
+      :
+        - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
     );
         
 
-    m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative);
+    m_swerve.drive(xSpeed, ySpeed, Math.min(rot,maxAngularSpeed), fieldRelative);
   }
 
   //auto stuff
