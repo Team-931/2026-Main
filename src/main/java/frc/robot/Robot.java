@@ -7,7 +7,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-
+import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -64,10 +64,15 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("outtake", Commands.runOnce(()->{outtakeCommand.schedule();}));
     NamedCommands.registerCommand("agitate", Commands.runOnce(()->{agitageCommand.schedule();}));
     NamedCommands.registerCommand("stow", Commands.runOnce(()->{stowCommand.schedule();}));
-    NamedCommands.registerCommand("cancelIntake", Commands.runOnce(()->{cancelIntakeCommand.schedule();}));
+    NamedCommands.registerCommand("cancelIntake", cancelIntakeCommand);
   
     NamedCommands.registerCommand("hanging", Commands.runOnce(()->{climber.positionCommand(Position.HANGING).schedule();}));
     NamedCommands.registerCommand("hung", Commands.runOnce(()->{climber.positionCommand(Position.HUNG).schedule();}));
+  }
+
+  {
+      new EventTrigger("intake").onTrue(Commands.runOnce(()->{intakeCommand.schedule();})).onFalse(cancelIntakeCommand);
+      new EventTrigger("blank"); //This might be useful!
   }
 
 // Generate trajectories, and their landmarks, before game starts.
@@ -549,7 +554,7 @@ boolean limelight_b_pose_valid;
       :
         - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
     );
-        
+    
 
     m_swerve.drive(xSpeed, ySpeed, MathUtil.clamp(rot,-maxAngularSpeed,maxAngularSpeed), fieldRelative);
   }
