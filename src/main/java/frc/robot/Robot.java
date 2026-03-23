@@ -113,10 +113,10 @@ public class Robot extends TimedRobot {
  */
 //TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
-double distance_to_goal;
-Rotation2d angle_to_goal;
-Rotation2d angle_of_robot_from_ll;
-boolean limelight_pose_valid;
+double distance_to_goal = 0.0;
+Rotation2d angle_to_goal = Rotation2d.kZero;
+Rotation2d angle_of_robot_from_ll = Rotation2d.kZero;
+boolean limelight_pose_valid = false;
 /* 
 // TODO: allow setting current OrientationPlan
   public class OrientationWrap {
@@ -193,17 +193,22 @@ boolean limelight_pose_valid;
                       }
                       //TODO: do a check for if we are turning quickly and redject updates
 
-                      SmartDashboard.putNumber("heading_from_swerve", heading_from_swerve.getDegrees());
+                      SmartDashboard.putNumber("heading_from_swerve_deg", heading_from_swerve.getDegrees());
+                      SmartDashboard.putNumber("heading_from_swerve_rad", heading_from_swerve.getRadians());
+                      
+                      Pose2d m_swerve_pose_estimate = m_swerve.reportOdometry();
+
+                      Pose2d ll_pose = mt2.pose;
                       
                       if (limelight_pose_valid){
-                        Pose2d ll_pose = mt2.pose;
+                        
                         //TODO: This code causes the heading to spin constantly - it's wrong. need to fix it before implementing.
 
                         Pose2d rotationless_pose = new Pose2d(ll_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
 
                         m_swerve.visualOdometryUpdate(rotationless_pose, mt2.timestampSeconds);
 
-                        Pose2d m_swerve_pose_estimate = m_swerve.reportOdometry();
+                        
 
                         SmartDashboard.putNumber("ll_b pose x", ll_pose.getX());
                         SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
@@ -211,18 +216,18 @@ boolean limelight_pose_valid;
 
                         double distance_to_goal_ll = ll_pose.getTranslation().getDistance(hub_pose.getTranslation());
                         SmartDashboard.putNumber("distance_to_goal_ll (unused)", distance_to_goal_ll);
-
-                        distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());
-                        SmartDashboard.putNumber("distance_to_goal_est (used)", distance_to_goal);
-
-                        //TODO: why does this go to 0 when facing the goal? since it's just translational components it should not change when we rotate.
-                        //angle_to_goal = hub_pose.minus(ll_pose).getTranslation().getAngle(); //This gives the diverence between the current angle and goal angle
-                        angle_to_goal = hub_pose.getTranslation().minus(m_swerve_pose_estimate.getTranslation()).getAngle(); //This should be global angle reguardless of robot orientation
-                        angle_of_robot_from_ll = ll_pose.getRotation();
-
-                        SmartDashboard.putNumber("angle_to_goal_est", angle_to_goal.getDegrees());
-                        SmartDashboard.putNumber("angle_of_robot_from_ll", angle_of_robot_from_ll.getDegrees());
                       }
+
+                      distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());
+                      SmartDashboard.putNumber("distance_to_goal_est (used)", distance_to_goal);
+
+                      //TODO: why does this go to 0 when facing the goal? since it's just translational components it should not change when we rotate.
+                      //angle_to_goal = hub_pose.minus(ll_pose).getTranslation().getAngle(); //This gives the diverence between the current angle and goal angle
+                      angle_to_goal = hub_pose.getTranslation().minus(m_swerve_pose_estimate.getTranslation()).getAngle(); //This should be global angle reguardless of robot orientation
+                      angle_of_robot_from_ll = ll_pose.getRotation();
+
+                      SmartDashboard.putNumber("angle_to_goal_est", angle_to_goal.getDegrees());
+                      SmartDashboard.putNumber("angle_of_robot_from_ll", angle_of_robot_from_ll.getDegrees());
                       
                       /* TODO: bellow is old code that does not work. likley issue is that limelight is returning a 0,0,0 pose instead of null.
                       //limelight localisation
@@ -259,7 +264,7 @@ boolean limelight_pose_valid;
       () ->{
           // shooter.adjustHood(ShootConstants.kMinPosition); //.77 is the mechanical limit
 
-        if (limelight_pose_valid){
+        if (distance_to_goal != 0.0){
             //use recorded data to guess what hood angle and velocity to use
             transferShooter.rangefinderResults results = shooter.rangefind(distance_to_goal);
             shooter.adjustHood(ShootConstants.kMaxPosition*results.hood_angle); //.77 is the mechanical limit
@@ -269,13 +274,13 @@ boolean limelight_pose_valid;
             SmartDashboard.putNumber("auto_shooter_velocity",results.shooter_velocity);
             SmartDashboard.putNumber("auto_hood_angle",results.hood_angle);
             time_since_ll_target.reset();
-        } else if (time_since_ll_target.hasElapsed(1)){
-            //what to do if limelight broke or can't see etc
-            transferShooter.rangefinderResults results = shooter.rangefind(2);
-            shooter.adjustHood(ShootConstants.kMaxPosition*results.hood_angle); //.77 is the mechanical limit
-            shooter_velocity = results.shooter_velocity;
-            shooter.target_velocity = shooter_velocity;
-        }
+        } //else if (time_since_ll_target.hasElapsed(1)){
+        //     //what to do if limelight broke or can't see etc
+        //     transferShooter.rangefinderResults results = shooter.rangefind(2);
+        //     shooter.adjustHood(ShootConstants.kMaxPosition*results.hood_angle); //.77 is the mechanical limit
+        //     shooter_velocity = results.shooter_velocity;
+        //     shooter.target_velocity = shooter_velocity;
+        // }
       }
     );
   }
@@ -418,7 +423,11 @@ boolean limelight_pose_valid;
     SmartDashboard.putBoolean("Field Centered", useField);
   }
 
-  PIDController turning_pid = new PIDController(3, 0, 0);
+  PIDController turning_pid = new PIDController(3, 0.1, 0);
+
+  {
+    turning_pid.setIZone(0.174533); //10 degrees to radians. about 1.5x the finnal error I was seeing.
+  }
 
   private void driveWithJoystick(boolean fieldRelative) {
     if(drive_controller.getLeftBumperButtonPressed()) m_swerve.setXPosture();
@@ -429,10 +438,11 @@ boolean limelight_pose_valid;
       useField ^= true;
       showFieldCtr();
     }
-    if(drive_controller.getXButton()) {
-      m_swerve.fullSpeed();
-      return;
-    }
+    //This function is really weird and I don't like it.
+    // if(drive_controller.getXButton()) {
+    //   m_swerve.fullSpeed();
+    //   return;
+    // }
     if(true) { //there are better ways to call this stuff less.
       double slowdown_multiplier = 1-drive_controller.getLeftTriggerAxis()*0.75;
       setMaxSpeed(DrvConst.kMaxSpeed*slowdown_multiplier);
