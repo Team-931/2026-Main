@@ -69,10 +69,8 @@ public class transferShooter extends SubsystemBase {
         configureMotor(shooterLeft, InvertedValue.CounterClockwise_Positive);
         configureMotor(shooterMid, InvertedValue.CounterClockwise_Positive);
     }
-    Follower followRight = new Follower(ShootConstants.RightShootID, MotorAlignmentValue.Opposed);
+    // Follower followRight = new Follower(ShootConstants.RightShootID, MotorAlignmentValue.Opposed);
     VelocityVoltage velocityRequest = new VelocityVoltage(0);
-
-
 
 
     //fucntions and commands

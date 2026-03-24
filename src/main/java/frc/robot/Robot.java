@@ -489,6 +489,11 @@ boolean limelight_b_pose_valid;
     turning_pid.setIZone(0.3); //0.3 radians
   }
 
+  {
+    //max speed when crossing ramp
+    SmartDashboard.putNumber("ramp_max_speed",0.6);
+  }
+
   Rotation2d rotation_from_joystick = Rotation2d.kZero;
 
   private void driveWithJoystick(boolean fieldRelative) {
@@ -505,11 +510,16 @@ boolean limelight_b_pose_valid;
     //   m_swerve.fullSpeed();
     //   return;
     // }
-    if(true) { //there are better ways to call this stuff less.
+    
+    if(drive_controller.getRightTriggerAxis()>0.1){
+      setMaxSpeed(DrvConst.kMaxSpeed*SmartDashboard.getNumber("ramp_max_speed", 1));
+    } else { 
+      //there are better ways to call this stuff less.
       double slowdown_multiplier = 1-drive_controller.getLeftTriggerAxis()*0.75;
       setMaxSpeed(DrvConst.kMaxSpeed*slowdown_multiplier);
       setMaxAngularSpeed(DrvConst.kMaxAngularSpeed*slowdown_multiplier);
     }
+
    
     // DONE: have max speed modifiable
     // Get the x speed. We are inverting this because Xbox controllers return

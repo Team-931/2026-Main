@@ -3,29 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5582282069454294,
-        "y": 3.954649184975195
+        "x": 3.6803614457831326,
+        "y": 2.53404677533664
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.240474840538626,
-        "y": 3.144712969525159
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 4.63814316087881,
-        "y": 2.53404677533664
-      },
-      "prevControl": {
-        "x": 3.6673430892372663,
-        "y": 2.5265016970596914
-      },
-      "nextControl": {
-        "x": 7.119376328850429,
-        "y": 2.553330970942487
+        "x": 6.958674698795182,
+        "y": 2.617611622962438
       },
       "isLocked": false,
       "linkedName": null
@@ -68,12 +52,12 @@
         "y": 2.53404677533664
       },
       "prevControl": {
-        "x": 7.145088589658364,
-        "y": 2.874734231041707
+        "x": 7.1332355630971715,
+        "y": 2.9528035421425174
       },
       "nextControl": {
-        "x": 3.1488643991227123,
-        "y": 2.331657610277996
+        "x": 3.7189298369950397,
+        "y": 2.3797732104890144
       },
       "isLocked": false,
       "linkedName": null
@@ -84,8 +68,8 @@
         "y": 2.996867469879411
       },
       "prevControl": {
-        "x": 3.5632962344097003,
-        "y": 3.022824995637748
+        "x": 3.346102055279944,
+        "y": 2.8425939050318925
       },
       "nextControl": null,
       "isLocked": false,
@@ -94,15 +78,15 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.1477362986497244,
+      "waypointRelativePos": 0.2859412231930139,
       "rotationDegrees": 0.0
     },
     {
-      "waypointRelativePos": 1.8745035742652845,
+      "waypointRelativePos": 0.95,
       "rotationDegrees": 59.92607842124561
     },
     {
-      "waypointRelativePos": 3.71,
+      "waypointRelativePos": 2.71,
       "rotationDegrees": 0.0
     }
   ],
@@ -111,7 +95,7 @@
   "eventMarkers": [
     {
       "name": "blank",
-      "waypointRelativePos": 1.2529439472444712,
+      "waypointRelativePos": 0.65,
       "endWaypointRelativePos": 2.359868111163455,
       "command": null
     }
