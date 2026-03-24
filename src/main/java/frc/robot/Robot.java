@@ -52,7 +52,7 @@ public class Robot extends TimedRobot {
   Command outtakeCommand = intake.outtakeCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
   Command agitateCommand = intake.agitateCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
   Command stowCommand = intake.stowCommand(true);
-  Command unstowCommand = intake.stowCommand(false);
+  Command unstowCommand = intake.stowCommand(false).beforeStarting(Commands.waitUntil(climber::isReleased));
   Command cancelIntakeCommand = intake.cancelCommand();
 
   Command hangingCommand = climber.positionCommand(Position.HANGING).beforeStarting(Commands.waitUntil(climber::isNotBusy));

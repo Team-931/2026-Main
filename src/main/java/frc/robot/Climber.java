@@ -123,13 +123,18 @@ public class Climber extends SubsystemBase {
     }
 
     public boolean isReleased(){
-        return climbMotor.getPosition().getValueAsDouble() >= 0.95*Position.RELEASE_HOPPER.motorAngle().in(Rotations);
+        SmartDashboard.putNumber("climber position", climbMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("climber target position", 0.95*Position.RELEASE_HOPPER.motorAngle().in(Rotations));
+
+        return climbMotor.getPosition().getValueAsDouble() >= 0.95*Position.RELEASE_HOPPER.motorAngle().in(Rotations)
+        &&
+        isHomed;
     }
 
     public void setHomed(){
         climbMotor.setPosition(Position.HOMED.motorAngle());
         isHomed = true;
-        set(Position.RELEASE_HOPPER);
+        set(Position.HANGING);
     }
 
     public Command homingCommand() {
