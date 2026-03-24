@@ -38,7 +38,7 @@ public class Climber extends SubsystemBase {
     public enum Position {
         HOMED(0),
         RELEASE_HOPPER(2),
-        HANGING(5), //TODO: once the permenant knots are done this will likley need to be re-done. IMPORTANT!!!
+        HANGING(4.2), //TODO: once the permenant knots are done this will likley need to be re-done. IMPORTANT!!!
         HUNG(0.2);
 
         private final double inches;
@@ -140,9 +140,10 @@ public class Climber extends SubsystemBase {
     public Command homingCommand() {
         return Commands.sequence(
             runOnce(() -> setPercentOutput(-0.2)), //make this 4x stronger/faster bc its so slow
-            Commands.waitUntil(() -> climbMotor.getSupplyCurrent().getValue().in(Amps) > 1),//original was 0.4
+            Commands.waitUntil(() -> climbMotor.getSupplyCurrent().getValue().in(Amps) > 1.2),//original was 0.4
             runOnce(() -> {
                 setHomed();
+                
             })
         )
         .unless(() -> isHomed)

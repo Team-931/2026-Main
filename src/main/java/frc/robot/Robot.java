@@ -67,9 +67,13 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("agitate", Commands.runOnce(()->{agitateCommand.schedule();}));
     NamedCommands.registerCommand("stow", Commands.runOnce(()->{stowCommand.schedule();}));
     NamedCommands.registerCommand("cancelIntake", cancelIntakeCommand);
+    NamedCommands.registerCommand("unstow", Commands.runOnce(()->{unstowCommand.schedule();}));
   
     NamedCommands.registerCommand("hanging", Commands.runOnce(()->{climber.positionCommand(Position.HANGING).schedule();}));
     NamedCommands.registerCommand("hung", Commands.runOnce(()->{climber.positionCommand(Position.HUNG).schedule();}));
+
+    NamedCommands.registerCommand("launch", Commands.runOnce(()->{shooter.launchCommand().schedule();}));
+    NamedCommands.registerCommand("launchCancel", Commands.runOnce(()->{shooter.cancelCommand().schedule();}));
   }
 
   {
@@ -444,6 +448,7 @@ boolean limelight_b_pose_valid;
     intake.homingCommand().schedule();
     current_rangefind_command.schedule();
     set_allience_constants();
+    m_swerve.drive(0, 0, 0, false); //safety thing
   }
   private boolean firstTimeDisabled = true;
 
@@ -516,6 +521,7 @@ boolean limelight_b_pose_valid;
     //   m_swerve.fullSpeed();
     //   return;
     // }
+    
     
     if(drive_controller.getRightTriggerAxis()>0.1){
       setMaxSpeed(DrvConst.kMaxSpeed*SmartDashboard.getNumber("ramp_max_speed", 0.7));
