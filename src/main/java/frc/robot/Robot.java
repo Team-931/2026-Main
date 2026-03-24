@@ -497,7 +497,7 @@ boolean limelight_b_pose_valid;
 
   {
     //max speed when crossing ramp
-    SmartDashboard.putNumber("ramp_max_speed",0.6);
+    SmartDashboard.putNumber("ramp_max_speed",0.7);
   }
 
   Rotation2d rotation_from_joystick = Rotation2d.kZero;
@@ -518,7 +518,7 @@ boolean limelight_b_pose_valid;
     // }
     
     if(drive_controller.getRightTriggerAxis()>0.1){
-      setMaxSpeed(DrvConst.kMaxSpeed*SmartDashboard.getNumber("ramp_max_speed", 1));
+      setMaxSpeed(DrvConst.kMaxSpeed*SmartDashboard.getNumber("ramp_max_speed", 0.7));
     } else { 
       //there are better ways to call this stuff less.
       double slowdown_multiplier = 1-drive_controller.getLeftTriggerAxis()*0.75;
@@ -559,7 +559,7 @@ boolean limelight_b_pose_valid;
     }
   //This is so ugly.. lol
     final var rot = (
-      opController.getRawButton(ButtonBoard.Shoot) ?
+      opController.getRawButton(ButtonBoard.Shoot) && current_rangefind_command.isScheduled() ?
       //PID for hitting a target position
         turning_pid.calculate(
             m_swerve.reportOdometry().getRotation().minus(angle_to_goal).getRadians(),0)
