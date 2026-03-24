@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import frc.robot.Climber.Position;
 import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.DrvConst;
@@ -57,6 +58,7 @@ public class Robot extends TimedRobot {
 
   Command hangingCommand = climber.positionCommand(Position.HANGING).beforeStarting(Commands.waitUntil(climber::isNotBusy));
   Command hungCommand = climber.positionCommand(Position.HUNG).beforeStarting(Commands.waitUntil(climber::isNotBusy));
+
   {
     //NamedCommands ONLY supports runonce commands, so you need this goofy stack for it to work without event triggers.
 
@@ -394,6 +396,9 @@ boolean limelight_b_pose_valid;
     }
     //currently this serves as my "automatic shot", not neccecarily short.
     if(opController.getRawButtonReleased(ButtonBoard.HoodShort)){
+      
+    }
+    if(opController.getRawButtonPressed(ButtonBoard.HoodLong)){
       current_rangefind_command.cancel();
     }
 
@@ -437,6 +442,7 @@ boolean limelight_b_pose_valid;
   public void disabledExit() {
     climber.homingCommand().schedule();
     intake.homingCommand().schedule();
+    current_rangefind_command.schedule();
     set_allience_constants();
   }
   private boolean firstTimeDisabled = true;
