@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.function.BooleanSupplier;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -72,7 +74,7 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("hanging", Commands.runOnce(()->{climber.positionCommand(Position.HANGING).schedule();}));
     NamedCommands.registerCommand("hung", Commands.runOnce(()->{climber.positionCommand(Position.HUNG).schedule();}));
 
-    NamedCommands.registerCommand("launch", Commands.runOnce(()->{shooter.launchCommand().schedule();}));
+    NamedCommands.registerCommand("launch", Commands.runOnce(()->{shooter.launchCommand(()->{return true;}).schedule();}));
     NamedCommands.registerCommand("launchCancel", Commands.runOnce(()->{shooter.cancelCommand().schedule();}));
   }
 
@@ -356,6 +358,8 @@ boolean limelight_b_pose_valid;
     );
   }
 
+  double maxLaunchingHeadingError = 0.1; //max radians launcher can be off by
+
   @Override
   public void teleopPeriodic() {
     driveWithJoystick(useField);
@@ -369,7 +373,16 @@ boolean limelight_b_pose_valid;
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
       agitateCommand.schedule();
       shooter.target_velocity = shooter_velocity;
-      shooter.launchCommand().schedule();
+
+      BooleanSupplier rangefindingCheck;
+
+      if(current_rangefind_command.isScheduled()){
+        rangefindingCheck = ()->{return Math.abs(m_swerve.reportOdometry().getRotation().minus(angle_to_goal).getRadians()) < maxLaunchingHeadingError;};
+      } else {
+        rangefindingCheck = ()->{return false;};
+      }
+
+      shooter.launchCommand(rangefindingCheck).schedule();
       //force feild centric when shooting
       useField = true;
       showFieldCtr();
