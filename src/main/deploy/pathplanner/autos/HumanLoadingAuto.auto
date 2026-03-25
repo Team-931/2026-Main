@@ -61,12 +61,6 @@
         {
           "type": "named",
           "data": {
-            "name": "hang"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "disableVisionUpdates"
           }
         },
@@ -74,6 +68,12 @@
           "type": "path",
           "data": {
             "pathName": "hang"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "hang"
           }
         }
       ]
