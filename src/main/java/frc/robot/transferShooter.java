@@ -104,7 +104,7 @@ public class transferShooter extends SubsystemBase {
                 //implement the autoranging here?
                 shoot_with_velocity(target_velocity);
                 if (!launching){
-                    if (get_shooter_ready(3)){
+                    if (get_shooter_ready(1)){
                         setTransfer(true,false);
                         launching = true;
                     }
