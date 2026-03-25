@@ -81,6 +81,7 @@ public class Robot extends TimedRobot {
 
   {
       new EventTrigger("intake").onTrue(Commands.runOnce(()->{intakeCommand.schedule();})).onFalse(cancelIntakeCommand);
+      new EventTrigger("unstow").onTrue(Commands.runOnce(()->{unstowCommand.schedule();}));
       new EventTrigger("blank"); //This might be useful!
   }
 

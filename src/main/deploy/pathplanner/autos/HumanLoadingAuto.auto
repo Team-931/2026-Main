@@ -25,7 +25,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 5.0
+            "waitTime": 4.0
           }
         },
         {
@@ -41,9 +41,15 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "hung"
+          }
+        },
+        {
           "type": "wait",
           "data": {
-            "waitTime": 5.0
+            "waitTime": 4.0
           }
         },
         {
@@ -61,7 +67,13 @@
         {
           "type": "named",
           "data": {
-            "name": "disableVisionUpdates"
+            "name": "hanging"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.5
           }
         },
         {
@@ -73,7 +85,7 @@
         {
           "type": "named",
           "data": {
-            "name": "hang"
+            "name": "hung"
           }
         }
       ]
