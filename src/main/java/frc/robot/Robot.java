@@ -74,6 +74,9 @@ public class Robot extends TimedRobot {
 
     NamedCommands.registerCommand("launch", Commands.runOnce(()->{shooter.launchCommand().schedule();}));
     NamedCommands.registerCommand("launchCancel", Commands.runOnce(()->{shooter.cancelCommand().schedule();}));
+  
+    NamedCommands.registerCommand("disableVisionUpdates", Commands.runOnce(()->{do_vision_pose_updates = false;}));
+    NamedCommands.registerCommand("enableVisionUpdates", Commands.runOnce(()->{do_vision_pose_updates = true;}));
   }
 
   {
@@ -217,6 +220,9 @@ boolean limelight_b_pose_valid;
   {addPeriodic(() -> 
     SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);
   }
+
+  boolean do_vision_pose_updates = true;
+
   //{addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   {addPeriodic(() -> {
                       m_swerve.updateOdometry();
@@ -259,32 +265,34 @@ boolean limelight_b_pose_valid;
 
                       Pose2d ll_a_pose = lla_mt2.pose;
                       Pose2d ll_b_pose = llb_mt2.pose;
-                      
-                      if (limelight_a_pose_valid){
+                      if (do_vision_pose_updates){
 
-                        Pose2d rotationless_pose = new Pose2d(ll_a_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
+                        if (limelight_a_pose_valid){
 
-                        m_swerve.visualOdometryUpdate(rotationless_pose, lla_mt2.timestampSeconds);
+                          Pose2d rotationless_pose = new Pose2d(ll_a_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
+                          
+                          m_swerve.visualOdometryUpdate(rotationless_pose, lla_mt2.timestampSeconds);
 
-                        SmartDashboard.putNumber("ll_a pose x", ll_a_pose.getX());
-                        SmartDashboard.putNumber("ll_a pose y", ll_a_pose.getY());
-                        // SmartDashboard.putNumber("ll_a pose orientation degrees", ll_a_pose.getRotation().getDegrees());
+                          SmartDashboard.putNumber("ll_a pose x", ll_a_pose.getX());
+                          SmartDashboard.putNumber("ll_a pose y", ll_a_pose.getY());
+                          // SmartDashboard.putNumber("ll_a pose orientation degrees", ll_a_pose.getRotation().getDegrees());
 
-                        // double distance_to_goal_ll = ll_a_pose.getTranslation().getDistance(hub_pose.getTranslation());
-                        // SmartDashboard.putNumber("distance_to_goal_ll (unused)", distance_to_goal_ll);
-                      }
+                          // double distance_to_goal_ll = ll_a_pose.getTranslation().getDistance(hub_pose.getTranslation());
+                          // SmartDashboard.putNumber("distance_to_goal_ll (unused)", distance_to_goal_ll);
+                        }
 
-                      if (limelight_b_pose_valid){
+                        if (limelight_b_pose_valid){
+                          
                         
-                       
 
-                        Pose2d rotationless_pose = new Pose2d(ll_b_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
+                          Pose2d rotationless_pose = new Pose2d(ll_b_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
 
-                        m_swerve.visualOdometryUpdate(rotationless_pose, lla_mt2.timestampSeconds);
+                          m_swerve.visualOdometryUpdate(rotationless_pose, lla_mt2.timestampSeconds);
 
-                        SmartDashboard.putNumber("ll_b pose x", ll_a_pose.getX());
-                        SmartDashboard.putNumber("ll_b pose y", ll_a_pose.getY());
-                        // SmartDashboard.putNumber("ll_b pose orientation degrees", ll_a_pose.getRotation().getDegrees());
+                          SmartDashboard.putNumber("ll_b pose x", ll_a_pose.getX());
+                          SmartDashboard.putNumber("ll_b pose y", ll_a_pose.getY());
+                          // SmartDashboard.putNumber("ll_b pose orientation degrees", ll_a_pose.getRotation().getDegrees());
+                        }
                       }
 
                       distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());

@@ -7,13 +7,19 @@
         {
           "type": "named",
           "data": {
-            "name": "unstow"
+            "name": "hanging"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "ramp to load"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "unstow"
           }
         },
         {
@@ -56,6 +62,18 @@
           "type": "named",
           "data": {
             "name": "hang"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "disableVisionUpdates"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "hang"
           }
         }
       ]
