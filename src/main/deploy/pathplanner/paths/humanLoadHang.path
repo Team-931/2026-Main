@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.0,
-        "y": 3.74252303330971
+        "x": 2.3,
+        "y": 3.743
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.75,
-        "y": 3.74252303330971
+        "x": 2.05,
+        "y": 3.743
       },
       "isLocked": false,
       "linkedName": "humanLoadAfterShoot"

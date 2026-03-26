@@ -12,15 +12,15 @@
         "y": 2.0390857547827808
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "rampstart"
     },
     {
       "anchor": {
-        "x": 0.8,
+        "x": 0.87,
         "y": 0.6377675407512391
       },
       "prevControl": {
-        "x": 2.1563217576143314,
+        "x": 2.2263217576143313,
         "y": 1.6534018426637145
       },
       "nextControl": null,
