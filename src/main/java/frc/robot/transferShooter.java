@@ -94,6 +94,10 @@ public class transferShooter extends SubsystemBase {
         );
     }
 
+    public Command idleCommand(){
+        return runOnce(()->{shoot_with_velocity(ShootConstants.idle_velocity);});
+    }
+
     public Command launchCommand() {
         return startRun(
             () -> {
@@ -113,7 +117,7 @@ public class transferShooter extends SubsystemBase {
         ).finallyDo(
             ()->{
                 setTransfer(false,false);
-                shoot_with_velocity(0);
+                shoot_with_velocity(ShootConstants.idle_velocity);
             }
         );
     };

@@ -453,6 +453,7 @@ boolean limelight_b_pose_valid;
     current_rangefind_command.schedule();
     set_allience_constants();
     m_swerve.drive(0, 0, 0, false); //safety thing
+    shooter.idleCommand().schedule();
   }
   private boolean firstTimeDisabled = true;
 

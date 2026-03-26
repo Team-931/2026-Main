@@ -12,6 +12,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import frc.robot.Constants.DrvConst;
+
 import static edu.wpi.first.units.Units.RPM;
 
 
@@ -131,6 +133,8 @@ final class Constants {
         // percent of full power (or velocity if using velocity control)
         // for shooters when turned on
         static final double launch_speed = 1;
+
+        static final double idle_velocity = 50;
         // percent of full power (or velocity if using velocity control)
         // for tranfer when turned on
         static final double transferPower = .5;
