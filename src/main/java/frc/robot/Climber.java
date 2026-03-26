@@ -140,7 +140,7 @@ public class Climber extends SubsystemBase {
     public Command homingCommand() {
         return Commands.sequence(
             runOnce(() -> setPercentOutput(-0.2)), //make this 4x stronger/faster bc its so slow
-            Commands.waitUntil(() -> climbMotor.getSupplyCurrent().getValue().in(Amps) > 1.2),//original was 0.4
+            Commands.waitUntil(() -> climbMotor.getSupplyCurrent().getValue().in(Amps) > 1.6),//original was 0.4
             runOnce(() -> {
                 setHomed();
                 
