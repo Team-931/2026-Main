@@ -507,14 +507,14 @@ boolean limelight_b_pose_valid;
 
   {
     //max speed when crossing ramp
-    SmartDashboard.putNumber("ramp_max_speed",0.7);
+    SmartDashboard.putNumber("ramp_max_speed",2.1);
   }
 
   // Rotation2d rotation_from_joystick = Rotation2d.kZero;
 
   private void driveWithJoystick(boolean fieldRelative) {
     if(drive_controller.getXButtonPressed()) m_swerve.setXPosture();
-    if(drive_controller.getAButtonPressed()) m_swerve.zeroYaw(currentAlliance == Alliance.Red); /* useVelCtrl ^= true; */
+    if(drive_controller.getYButtonPressed()) m_swerve.zeroYaw(currentAlliance == Alliance.Red); /* useVelCtrl ^= true; */
 
     //swap between feild centric and robot centric but only if we're not shooting
     if(drive_controller.getBButtonPressed() && !opController.getRawButton(ButtonBoard.Shoot)) {
@@ -529,12 +529,22 @@ boolean limelight_b_pose_valid;
     
     
     if(drive_controller.getRightBumperButton()){
-      setMaxSpeed(DrvConst.kMaxSpeed*SmartDashboard.getNumber("ramp_max_speed", 0.7));
-    } else { 
-      //there are better ways to call this stuff less.
-      double slowdown_multiplier = 1-drive_controller.getLeftTriggerAxis()*0.75;
-      setMaxSpeed(DrvConst.kMaxSpeed*slowdown_multiplier);
-      setMaxAngularSpeed(DrvConst.kMaxAngularSpeed*slowdown_multiplier);
+      setMaxSpeed(SmartDashboard.getNumber("ramp_max_speed", 2.1));
+    } else {
+      //there are better ways to call this stuff less
+      double hyperspeed = 3.2;
+      double hypospeed = 0.75;
+        //drive_controller.getLeftTriggerAxis()*0.75
+      double slowdown_ammount = (DrvConst.kMaxSpeed-hypospeed)*drive_controller.getLeftTriggerAxis();
+      double speedup_ammount = (hyperspeed-DrvConst.kMaxSpeed)*drive_controller.getRightTriggerAxis();
+      double speed_multiplier = (DrvConst.kMaxSpeed - slowdown_ammount+speedup_ammount)/DrvConst.kMaxSpeed;
+
+      double speed_to_set = DrvConst.kMaxSpeed*speed_multiplier;
+
+      SmartDashboard.putNumber("maxspeed",speed_to_set);
+
+      setMaxSpeed(speed_to_set);
+      setMaxAngularSpeed(DrvConst.kMaxAngularSpeed*speed_multiplier);
     }
 
    
