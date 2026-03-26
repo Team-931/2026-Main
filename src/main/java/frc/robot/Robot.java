@@ -172,22 +172,22 @@ boolean limelight_b_pose_valid;
     }
  */    
   
-  boolean teleop_angle_hold = false;
-  double teleop_angle_hold_output = 0.0;
-  {
-    //once
-    SmartDashboard.putBoolean("teleop_angle_hold",teleop_angle_hold);
-    //
-    addPeriodic(()->{
-      boolean dashboard_result = SmartDashboard.getBoolean("teleop_angle_hold",false);
-      if (teleop_angle_hold != dashboard_result){
-        rotation_from_joystick = m_swerve.reportOdometry().getRotation();
-      }
+  // boolean teleop_angle_hold = false;
+  // double teleop_angle_hold_output = 0.0;
+  // {
+  //   //once
+  //   SmartDashboard.putBoolean("teleop_angle_hold",teleop_angle_hold);
+  //   //
+  //   addPeriodic(()->{
+  //     boolean dashboard_result = SmartDashboard.getBoolean("teleop_angle_hold",false);
+  //     if (teleop_angle_hold != dashboard_result){
+  //       // rotation_from_joystick = m_swerve.reportOdometry().getRotation();
+  //     }
 
-      teleop_angle_hold = dashboard_result;
-    }
-    , kDefaultPeriod);
-  }
+  //     teleop_angle_hold = dashboard_result;
+  //   }
+  //   , kDefaultPeriod);
+  // }
     
   public Alliance currentAlliance;
 
@@ -202,7 +202,7 @@ boolean limelight_b_pose_valid;
     currentAlliance = DriverStation.getAlliance().get();
 
     allience_flip_rotation = (currentAlliance== Alliance.Blue ? Rotation2d.kZero : Rotation2d.k180deg);
-    rotation_from_joystick = allience_flip_rotation;
+    // rotation_from_joystick = allience_flip_rotation;
 
     //if we are red..
     if (currentAlliance == Alliance.Red){
@@ -510,7 +510,7 @@ boolean limelight_b_pose_valid;
     SmartDashboard.putNumber("ramp_max_speed",0.7);
   }
 
-  Rotation2d rotation_from_joystick = Rotation2d.kZero;
+  // Rotation2d rotation_from_joystick = Rotation2d.kZero;
 
   private void driveWithJoystick(boolean fieldRelative) {
     if(drive_controller.getXButtonPressed()) m_swerve.setXPosture();
@@ -560,14 +560,14 @@ boolean limelight_b_pose_valid;
     //currently this will just stop you from rotating while shooting. 
     //TODO: implement the pid so shooting causes the robot to target the goal
     
-    if (Math.pow(drive_controller.getRightX(),2)+Math.pow(drive_controller.getRightY(),2)>Math.pow(0.2,2)){
-      rotation_from_joystick = new Rotation2d(drive_controller.getRightY(),drive_controller.getRightX()).minus(allience_flip_rotation);
+    // if (Math.pow(drive_controller.getRightX(),2)+Math.pow(drive_controller.getRightY(),2)>Math.pow(0.2,2)){
+    //   rotation_from_joystick = new Rotation2d(drive_controller.getRightY(),drive_controller.getRightX()).minus(allience_flip_rotation);
 
-      teleop_angle_hold_output = turning_pid.calculate(
-            m_swerve.reportOdometry().getRotation().minus(rotation_from_joystick).getRadians(),0);
-    } else {
-      teleop_angle_hold_output = 0;
-    }
+    //   teleop_angle_hold_output = turning_pid.calculate(
+    //         m_swerve.reportOdometry().getRotation().minus(rotation_from_joystick).getRadians(),0);
+    // } else {
+    //   teleop_angle_hold_output = 0;
+    // }
   //This is so ugly.. lol
     final var rot = (
       opController.getRawButton(ButtonBoard.Shoot) && current_rangefind_command.isScheduled() ?
@@ -576,9 +576,9 @@ boolean limelight_b_pose_valid;
             m_swerve.reportOdometry().getRotation().minus(angle_to_goal).getRadians(),0)
       :
       //gamepad related tuning
-      teleop_angle_hold ? 
-        teleop_angle_hold_output
-      :
+      // teleop_angle_hold ? 
+      //   teleop_angle_hold_output
+      // :
         - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
     );
     
