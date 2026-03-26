@@ -512,7 +512,7 @@ boolean limelight_b_pose_valid;
   Rotation2d rotation_from_joystick = Rotation2d.kZero;
 
   private void driveWithJoystick(boolean fieldRelative) {
-    if(drive_controller.getLeftBumperButtonPressed()) m_swerve.setXPosture();
+    if(drive_controller.getXButtonPressed()) m_swerve.setXPosture();
     if(drive_controller.getAButtonPressed()) m_swerve.zeroYaw(currentAlliance == Alliance.Red); /* useVelCtrl ^= true; */
 
     //swap between feild centric and robot centric but only if we're not shooting
@@ -527,7 +527,7 @@ boolean limelight_b_pose_valid;
     // }
     
     
-    if(drive_controller.getRightTriggerAxis()>0.1){
+    if(drive_controller.getRightBumperButton()){
       setMaxSpeed(DrvConst.kMaxSpeed*SmartDashboard.getNumber("ramp_max_speed", 0.7));
     } else { 
       //there are better ways to call this stuff less.
