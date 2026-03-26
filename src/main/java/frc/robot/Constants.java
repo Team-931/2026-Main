@@ -37,7 +37,7 @@ final class Constants {
     }
     /** used by {@link Drivetrain} */
     static final class DrvConst {
-         static final double kMaxSpeed = 3.0, overloadSpeed = SwvModConst.freeVeloc/* or kMaxSpeed */; // meters per second
+         static final double kMaxSpeed = 2.5, overloadSpeed = SwvModConst.freeVeloc/* or kMaxSpeed */; // meters per second
          static final double kMaxAngularSpeed = 2*Math.PI; // 1.0 rotation per second
          /** Everything specific to one wheel corner */
          static final class Setup {
