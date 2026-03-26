@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.3,
-        "y": 3.743
+        "x": 1.9190715804394052,
+        "y": 3.74252303330971
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.05,
-        "y": 3.743
+        "x": 1.6690715804394056,
+        "y": 3.74252303330971
       },
       "isLocked": false,
       "linkedName": "humanLoadAfterShoot"
@@ -46,7 +46,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.3494837172359,
+      "waypointRelativePos": 1.0,
       "rotationDegrees": 0.0
     }
   ],
@@ -83,7 +83,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 6.457605998754989
+    "rotation": 6.072456407207698
   },
   "useDefaultConstraints": false
 }
