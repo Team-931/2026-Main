@@ -1,7 +1,5 @@
 package frc.robot;
 
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -96,9 +94,7 @@ public class transferShooter extends SubsystemBase {
         );
     }
 
-    boolean evil_bool = false;
-
-    public Command launchCommand(BooleanSupplier additionalReadyConditions) {
+    public Command launchCommand() {
         return startRun(
             () -> {
                 launching = false;
