@@ -56,6 +56,8 @@ public class Climber extends SubsystemBase {
     private static final Per<DistanceUnit, AngleUnit> kHangerExtensionPerMotorAngle = Inches.of(6).div(Rotations.of(143.775)); //This last number is entirely a guess. There is no logic to this number.
     private static final Distance kExtensionTolerance = Inches.of(1);
 
+    boolean hopper_free = false;
+
     private final TalonFX climbMotor;
     private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withSlot(0);
     private final VoltageOut voltageRequest = new VoltageOut(0);
@@ -126,9 +128,11 @@ public class Climber extends SubsystemBase {
         SmartDashboard.putNumber("climber position", climbMotor.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("climber target position", 0.95*Position.RELEASE_HOPPER.motorAngle().in(Rotations));
 
-        return climbMotor.getPosition().getValueAsDouble() >= 0.95*Position.RELEASE_HOPPER.motorAngle().in(Rotations)
+        boolean result = climbMotor.getPosition().getValueAsDouble() >= 0.95*Position.RELEASE_HOPPER.motorAngle().in(Rotations)
         &&
         isHomed;
+        if (result) hopper_free = true;
+        return result || hopper_free;
     }
 
     public void setHomed(){
