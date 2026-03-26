@@ -30,15 +30,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.23034154090547965,
-      "rotationDegrees": -133.3101079217219
-    },
-    {
-      "waypointRelativePos": 0.9046862589356649,
-      "rotationDegrees": -136.41542327395078
-    },
-    {
-      "waypointRelativePos": 0.9745830023828455,
+      "waypointRelativePos": 0.35742652899126043,
       "rotationDegrees": -179.9
     }
   ],
@@ -60,7 +52,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "unstow",
+      "name": "hung",
       "waypointRelativePos": 0.6330664154498375,
       "endWaypointRelativePos": null,
       "command": null
