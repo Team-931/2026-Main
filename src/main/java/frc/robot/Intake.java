@@ -51,7 +51,7 @@ public class Intake extends SubsystemBase {
         HOMED(110),
         STOWED(100),
         INTAKE(-4), //The motor reads 0.4 and 0 for the in and out positions, but this angle nonsence is screwing with what rotaitons we get.
-        AGITATE(20);
+        AGITATE(30);
 
         private final double degrees;
 
@@ -67,7 +67,7 @@ public class Intake extends SubsystemBase {
     private static final double kPivotReduction = 24;
     private static final double kMaxPivotSpeed = (Constants.krakenFreeSpeed/(kPivotReduction));
     
-    private static final double kMaxPivotAcceleration = (Constants.krakenFreeSpeed/kPivotReduction/2); 
+    private static final double kMaxPivotAcceleration = (Constants.krakenFreeSpeed/kPivotReduction/1.5); 
     //With the /60 change in constants, *3/5 should bring it to exactly what it was. 
     //WCP has no multiplier so we are likley safe to remove the * 3/5.
 
