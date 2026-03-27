@@ -174,8 +174,8 @@ boolean limelight_b_pose_valid;
     }
  */    
   
-  // boolean teleop_angle_hold = false;
-  // double teleop_angle_hold_output = 0.0;
+  boolean teleop_angle_hold = false;
+  double teleop_angle_hold_output = 0.0;
   // {
   //   //once
   //   SmartDashboard.putBoolean("teleop_angle_hold",teleop_angle_hold);
@@ -519,6 +519,8 @@ boolean limelight_b_pose_valid;
 
   // Rotation2d rotation_from_joystick = Rotation2d.kZero;
 
+  boolean permaAutoTurnDisable = false;
+
   private void driveWithJoystick(boolean fieldRelative) {
     if(drive_controller.getXButtonPressed()) m_swerve.setXPosture();
     if(drive_controller.getYButtonPressed()) m_swerve.zeroYaw(currentAlliance == Alliance.Red); /* useVelCtrl ^= true; */
@@ -586,16 +588,17 @@ boolean limelight_b_pose_valid;
     //   teleop_angle_hold_output = 0;
     // }
   //This is so ugly.. lol
+    if (drive_controller.getRightStickButton()) {permaAutoTurnDisable = true;}
     final var rot = (
-      // opController.getRawButton(ButtonBoard.Shoot) && current_rangefind_command.isScheduled() ?
-      // //PID for hitting a target position
-      //   turning_pid.calculate(
-      //       m_swerve.reportOdometry().getRotation().minus(angle_to_goal).getRadians(),0)
-      // :
-      //gamepad related tuning
-      // teleop_angle_hold ? 
-      //   teleop_angle_hold_output
-      // :
+      opController.getRawButton(ButtonBoard.Shoot) && current_rangefind_command.isScheduled() && (!permaAutoTurnDisable)?
+      //PID for hitting a target position
+        turning_pid.calculate(
+            m_swerve.reportOdometry().getRotation().minus(angle_to_goal).getRadians(),0)
+      :
+      // gamepad related tuning
+      teleop_angle_hold ? 
+        teleop_angle_hold_output
+      :
         - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
     );
     
