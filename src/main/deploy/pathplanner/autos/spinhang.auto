@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "releaseHopper"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Ramptoshoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "launch"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 6.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "launchCancel"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "spinghang"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "hanging"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
