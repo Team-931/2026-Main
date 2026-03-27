@@ -341,7 +341,7 @@ boolean limelight_b_pose_valid;
             //use recorded data to guess what hood angle and velocity to use
             transferShooter.rangefinderResults results = shooter.rangefind(distance_to_goal);
             shooter.adjustHood(ShootConstants.kMaxPosition*results.hood_angle); //.77 is the mechanical limit
-            shooter_velocity = results.shooter_velocity;
+            shooter_velocity = results.shooter_velocity + SmartDashboard.getNumber("shotspeed_offset",0.0);
             shooter.target_velocity = shooter_velocity;
 
             SmartDashboard.putNumber("auto_shooter_velocity",results.shooter_velocity);
@@ -448,6 +448,7 @@ boolean limelight_b_pose_valid;
       cancelIntakeCommand.schedule();
   }
 
+
   @Override
   public void disabledExit() {
     climber.homingCommand().schedule();
@@ -487,6 +488,10 @@ boolean limelight_b_pose_valid;
   void showMaxSpeeds() {
     SmartDashboard.putNumber("Max. linear speed", maxSpeed);
     SmartDashboard.putNumber("Max. angular speed", maxAngularSpeed);
+  }
+
+  {
+    SmartDashboard.putNumber("shotspeed_offset", 0.0);
   }
 
   void setMaxSpeed(double speed) {
