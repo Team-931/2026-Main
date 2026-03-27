@@ -7,7 +7,7 @@
         {
           "type": "named",
           "data": {
-            "name": "hanging"
+            "name": "releaseHopper"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 4.0
+            "waitTime": 6.0
           }
         },
         {
@@ -61,7 +61,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.5
+            "waitTime": 4.0
           }
         },
         {

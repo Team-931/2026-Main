@@ -57,6 +57,7 @@ public class Robot extends TimedRobot {
   Command cancelIntakeCommand = intake.cancelCommand();
 
   Command hangingCommand = climber.positionCommand(Position.HANGING).beforeStarting(Commands.waitUntil(climber::isNotBusy));
+  Command releaseHopperCommand = climber.positionCommand(Position.RELEASE_HOPPER).beforeStarting(Commands.waitUntil(climber::isNotBusy));
   Command hungCommand = climber.positionCommand(Position.HUNG).beforeStarting(Commands.waitUntil(climber::isNotBusy));
 
   {
@@ -70,7 +71,8 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("unstow", Commands.runOnce(()->{unstowCommand.schedule();}));
   
     NamedCommands.registerCommand("hanging", Commands.runOnce(()->{climber.positionCommand(Position.HANGING).schedule();}));
-    NamedCommands.registerCommand("hung", Commands.runOnce(()->{climber.positionCommand(Position.HUNG).schedule();}));
+    NamedCommands.registerCommand("hung", Commands.runOnce(()->{climber.positionCommand(Position.HOMED).schedule();}));
+    NamedCommands.registerCommand("releaseHopper", Commands.runOnce(()->{climber.positionCommand(Position.RELEASE_HOPPER).schedule();}));
 
     NamedCommands.registerCommand("launch", Commands.runOnce(()->{shooter.launchCommand().schedule();}));
     NamedCommands.registerCommand("launchCancel", Commands.runOnce(()->{shooter.cancelCommand().schedule();}));
