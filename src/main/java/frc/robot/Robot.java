@@ -587,11 +587,11 @@ boolean limelight_b_pose_valid;
     // }
   //This is so ugly.. lol
     final var rot = (
-      opController.getRawButton(ButtonBoard.Shoot) && current_rangefind_command.isScheduled() ?
-      //PID for hitting a target position
-        turning_pid.calculate(
-            m_swerve.reportOdometry().getRotation().minus(angle_to_goal).getRadians(),0)
-      :
+      // opController.getRawButton(ButtonBoard.Shoot) && current_rangefind_command.isScheduled() ?
+      // //PID for hitting a target position
+      //   turning_pid.calculate(
+      //       m_swerve.reportOdometry().getRotation().minus(angle_to_goal).getRadians(),0)
+      // :
       //gamepad related tuning
       // teleop_angle_hold ? 
       //   teleop_angle_hold_output
