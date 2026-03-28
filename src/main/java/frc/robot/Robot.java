@@ -18,6 +18,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.jni.WPIMathJNI;
 //import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -25,6 +27,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 //import edu.wpi.first.wpilibj.PS4Controller.Button;
 //import edu.wpi.first.wpilibj.smartdashboard.Field2d; //not using it now
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -195,6 +198,8 @@ boolean limelight_b_pose_valid;
 
   Pose2d hub_pose = new Pose2d(0.0,0.0,Rotation2d.kZero); //to prevent throwing nulls
   
+  Field2d m_field = new Field2d();
+
   Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);  
 
   Rotation2d allience_flip_rotation;
@@ -215,10 +220,17 @@ boolean limelight_b_pose_valid;
     }
   }
 
+  // {
+  //   NetworkTableInstance networkTableInstance = NetworkTableInstance.getDefault();
+  //   networkTableInstance.
+  // }
+  Command current_rangefind_command = rangeFind();
+
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
   {addPeriodic(() -> 
     SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);
+    SmartDashboard.putBoolean("rangefinding?", current_rangefind_command.isScheduled());
   }
 
   //{addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
@@ -258,16 +270,15 @@ boolean limelight_b_pose_valid;
 
                       SmartDashboard.putNumber("heading_from_swerve_deg", heading_from_swerve.getDegrees());
                       SmartDashboard.putNumber("heading_from_swerve_rad", heading_from_swerve.getRadians());
-                      
-                      Pose2d m_swerve_pose_estimate = m_swerve.reportOdometry();
 
                       Pose2d ll_a_pose = lla_mt2.pose;
                       Pose2d ll_b_pose = llb_mt2.pose;
                       
+                      Pose2d m_swerve_pose_estimate = m_swerve.reportOdometry();
 
                       if (limelight_a_pose_valid){
 
-                        Pose2d rotationless_pose = new Pose2d(ll_a_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
+                        Pose2d rotationless_pose = new Pose2d(ll_a_pose.getTranslation(),m_swerve_pose_estimate.getRotation());
                         
                         m_swerve.visualOdometryUpdate(rotationless_pose, lla_mt2.timestampSeconds);
 
@@ -280,10 +291,8 @@ boolean limelight_b_pose_valid;
                       }
 
                       if (limelight_b_pose_valid){
-                        
-                      
 
-                        Pose2d rotationless_pose = new Pose2d(ll_b_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
+                        Pose2d rotationless_pose = new Pose2d(ll_b_pose.getTranslation(),m_swerve_pose_estimate.getRotation());
 
                         m_swerve.visualOdometryUpdate(rotationless_pose, lla_mt2.timestampSeconds);
 
@@ -291,7 +300,12 @@ boolean limelight_b_pose_valid;
                         SmartDashboard.putNumber("ll_b pose y", ll_a_pose.getY());
                         // SmartDashboard.putNumber("ll_b pose orientation degrees", ll_a_pose.getRotation().getDegrees());
                       }
-                      
+
+                      m_swerve_pose_estimate = m_swerve.reportOdometry();
+                      SmartDashboard.putData("feild",m_field);
+                      {
+                        m_field.setRobotPose(m_swerve_pose_estimate);
+                      }
 
                       distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());
                       SmartDashboard.putNumber("distance_to_goal_est (used)", distance_to_goal);
@@ -301,14 +315,7 @@ boolean limelight_b_pose_valid;
 
                       SmartDashboard.putNumber("angle_to_goal_est", angle_to_goal.getDegrees());
                       SmartDashboard.putNumber("angle_of_robot_from_ll", angle_of_robot_from_ll.getDegrees());
-                      
-                      /* TODO: bellow is old code that does not work. likley issue is that limelight is returning a 0,0,0 pose instead of null.
-                      //limelight localisation
-                      //https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization
-
-                      var pose = LimelightHelpers.getBotPose2d("limelght-b");
-                      if (pose != null) m_swerve.visualOdometryUpdate(pose, Timer.getFPGATimestamp());
- */                      }
+                    }
             , kDefaultPeriod);}
   
 
@@ -324,8 +331,6 @@ boolean limelight_b_pose_valid;
   {
     SmartDashboard.putNumber("long_hood_distance",long_hood_distance);
   }
-
-  Command current_rangefind_command = rangeFind();
 
   Timer time_since_ll_target = new Timer();
 
