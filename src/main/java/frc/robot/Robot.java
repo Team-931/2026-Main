@@ -235,8 +235,8 @@ boolean limelight_b_pose_valid;
 
   //{addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   {addPeriodic(() -> {
-                      SmartDashboard.putBoolean("rangefinding?", rangefinding);
-                      
+                      SmartDashboard.putBoolean("rangefinding?", current_rangefind_command.isScheduled());
+
                       m_swerve.updateOdometry();
 
                       SmartDashboard.putBoolean("lime-a vision target found", LimelightHelpers.getTV("limelight-a"));
@@ -348,7 +348,7 @@ boolean limelight_b_pose_valid;
             //use recorded data to guess what hood angle and velocity to use
             transferShooter.rangefinderResults results = shooter.rangefind(distance_to_goal);
             shooter.adjustHood(ShootConstants.kMaxPosition*results.hood_angle); //.77 is the mechanical limit
-            shooter_velocity = results.shooter_velocity + SmartDashboard.getNumber("shotspeed_offset",0.0);
+            shooter_velocity = results.shooter_velocity + SmartDashboard.getNumber("shotspeed_offset",3.0);
             shooter.target_velocity = shooter_velocity;
 
             SmartDashboard.putNumber("auto_shooter_velocity",results.shooter_velocity);
@@ -501,7 +501,7 @@ boolean limelight_b_pose_valid;
   }
 
   {
-    SmartDashboard.putNumber("shotspeed_offset", 0.0);
+    SmartDashboard.putNumber("shotspeed_offset", 3.0);
   }
 
   void setMaxSpeed(double speed) {
