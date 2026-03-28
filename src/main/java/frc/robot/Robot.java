@@ -225,16 +225,18 @@ boolean limelight_b_pose_valid;
   //   networkTableInstance.
   // }
   Command current_rangefind_command = rangeFind();
+  boolean rangefinding = false;
 
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
   {addPeriodic(() -> 
     SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);
-    SmartDashboard.putBoolean("rangefinding?", current_rangefind_command.isScheduled());
   }
 
   //{addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   {addPeriodic(() -> {
+                      SmartDashboard.putBoolean("rangefinding?", rangefinding);
+                      
                       m_swerve.updateOdometry();
 
                       SmartDashboard.putBoolean("lime-a vision target found", LimelightHelpers.getTV("limelight-a"));
@@ -408,6 +410,7 @@ boolean limelight_b_pose_valid;
     //currently this serves as my "automatic shot", not neccecarily short.
     if(opController.getRawButtonPressed(ButtonBoard.HoodShort)){
       current_rangefind_command.schedule();
+      rangefinding = true;
     }
     //currently this serves as my "automatic shot", not neccecarily short.
     if(opController.getRawButtonReleased(ButtonBoard.HoodShort)){
@@ -415,6 +418,7 @@ boolean limelight_b_pose_valid;
     }
     if(opController.getRawButtonPressed(ButtonBoard.HoodLong)){
       current_rangefind_command.cancel();
+      rangefinding = false;
     }
 
     //currently this serves as my "manual shot", not neccecarily long.
@@ -459,6 +463,7 @@ boolean limelight_b_pose_valid;
     climber.homingCommand().schedule();
     intake.homingCommand().schedule();
     current_rangefind_command.schedule();
+    rangefinding = true;
     set_allience_constants();
     m_swerve.drive(0, 0, 0, false); //safety thing
     shooter.idleCommand().schedule();
@@ -595,7 +600,7 @@ boolean limelight_b_pose_valid;
   //This is so ugly.. lol
     if (drive_controller.getRightStickButton()) {permaAutoTurnDisable = true;}
     final var rot = (
-      opController.getRawButton(ButtonBoard.Shoot) && current_rangefind_command.isScheduled() && (!permaAutoTurnDisable)?
+      opController.getRawButton(ButtonBoard.Shoot) && rangefinding && (!permaAutoTurnDisable)?
       //PID for hitting a target position
         turning_pid.calculate(
             m_swerve.reportOdometry().getRotation().minus(angle_to_goal).getRadians(),0)
