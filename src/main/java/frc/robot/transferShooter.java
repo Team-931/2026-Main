@@ -201,8 +201,10 @@ public class transferShooter extends SubsystemBase {
         }
     }
 
+    double transferpower = 1;
+
     void setTransfer(boolean on, boolean reverse) {
-        double power = (on ? ShootConstants.transferPower : 0)*(reverse ? -1 : 1);
+        double power = (on ? ShootConstants.transferPower : 0)*(reverse ? -transferpower : transferpower);
         transfer.set(power);
         feeder_motor.set(power);
     }

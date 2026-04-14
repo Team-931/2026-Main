@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import frc.robot.Climber.Position;
 import frc.robot.Constants.ButtonBoard;
@@ -52,6 +53,9 @@ public class Robot extends TimedRobot {
 
   //create pathfollower commands
   //a compound command automatically requires everything that any peice requires
+  Command current_rangefind_command = rangeFind();
+  boolean rangefinding = false;
+
   Command intakeCommand = intake.intakeCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
   Command outtakeCommand = intake.outtakeCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
   Command agitateCommand = intake.agitateCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
@@ -62,6 +66,7 @@ public class Robot extends TimedRobot {
   Command hangingCommand = climber.positionCommand(Position.HANGING).beforeStarting(Commands.waitUntil(climber::isNotBusy));
   Command releaseHopperCommand = climber.positionCommand(Position.RELEASE_HOPPER).beforeStarting(Commands.waitUntil(climber::isNotBusy));
   Command hungCommand = climber.positionCommand(Position.HUNG).beforeStarting(Commands.waitUntil(climber::isNotBusy));
+  Command flattenHood = Commands.runOnce(()-> {current_rangefind_command.cancel(); shooter.rangefind(0);});
 
   {
     //NamedCommands ONLY supports runonce commands, so you need this goofy stack for it to work without event triggers.
@@ -79,6 +84,8 @@ public class Robot extends TimedRobot {
 
     NamedCommands.registerCommand("launch", Commands.runOnce(()->{shooter.launchCommand().schedule();}));
     NamedCommands.registerCommand("launchCancel", Commands.runOnce(()->{shooter.cancelCommand().schedule();}));
+
+    NamedCommands.registerCommand("flattenHood", flattenHood);
   }
 
   {
@@ -224,8 +231,7 @@ boolean limelight_b_pose_valid;
   //   NetworkTableInstance networkTableInstance = NetworkTableInstance.getDefault();
   //   networkTableInstance.
   // }
-  Command current_rangefind_command = rangeFind();
-  boolean rangefinding = false;
+  
 
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
@@ -277,6 +283,9 @@ boolean limelight_b_pose_valid;
                       Pose2d ll_b_pose = llb_mt2.pose;
                       
                       Pose2d m_swerve_pose_estimate = m_swerve.reportOdometry();
+                      
+                      SmartDashboard.putBoolean("b pose valid", limelight_b_pose_valid);
+                      SmartDashboard.putBoolean("a pose valid", limelight_a_pose_valid);
 
                       if (limelight_a_pose_valid){
 
@@ -292,14 +301,14 @@ boolean limelight_b_pose_valid;
                         // SmartDashboard.putNumber("distance_to_goal_ll (unused)", distance_to_goal_ll);
                       }
 
-                      if (limelight_b_pose_valid){
+                      if (limelight_b_pose_valid && !isAutonomous()){
 
                         Pose2d rotationless_pose = new Pose2d(ll_b_pose.getTranslation(),m_swerve_pose_estimate.getRotation());
 
-                        m_swerve.visualOdometryUpdate(rotationless_pose, lla_mt2.timestampSeconds);
+                        m_swerve.visualOdometryUpdate(rotationless_pose, llb_mt2.timestampSeconds);
 
-                        SmartDashboard.putNumber("ll_b pose x", ll_a_pose.getX());
-                        SmartDashboard.putNumber("ll_b pose y", ll_a_pose.getY());
+                        SmartDashboard.putNumber("ll_b pose x", ll_b_pose.getX());
+                        SmartDashboard.putNumber("ll_b pose y", ll_b_pose.getY());
                         // SmartDashboard.putNumber("ll_b pose orientation degrees", ll_a_pose.getRotation().getDegrees());
                       }
 
@@ -323,13 +332,13 @@ boolean limelight_b_pose_valid;
 
   static boolean useField = true, useVelCtrl = false;
 
-  double shooter_velocity = 70;
+  double shooter_velocity = 61;
 
   {
     SmartDashboard.putNumber("shooter_velocity",shooter_velocity);
   }
   
-  double long_hood_distance = 1;
+  double long_hood_distance = 0.4;
   {
     SmartDashboard.putNumber("long_hood_distance",long_hood_distance);
   }
