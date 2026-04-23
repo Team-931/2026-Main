@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "hang"
@@ -13,19 +19,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RightOverRamp"
+            "pathName": "Hang with creative rotate"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "sweep and return"
+            "name": "hung"
           }
         }
       ]

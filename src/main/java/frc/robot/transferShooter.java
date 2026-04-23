@@ -16,9 +16,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.FeederConst;
 import frc.robot.Constants.ShootConstants;
@@ -71,10 +69,8 @@ public class transferShooter extends SubsystemBase {
         configureMotor(shooterLeft, InvertedValue.CounterClockwise_Positive);
         configureMotor(shooterMid, InvertedValue.CounterClockwise_Positive);
     }
-    Follower followRight = new Follower(ShootConstants.RightShootID, MotorAlignmentValue.Opposed);
+    // Follower followRight = new Follower(ShootConstants.RightShootID, MotorAlignmentValue.Opposed);
     VelocityVoltage velocityRequest = new VelocityVoltage(0);
-
-
 
 
     //fucntions and commands
@@ -98,6 +94,10 @@ public class transferShooter extends SubsystemBase {
         );
     }
 
+    public Command idleCommand(){
+        return runOnce(()->{shoot_with_velocity(ShootConstants.idle_velocity);});
+    }
+
     public Command launchCommand() {
         return startRun(
             () -> {
@@ -108,7 +108,7 @@ public class transferShooter extends SubsystemBase {
                 //implement the autoranging here?
                 shoot_with_velocity(target_velocity);
                 if (!launching){
-                    if (get_shooter_ready(3)){
+                    if (get_shooter_ready(1)){
                         setTransfer(true,false);
                         launching = true;
                     }
@@ -117,7 +117,7 @@ public class transferShooter extends SubsystemBase {
         ).finallyDo(
             ()->{
                 setTransfer(false,false);
-                shoot_with_velocity(0);
+                shoot_with_velocity(ShootConstants.idle_velocity);
             }
         );
     };
@@ -179,8 +179,8 @@ public class transferShooter extends SubsystemBase {
         shooterHoodMap.put(4.34,0.65);
         shooterVelocityMap.put(4.34,60.0);
 
-        //tuned for center
-        shooterHoodMap.put(4.92,0.75);
+        //tuned for center -- changed from 0.75 - 0.80
+        shooterHoodMap.put(4.92,0.8);
         shooterVelocityMap.put(4.92,63.0);
     }
     
@@ -201,8 +201,10 @@ public class transferShooter extends SubsystemBase {
         }
     }
 
+    double transferpower = 1;
+
     void setTransfer(boolean on, boolean reverse) {
-        double power = (on ? ShootConstants.transferPower : 0)*(reverse ? -1 : 1);
+        double power = (on ? ShootConstants.transferPower : 0)*(reverse ? -transferpower : transferpower);
         transfer.set(power);
         feeder_motor.set(power);
     }

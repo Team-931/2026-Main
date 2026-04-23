@@ -12,6 +12,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import frc.robot.Constants.DrvConst;
+
 import static edu.wpi.first.units.Units.RPM;
 
 
@@ -37,7 +39,7 @@ final class Constants {
     }
     /** used by {@link Drivetrain} */
     static final class DrvConst {
-         static final double kMaxSpeed = 3.0, overloadSpeed = SwvModConst.freeVeloc/* or kMaxSpeed */; // meters per second
+         static final double kMaxSpeed = 2.5, overloadSpeed = SwvModConst.freeVeloc/* or kMaxSpeed */; // meters per second
          static final double kMaxAngularSpeed = 2*Math.PI; // 1.0 rotation per second
          /** Everything specific to one wheel corner */
          static final class Setup {
@@ -101,7 +103,7 @@ final class Constants {
          static final double traj_kP = 2;
          static final double orientationttitudeP = 0;
          /** Distrust vision about heading. */
-         static final double VisionStvDev = 1000000000;
+         static final double VisionStvDev = 1000000000; //1 billion radians of standard deviation
 
     }
     static final class SwvModConst {
@@ -131,6 +133,8 @@ final class Constants {
         // percent of full power (or velocity if using velocity control)
         // for shooters when turned on
         static final double launch_speed = 1;
+
+        static final double idle_velocity = 50;
         // percent of full power (or velocity if using velocity control)
         // for tranfer when turned on
         static final double transferPower = .5;

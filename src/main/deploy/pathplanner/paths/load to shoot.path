@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.5618781006378466,
-        "y": 2.458732193732195
+        "x": 0.9355776045357909,
+        "y": 0.6377675407512391
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3124318111736946,
-        "y": 2.4421024411012504
+        "x": 1.790510276404203,
+        "y": 2.077654146000766
       },
       "isLocked": false,
-      "linkedName": "return ramp right"
+      "linkedName": "loading_point"
     },
     {
       "anchor": {
-        "x": 2.533418803418803,
-        "y": 3.0401424501424517
+        "x": 2.5,
+        "y": 3.743
       },
       "prevControl": {
-        "x": 2.783418803418803,
-        "y": 3.0401424501424517
+        "x": 2.5128561304039687,
+        "y": 2.5730921332388372
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "humanLoadAfterShoot"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 25.70995378081126
+    "rotation": 6.457605998754989
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

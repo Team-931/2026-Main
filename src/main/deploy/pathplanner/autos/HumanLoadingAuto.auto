@@ -1,0 +1,103 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "enableVisionUpdates"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "hanging"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ramp to load"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "unstow"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "load to shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "launch"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "hung"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "launchCancel"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "humanLoadHang"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "hanging"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.5
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "hang"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "hung"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

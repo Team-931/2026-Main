@@ -7,15 +7,19 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-
+import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.jni.WPIMathJNI;
 //import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -23,6 +27,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 //import edu.wpi.first.wpilibj.PS4Controller.Button;
 //import edu.wpi.first.wpilibj.smartdashboard.Field2d; //not using it now
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -30,6 +35,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import frc.robot.Climber.Position;
 import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.DrvConst;
@@ -45,14 +52,46 @@ public class Robot extends TimedRobot {
   private final Drivetrain m_swerve = new Drivetrain();
 
   //create pathfollower commands
+  //a compound command automatically requires everything that any peice requires
+  Command current_rangefind_command = rangeFind();
+  boolean rangefinding = false;
+
+  Command intakeCommand = intake.intakeCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
+  Command outtakeCommand = intake.outtakeCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
+  Command agitateCommand = intake.agitateCommand().beforeStarting(Commands.waitUntil(climber::isReleased));
+  Command stowCommand = intake.stowCommand(true);
+  Command unstowCommand = intake.stowCommand(false).beforeStarting(Commands.waitUntil(climber::isReleased));
+  Command cancelIntakeCommand = intake.cancelCommand();
+
+  Command hangingCommand = climber.positionCommand(Position.HANGING).beforeStarting(Commands.waitUntil(climber::isNotBusy));
+  Command releaseHopperCommand = climber.positionCommand(Position.RELEASE_HOPPER).beforeStarting(Commands.waitUntil(climber::isNotBusy));
+  Command hungCommand = climber.positionCommand(Position.HUNG).beforeStarting(Commands.waitUntil(climber::isNotBusy));
+  Command flattenHood = Commands.runOnce(()-> {current_rangefind_command.cancel(); shooter.rangefind(0);});
+
   {
     //NamedCommands ONLY supports runonce commands, so you need this goofy stack for it to work without event triggers.
 
-    NamedCommands.registerCommand("intake", Commands.runOnce(()->{intake.intakeCommand().schedule();}));
-    NamedCommands.registerCommand("outtake", Commands.runOnce(()->{intake.outtakeCommand().schedule();}));
-    NamedCommands.registerCommand("agitate", Commands.runOnce(()->{intake.agitateCommand().schedule();}));
-    NamedCommands.registerCommand("stowed", Commands.runOnce(()->{intake.stowedCommand(true).schedule();}));
-    NamedCommands.registerCommand("cancelIntake", Commands.runOnce(()->{intake.cancelCommand().schedule();}));
+    NamedCommands.registerCommand("intake", Commands.runOnce(()->{intakeCommand.schedule();}));
+    NamedCommands.registerCommand("outtake", Commands.runOnce(()->{outtakeCommand.schedule();}));
+    NamedCommands.registerCommand("agitate", Commands.runOnce(()->{agitateCommand.schedule();}));
+    NamedCommands.registerCommand("stow", Commands.runOnce(()->{stowCommand.schedule();}));
+    NamedCommands.registerCommand("cancelIntake", cancelIntakeCommand);
+    NamedCommands.registerCommand("unstow", Commands.runOnce(()->{unstowCommand.schedule();}));
+  
+    NamedCommands.registerCommand("hanging", Commands.runOnce(()->{climber.positionCommand(Position.HANGING).schedule();}));
+    NamedCommands.registerCommand("hung", Commands.runOnce(()->{climber.positionCommand(Position.HOMED).schedule();}));
+    NamedCommands.registerCommand("releaseHopper", Commands.runOnce(()->{climber.positionCommand(Position.RELEASE_HOPPER).schedule();}));
+
+    NamedCommands.registerCommand("launch", Commands.runOnce(()->{shooter.launchCommand().schedule();}));
+    NamedCommands.registerCommand("launchCancel", Commands.runOnce(()->{shooter.cancelCommand().schedule();}));
+
+    NamedCommands.registerCommand("flattenHood", flattenHood);
+  }
+
+  {
+      new EventTrigger("intake").onTrue(Commands.runOnce(()->{intakeCommand.schedule();})).onFalse(cancelIntakeCommand);
+      new EventTrigger("unstow").onTrue(Commands.runOnce(()->{unstowCommand.schedule();}));
+      new EventTrigger("blank"); //This might be useful!
   }
 
 // Generate trajectories, and their landmarks, before game starts.
@@ -113,10 +152,11 @@ public class Robot extends TimedRobot {
  */
 //TrajectoryWrap trajectoryWrap = new TrajectoryWrap();
 
-double distance_to_goal;
-Rotation2d angle_to_goal;
-Rotation2d angle_of_robot_from_ll;
-boolean limelight_pose_valid;
+double distance_to_goal = 0.0;
+Rotation2d angle_to_goal = Rotation2d.kZero;
+Rotation2d angle_of_robot_from_ll = Rotation2d.kZero;
+boolean limelight_a_pose_valid;
+boolean limelight_b_pose_valid;
 /* 
 // TODO: allow setting current OrientationPlan
   public class OrientationWrap {
@@ -143,17 +183,40 @@ boolean limelight_pose_valid;
     
     }
  */    
-  //TODO: make a team set call like I did in ftc that is called at init.
+  
+  boolean teleop_angle_hold = false;
+  double teleop_angle_hold_output = 0.0;
+  // {
+  //   //once
+  //   SmartDashboard.putBoolean("teleop_angle_hold",teleop_angle_hold);
+  //   //
+  //   addPeriodic(()->{
+  //     boolean dashboard_result = SmartDashboard.getBoolean("teleop_angle_hold",false);
+  //     if (teleop_angle_hold != dashboard_result){
+  //       // rotation_from_joystick = m_swerve.reportOdometry().getRotation();
+  //     }
+
+  //     teleop_angle_hold = dashboard_result;
+  //   }
+  //   , kDefaultPeriod);
+  // }
     
   public Alliance currentAlliance;
 
   Pose2d hub_pose = new Pose2d(0.0,0.0,Rotation2d.kZero); //to prevent throwing nulls
   
+  Field2d m_field = new Field2d();
+
   Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);  
+
+  Rotation2d allience_flip_rotation;
 
   public void set_allience_constants(){
     //get what allience we are from the driver station and store it
     currentAlliance = DriverStation.getAlliance().get();
+
+    allience_flip_rotation = (currentAlliance== Alliance.Blue ? Rotation2d.kZero : Rotation2d.k180deg);
+    // rotation_from_joystick = allience_flip_rotation;
 
     //if we are red..
     if (currentAlliance == Alliance.Red){
@@ -164,11 +227,22 @@ boolean limelight_pose_valid;
     }
   }
 
+  // {
+  //   NetworkTableInstance networkTableInstance = NetworkTableInstance.getDefault();
+  //   networkTableInstance.
+  // }
+  
+
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
-  {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);}
+  {addPeriodic(() -> 
+    SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);
+  }
+
   //{addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   {addPeriodic(() -> {
+                      SmartDashboard.putBoolean("rangefinding?", current_rangefind_command.isScheduled());
+
                       m_swerve.updateOdometry();
 
                       SmartDashboard.putBoolean("lime-a vision target found", LimelightHelpers.getTV("limelight-a"));
@@ -177,77 +251,97 @@ boolean limelight_pose_valid;
                       Rotation2d heading_from_swerve = m_swerve.reportOdometry().getRotation();
 
                       LimelightHelpers.SetRobotOrientation("limelight-a", heading_from_swerve.getDegrees(), 0, 0, 0, 0, 0);
-                      LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-a");
+                      LimelightHelpers.SetRobotOrientation("limelight-b", heading_from_swerve.getDegrees(), 0, 0, 0, 0, 0);
                       
-                      limelight_pose_valid = LimelightHelpers.validPoseEstimate(mt2);
+                      LimelightHelpers.PoseEstimate lla_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-a");
+                      LimelightHelpers.PoseEstimate llb_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-b");
+                      
+                      limelight_a_pose_valid = LimelightHelpers.validPoseEstimate(lla_mt2);
+                      limelight_b_pose_valid = LimelightHelpers.validPoseEstimate(llb_mt2);
 
-                      //This used to cause crashes before checking if valid pose before doing.
-                      if (limelight_pose_valid){
-                        SmartDashboard.putNumber("ambiguity",mt2.rawFiducials[0].ambiguity);
+                      if (lla_mt2.pose == feild_center_pose){
+                        limelight_a_pose_valid = false;
                       }
-                      if (mt2.pose == feild_center_pose){
-                        limelight_pose_valid = false;
+                      if (lla_mt2.tagCount == 0) {
+                        limelight_a_pose_valid = false;
                       }
-                      if (mt2.tagCount == 0) {
-                        limelight_pose_valid = false;
+
+                      if (llb_mt2.pose == feild_center_pose){
+                        limelight_b_pose_valid = false;
                       }
+                      if (llb_mt2.tagCount == 0) {
+                        limelight_b_pose_valid = false;
+                      }
+
+
                       //TODO: do a check for if we are turning quickly and redject updates
 
-                      SmartDashboard.putNumber("heading_from_swerve", heading_from_swerve.getDegrees());
+                      SmartDashboard.putNumber("heading_from_swerve_deg", heading_from_swerve.getDegrees());
+                      SmartDashboard.putNumber("heading_from_swerve_rad", heading_from_swerve.getRadians());
+
+                      Pose2d ll_a_pose = lla_mt2.pose;
+                      Pose2d ll_b_pose = llb_mt2.pose;
                       
-                      if (limelight_pose_valid){
-                        Pose2d ll_pose = mt2.pose;
-                        //TODO: This code causes the heading to spin constantly - it's wrong. need to fix it before implementing.
+                      Pose2d m_swerve_pose_estimate = m_swerve.reportOdometry();
+                      
+                      SmartDashboard.putBoolean("b pose valid", limelight_b_pose_valid);
+                      SmartDashboard.putBoolean("a pose valid", limelight_a_pose_valid);
 
-                        Pose2d rotationless_pose = new Pose2d(ll_pose.getTranslation(),m_swerve.reportOdometry().getRotation());
+                      if (limelight_a_pose_valid){
 
-                        m_swerve.visualOdometryUpdate(rotationless_pose, mt2.timestampSeconds);
+                        Pose2d rotationless_pose = new Pose2d(ll_a_pose.getTranslation(),m_swerve_pose_estimate.getRotation());
+                        
+                        m_swerve.visualOdometryUpdate(rotationless_pose, lla_mt2.timestampSeconds);
 
-                        Pose2d m_swerve_pose_estimate = m_swerve.reportOdometry();
+                        SmartDashboard.putNumber("ll_a pose x", ll_a_pose.getX());
+                        SmartDashboard.putNumber("ll_a pose y", ll_a_pose.getY());
+                        // SmartDashboard.putNumber("ll_a pose orientation degrees", ll_a_pose.getRotation().getDegrees());
 
-                        SmartDashboard.putNumber("ll_b pose x", ll_pose.getX());
-                        SmartDashboard.putNumber("ll_b pose y", ll_pose.getY());
-                        SmartDashboard.putNumber("ll_b pose orientation degrees", ll_pose.getRotation().getDegrees());
-
-                        double distance_to_goal_ll = ll_pose.getTranslation().getDistance(hub_pose.getTranslation());
-                        SmartDashboard.putNumber("distance_to_goal_ll (unused)", distance_to_goal_ll);
-
-                        distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());
-                        SmartDashboard.putNumber("distance_to_goal_est (used)", distance_to_goal);
-
-                        //TODO: why does this go to 0 when facing the goal? since it's just translational components it should not change when we rotate.
-                        //angle_to_goal = hub_pose.minus(ll_pose).getTranslation().getAngle(); //This gives the diverence between the current angle and goal angle
-                        angle_to_goal = hub_pose.getTranslation().minus(m_swerve_pose_estimate.getTranslation()).getAngle(); //This should be global angle reguardless of robot orientation
-                        angle_of_robot_from_ll = ll_pose.getRotation();
-
-                        SmartDashboard.putNumber("angle_to_goal_est", angle_to_goal.getDegrees());
-                        SmartDashboard.putNumber("angle_of_robot_from_ll", angle_of_robot_from_ll.getDegrees());
+                        // double distance_to_goal_ll = ll_a_pose.getTranslation().getDistance(hub_pose.getTranslation());
+                        // SmartDashboard.putNumber("distance_to_goal_ll (unused)", distance_to_goal_ll);
                       }
-                      
-                      /* TODO: bellow is old code that does not work. likley issue is that limelight is returning a 0,0,0 pose instead of null.
-                      //limelight localisation
-                      //https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization
 
-                      var pose = LimelightHelpers.getBotPose2d("limelght-b");
-                      if (pose != null) m_swerve.visualOdometryUpdate(pose, Timer.getFPGATimestamp());
- */                      }
+                      if (limelight_b_pose_valid && !isAutonomous()){
+
+                        Pose2d rotationless_pose = new Pose2d(ll_b_pose.getTranslation(),m_swerve_pose_estimate.getRotation());
+
+                        m_swerve.visualOdometryUpdate(rotationless_pose, llb_mt2.timestampSeconds);
+
+                        SmartDashboard.putNumber("ll_b pose x", ll_b_pose.getX());
+                        SmartDashboard.putNumber("ll_b pose y", ll_b_pose.getY());
+                        // SmartDashboard.putNumber("ll_b pose orientation degrees", ll_a_pose.getRotation().getDegrees());
+                      }
+
+                      m_swerve_pose_estimate = m_swerve.reportOdometry();
+                      SmartDashboard.putData("feild",m_field);
+                      {
+                        m_field.setRobotPose(m_swerve_pose_estimate);
+                      }
+
+                      distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());
+                      SmartDashboard.putNumber("distance_to_goal_est (used)", distance_to_goal);
+
+                      angle_to_goal = hub_pose.getTranslation().minus(m_swerve_pose_estimate.getTranslation()).getAngle(); //This should be global angle reguardless of robot orientation
+                      angle_of_robot_from_ll = ll_a_pose.getRotation();
+
+                      SmartDashboard.putNumber("angle_to_goal_est", angle_to_goal.getDegrees());
+                      SmartDashboard.putNumber("angle_of_robot_from_ll", angle_of_robot_from_ll.getDegrees());
+                    }
             , kDefaultPeriod);}
   
 
   static boolean useField = true, useVelCtrl = false;
 
-  double shooter_velocity = 70;
+  double shooter_velocity = 61;
 
   {
     SmartDashboard.putNumber("shooter_velocity",shooter_velocity);
   }
   
-  double long_hood_distance = 1;
+  double long_hood_distance = 0.4;
   {
     SmartDashboard.putNumber("long_hood_distance",long_hood_distance);
   }
-
-  Command current_rangefind_command = rangeFind();
 
   Timer time_since_ll_target = new Timer();
 
@@ -259,23 +353,23 @@ boolean limelight_pose_valid;
       () ->{
           // shooter.adjustHood(ShootConstants.kMinPosition); //.77 is the mechanical limit
 
-        if (limelight_pose_valid){
+        if (distance_to_goal != 0.0){
             //use recorded data to guess what hood angle and velocity to use
             transferShooter.rangefinderResults results = shooter.rangefind(distance_to_goal);
             shooter.adjustHood(ShootConstants.kMaxPosition*results.hood_angle); //.77 is the mechanical limit
-            shooter_velocity = results.shooter_velocity;
+            shooter_velocity = results.shooter_velocity + SmartDashboard.getNumber("shotspeed_offset",3.0);
             shooter.target_velocity = shooter_velocity;
 
             SmartDashboard.putNumber("auto_shooter_velocity",results.shooter_velocity);
             SmartDashboard.putNumber("auto_hood_angle",results.hood_angle);
             time_since_ll_target.reset();
-        } else if (time_since_ll_target.hasElapsed(1)){
-            //what to do if limelight broke or can't see etc
-            transferShooter.rangefinderResults results = shooter.rangefind(2);
-            shooter.adjustHood(ShootConstants.kMaxPosition*results.hood_angle); //.77 is the mechanical limit
-            shooter_velocity = results.shooter_velocity;
-            shooter.target_velocity = shooter_velocity;
-        }
+        } //else if (time_since_ll_target.hasElapsed(1)){
+        //     //what to do if limelight broke or can't see etc
+        //     transferShooter.rangefinderResults results = shooter.rangefind(2);
+        //     shooter.adjustHood(ShootConstants.kMaxPosition*results.hood_angle); //.77 is the mechanical limit
+        //     shooter_velocity = results.shooter_velocity;
+        //     shooter.target_velocity = shooter_velocity;
+        // }
       }
     );
   }
@@ -291,7 +385,7 @@ boolean limelight_pose_valid;
 //transfershooter related things
 
     if(opController.getRawButtonPressed(ButtonBoard.Shoot)) {
-      intake.agitateCommand().schedule();
+      agitateCommand.schedule();
       shooter.target_velocity = shooter_velocity;
       shooter.launchCommand().schedule();
       //force feild centric when shooting
@@ -307,7 +401,7 @@ boolean limelight_pose_valid;
     }
     if(opController.getRawButtonReleased(ButtonBoard.Shoot)) {
       shooter.cancelCommand().schedule();
-      intake.cancelCommand().schedule();
+      cancelIntakeCommand.schedule();
     }
 
 
@@ -325,10 +419,15 @@ boolean limelight_pose_valid;
     //currently this serves as my "automatic shot", not neccecarily short.
     if(opController.getRawButtonPressed(ButtonBoard.HoodShort)){
       current_rangefind_command.schedule();
+      rangefinding = true;
     }
     //currently this serves as my "automatic shot", not neccecarily short.
     if(opController.getRawButtonReleased(ButtonBoard.HoodShort)){
+      
+    }
+    if(opController.getRawButtonPressed(ButtonBoard.HoodLong)){
       current_rangefind_command.cancel();
+      rangefinding = false;
     }
 
     //currently this serves as my "manual shot", not neccecarily long.
@@ -352,26 +451,31 @@ boolean limelight_pose_valid;
     //intake related stuff
 
     if(opController.getRawButtonPressed(ButtonBoard.IntakeUp))
-      intake.stowedCommand(true).schedule();
+      stowCommand.schedule();
 
     if(opController.getRawButtonPressed(ButtonBoard.IntakeDown))
-      intake.stowedCommand(false).schedule();
+      unstowCommand.schedule();
 
     if(opController.getRawButtonPressed(ButtonBoard.FuelIn))
-      intake.intakeCommand().schedule();
+      intakeCommand.schedule();
 
     if(opController.getRawButtonPressed(ButtonBoard.FuelOut))
-      intake.outtakeCommand().schedule();
+      outtakeCommand.schedule();
 
     if(opController.getRawButtonReleased(ButtonBoard.FuelIn)||opController.getRawButtonReleased(ButtonBoard.FuelOut))
-      intake.cancelCommand().schedule();
+      cancelIntakeCommand.schedule();
   }
+
 
   @Override
   public void disabledExit() {
     climber.homingCommand().schedule();
     intake.homingCommand().schedule();
+    current_rangefind_command.schedule();
+    rangefinding = true;
     set_allience_constants();
+    m_swerve.drive(0, 0, 0, false); //safety thing
+    shooter.idleCommand().schedule();
   }
   private boolean firstTimeDisabled = true;
 
@@ -380,7 +484,6 @@ boolean limelight_pose_valid;
     if (firstTimeDisabled)
     {
       firstTimeDisabled = false;
-      //m_swerve.zeroYaw();//TODO: check if need
       showFieldCtr();
 
       PortForwarder.add(5801, "172.28.0.1", 5801);
@@ -406,6 +509,10 @@ boolean limelight_pose_valid;
     SmartDashboard.putNumber("Max. angular speed", maxAngularSpeed);
   }
 
+  {
+    SmartDashboard.putNumber("shotspeed_offset", 3.0);
+  }
+
   void setMaxSpeed(double speed) {
     maxSpeed = speed;
   }
@@ -418,26 +525,56 @@ boolean limelight_pose_valid;
     SmartDashboard.putBoolean("Field Centered", useField);
   }
 
-  PIDController turning_pid = new PIDController(3, 0, 0);
+  PIDController turning_pid = new PIDController(5, 3, 0);
+
+  {
+    turning_pid.setIZone(0.3); //0.3 radians
+  }
+
+  {
+    //max speed when crossing ramp
+    SmartDashboard.putNumber("ramp_max_speed",2.1);
+  }
+
+  // Rotation2d rotation_from_joystick = Rotation2d.kZero;
+
+  boolean permaAutoTurnDisable = false;
 
   private void driveWithJoystick(boolean fieldRelative) {
-    if(drive_controller.getLeftBumperButtonPressed()) m_swerve.setXPosture();
-    if(drive_controller.getAButtonPressed()) m_swerve.zeroYaw(currentAlliance == Alliance.Red); /* useVelCtrl ^= true; */
+    if(drive_controller.getXButtonPressed()) m_swerve.setXPosture();
+    if(drive_controller.getYButtonPressed()) m_swerve.zeroYaw(currentAlliance == Alliance.Red); /* useVelCtrl ^= true; */
 
     //swap between feild centric and robot centric but only if we're not shooting
     if(drive_controller.getBButtonPressed() && !opController.getRawButton(ButtonBoard.Shoot)) {
       useField ^= true;
       showFieldCtr();
     }
-    if(drive_controller.getXButton()) {
-      m_swerve.fullSpeed();
-      return;
+    //This function is really weird and I don't like it.
+    // if(drive_controller.getXButton()) {
+    //   m_swerve.fullSpeed();
+    //   return;
+    // }
+    
+    
+    if(drive_controller.getRightBumperButton()){
+      setMaxSpeed(SmartDashboard.getNumber("ramp_max_speed", 2.1));
+    } else {
+      //there are better ways to call this stuff less
+      double hyperspeed = 3.2;
+      double hypospeed = 0.75;
+        //drive_controller.getLeftTriggerAxis()*0.75
+      double slowdown_ammount = (DrvConst.kMaxSpeed-hypospeed)*drive_controller.getLeftTriggerAxis();
+      double speedup_ammount = (hyperspeed-DrvConst.kMaxSpeed)*drive_controller.getRightTriggerAxis();
+      double speed_multiplier = (DrvConst.kMaxSpeed - slowdown_ammount+speedup_ammount)/DrvConst.kMaxSpeed;
+
+      double speed_to_set = DrvConst.kMaxSpeed*speed_multiplier;
+
+      SmartDashboard.putNumber("maxspeed",speed_to_set);
+
+      setMaxSpeed(speed_to_set);
+      setMaxAngularSpeed(DrvConst.kMaxAngularSpeed*speed_multiplier);
     }
-    if(true) { //there are better ways to call this stuff less.
-      double slowdown_multiplier = 1-drive_controller.getLeftTriggerAxis()*0.75;
-      setMaxSpeed(DrvConst.kMaxSpeed*slowdown_multiplier);
-      setMaxAngularSpeed(DrvConst.kMaxAngularSpeed*slowdown_multiplier);
-    }
+
    
     // DONE: have max speed modifiable
     // Get the x speed. We are inverting this because Xbox controllers return
@@ -460,18 +597,32 @@ boolean limelight_pose_valid;
 
     //currently this will just stop you from rotating while shooting. 
     //TODO: implement the pid so shooting causes the robot to target the goal
+    
+    // if (Math.pow(drive_controller.getRightX(),2)+Math.pow(drive_controller.getRightY(),2)>Math.pow(0.2,2)){
+    //   rotation_from_joystick = new Rotation2d(drive_controller.getRightY(),drive_controller.getRightX()).minus(allience_flip_rotation);
+
+    //   teleop_angle_hold_output = turning_pid.calculate(
+    //         m_swerve.reportOdometry().getRotation().minus(rotation_from_joystick).getRadians(),0);
+    // } else {
+    //   teleop_angle_hold_output = 0;
+    // }
+  //This is so ugly.. lol
+    if (drive_controller.getRightStickButton()) {permaAutoTurnDisable = true;}
     final var rot = (
-      opController.getRawButton(ButtonBoard.Shoot) ?
-      //PID for hitting a target position - not done
+      opController.getRawButton(ButtonBoard.Shoot) && rangefinding && (!permaAutoTurnDisable)?
+      //PID for hitting a target position
         turning_pid.calculate(
             m_swerve.reportOdometry().getRotation().minus(angle_to_goal).getRadians(),0)
       :
-      //gamepad related tuning
-      - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
+      // gamepad related tuning
+      teleop_angle_hold ? 
+        teleop_angle_hold_output
+      :
+        - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))*maxAngularSpeed
     );
-        
+    
 
-    m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative);
+    m_swerve.drive(xSpeed, ySpeed, MathUtil.clamp(rot,-maxAngularSpeed,maxAngularSpeed), fieldRelative);
   }
 
   //auto stuff

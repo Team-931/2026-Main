@@ -7,25 +7,43 @@
         {
           "type": "named",
           "data": {
-            "name": "hang"
+            "name": "releaseHopper"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RightOverRamp"
+            "pathName": "Ramptoshoot"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "intake"
+            "name": "launch"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 6.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "launchCancel"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "sweep and return"
+            "pathName": "spinghang"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "hanging"
           }
         }
       ]

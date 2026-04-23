@@ -73,7 +73,6 @@ public class Drivetrain extends SubsystemBase {
 
     //I put autobuilder.configure in the try accept for now because it said "config may not have stored value"
     //Assuming getting config works then this should totally work.
-    //TODO: Do I need to put some code in periodic for this to work, or will it just work?
 
     RobotConfig config = null;
     try{

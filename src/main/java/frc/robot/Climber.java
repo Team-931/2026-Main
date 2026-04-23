@@ -38,7 +38,7 @@ public class Climber extends SubsystemBase {
     public enum Position {
         HOMED(0),
         RELEASE_HOPPER(2),
-        HANGING(5), //TODO: once the permenant knots are done this will likley need to be re-done.
+        HANGING(4.2), //TODO: once the permenant knots are done this will likley need to be re-done. IMPORTANT!!!
         HUNG(0.2);
 
         private final double inches;
@@ -55,6 +55,8 @@ public class Climber extends SubsystemBase {
     /** I changed your guess, Elliot, to {@code 142/5} as slightly smaller than my first guess, 30, annd an integer divisor from WCP's 142 */
     private static final Per<DistanceUnit, AngleUnit> kHangerExtensionPerMotorAngle = Inches.of(6).div(Rotations.of(143.775)); //This last number is entirely a guess. There is no logic to this number.
     private static final Distance kExtensionTolerance = Inches.of(1);
+
+    boolean hopper_free = false;
 
     private final TalonFX climbMotor;
     private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withSlot(0);
@@ -95,11 +97,19 @@ public class Climber extends SubsystemBase {
         SmartDashboard.putData(this);
     }
 
+    public boolean isNotBusy(){
+        return getCurrentCommand() == null;
+    }
+
     public void set(Position position) {
         climbMotor.setControl(
             motionMagicRequest
                 .withPosition(position.motorAngle())
         );
+    }
+
+    public void get_position() {
+        climbMotor.getPosition();
     }
 
     public void setPercentOutput(double percentOutput) {
@@ -114,14 +124,30 @@ public class Climber extends SubsystemBase {
             .andThen(Commands.waitUntil(this::isExtensionWithinTolerance));
     }
 
+    public boolean isReleased(){
+        SmartDashboard.putNumber("climber position", climbMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("climber target position", 0.95*Position.RELEASE_HOPPER.motorAngle().in(Rotations));
+
+        boolean result = climbMotor.getPosition().getValueAsDouble() >= 0.95*Position.RELEASE_HOPPER.motorAngle().in(Rotations)
+        &&
+        isHomed;
+        if (result) hopper_free = true;
+        return result || hopper_free;
+    }
+
+    public void setHomed(){
+        climbMotor.setPosition(Position.HOMED.motorAngle());
+        isHomed = true;
+        set(Position.HANGING);
+    }
+
     public Command homingCommand() {
         return Commands.sequence(
-            runOnce(() -> setPercentOutput(-0.05)),
-            Commands.waitUntil(() -> climbMotor.getSupplyCurrent().getValue().in(Amps) > 0.4),
+            runOnce(() -> setPercentOutput(-0.2)), //make this 4x stronger/faster bc its so slow
+            Commands.waitUntil(() -> climbMotor.getSupplyCurrent().getValue().in(Amps) > 1.6),//original was 0.4
             runOnce(() -> {
-                climbMotor.setPosition(Position.HOMED.motorAngle());
-                isHomed = true;
-                set(Position.RELEASE_HOPPER);
+                setHomed();
+                
             })
         )
         .unless(() -> isHomed)
