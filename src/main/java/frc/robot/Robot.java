@@ -317,15 +317,17 @@ boolean limelight_b_pose_valid;
                       {
                         m_field.setRobotPose(m_swerve_pose_estimate);
                       }
+                      
+                      if (isEnabled()) {
+                        distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());
+                        SmartDashboard.putNumber("distance_to_goal_est (used)", distance_to_goal);
 
-                      distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());
-                      SmartDashboard.putNumber("distance_to_goal_est (used)", distance_to_goal);
+                        angle_to_goal = hub_pose.getTranslation().minus(m_swerve_pose_estimate.getTranslation()).getAngle(); //This should be global angle reguardless of robot orientation
+                        angle_of_robot_from_ll = ll_a_pose.getRotation();
 
-                      angle_to_goal = hub_pose.getTranslation().minus(m_swerve_pose_estimate.getTranslation()).getAngle(); //This should be global angle reguardless of robot orientation
-                      angle_of_robot_from_ll = ll_a_pose.getRotation();
-
-                      SmartDashboard.putNumber("angle_to_goal_est", angle_to_goal.getDegrees());
-                      SmartDashboard.putNumber("angle_of_robot_from_ll", angle_of_robot_from_ll.getDegrees());
+                        SmartDashboard.putNumber("angle_to_goal_est", angle_to_goal.getDegrees());
+                        SmartDashboard.putNumber("angle_of_robot_from_ll", angle_of_robot_from_ll.getDegrees());
+                      }
                     }
             , kDefaultPeriod);}
   
@@ -486,15 +488,15 @@ boolean limelight_b_pose_valid;
       firstTimeDisabled = false;
       showFieldCtr();
 
-      PortForwarder.add(5801, "172.28.0.1", 5801);
-      PortForwarder.add(5802, "172.28.0.1", 5802);
-      PortForwarder.add(5803, "172.28.0.1", 5803);
-      PortForwarder.add(5804, "172.28.0.1", 5804);
-      PortForwarder.add(5805, "172.28.0.1", 5805);
-      PortForwarder.add(5806, "172.28.0.1", 5806);
-      PortForwarder.add(5807, "172.28.0.1", 5807);
-      PortForwarder.add(5808, "172.28.0.1", 5808);
-      PortForwarder.add(5809, "172.28.0.1", 5809);
+      PortForwarder.add(5801, "172.29.0.1", 5801);
+      PortForwarder.add(5802, "172.29.0.1", 5802);
+      PortForwarder.add(5803, "172.29.0.1", 5803);
+      PortForwarder.add(5804, "172.29.0.1", 5804);
+      PortForwarder.add(5805, "172.29.0.1", 5805);
+      PortForwarder.add(5806, "172.29.0.1", 5806);
+      PortForwarder.add(5807, "172.29.0.1", 5807);
+      PortForwarder.add(5808, "172.29.0.1", 5808);
+      PortForwarder.add(5809, "172.29.0.1", 5809);
     }
     // useful only on limelight-b
     LimelightHelpers.setLEDMode_ForceOff("limelight-b");
