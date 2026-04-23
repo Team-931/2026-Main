@@ -191,7 +191,7 @@ public class transferShooter extends SubsystemBase {
         );
     }
 
-    public class rangefinderResults{
+    public static class rangefinderResults{
         double hood_angle;
         double shooter_velocity;
 

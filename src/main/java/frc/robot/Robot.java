@@ -42,6 +42,7 @@ import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.DrvConst;
 import frc.robot.Constants.ShootConstants;
 import frc.robot.LimelightHelpers.PoseEstimate;
+import frc.robot.transferShooter.rangefinderResults;
 
 public class Robot extends TimedRobot {
   private final XboxController drive_controller = new XboxController(0);
@@ -341,6 +342,13 @@ boolean limelight_b_pose_valid;
   double long_hood_distance = 0.4;
   {
     SmartDashboard.putNumber("long_hood_distance",long_hood_distance);
+  }
+
+  SendableChooser<rangefinderResults> rangeChooser = new SendableChooser<>();
+
+  {
+    rangeChooser.setDefaultOption("Long", new rangefinderResults(long_hood_distance, shooter_velocity));
+    SmartDashboard.putData("Range chooser", rangeChooser);
   }
 
   Timer time_since_ll_target = new Timer();
