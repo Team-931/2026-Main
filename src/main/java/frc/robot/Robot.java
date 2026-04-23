@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 //import edu.wpi.first.wpilibj.PS4Controller.Button;
 //import edu.wpi.first.wpilibj.smartdashboard.Field2d; //not using it now
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -150,8 +149,6 @@ boolean limelight_pose_valid;
 
   Pose2d hub_pose = new Pose2d(0.0,0.0,Rotation2d.kZero); //to prevent throwing nulls
   
-  Field2d feild = new Field2d();
-
   Pose2d feild_center_pose = new Pose2d(8.270500,4.034500,Rotation2d.kZero);  
 
   public void set_allience_constants(){
@@ -225,10 +222,6 @@ boolean limelight_pose_valid;
 
                         SmartDashboard.putNumber("angle_to_goal_est", angle_to_goal.getDegrees());
                         SmartDashboard.putNumber("angle_of_robot_from_ll", angle_of_robot_from_ll.getDegrees());
-                      }
-
-                      {
-                        feild.setRobotPose(m_swerve.reportOdometry());
                       }
                       
                       /* TODO: bellow is old code that does not work. likley issue is that limelight is returning a 0,0,0 pose instead of null.
