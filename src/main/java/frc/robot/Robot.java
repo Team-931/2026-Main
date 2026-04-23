@@ -317,7 +317,7 @@ boolean limelight_b_pose_valid;
                       {
                         m_field.setRobotPose(m_swerve_pose_estimate);
                       }
-                      
+
                       if (isEnabled()) {
                         distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());
                         SmartDashboard.putNumber("distance_to_goal_est (used)", distance_to_goal);
@@ -488,6 +488,7 @@ boolean limelight_b_pose_valid;
       firstTimeDisabled = false;
       showFieldCtr();
 
+      PortForwarder.add(5800, "172.29.0.1", 5800);
       PortForwarder.add(5801, "172.29.0.1", 5801);
       PortForwarder.add(5802, "172.29.0.1", 5802);
       PortForwarder.add(5803, "172.29.0.1", 5803);
