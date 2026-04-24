@@ -488,7 +488,7 @@ boolean limelight_b_pose_valid;
       firstTimeDisabled = false;
       showFieldCtr();
 
-      PortForwarder.add(5800, "172.29.0.1", 5800);
+      // PortForwarder.add(5800, "172.29.0.1", 5800); --video stream. crashes the robot when enabled becasue of memory usage. usb.. bad.
       PortForwarder.add(5801, "172.29.0.1", 5801);
       PortForwarder.add(5802, "172.29.0.1", 5802);
       PortForwarder.add(5803, "172.29.0.1", 5803);
