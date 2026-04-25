@@ -14,6 +14,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringArrayEntry;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -189,6 +191,29 @@ public class transferShooter extends SubsystemBase {
             shooterHoodMap.get(distance),
             shooterVelocityMap.get(distance)
         );
+    }
+
+    public class ShooterMapTable {
+        private final NetworkTableInstance ntInst = NetworkTableInstance.getDefault();
+        private final StringArrayEntry tableEntry;
+
+        public ShooterMapTable() {
+            tableEntry = ntInst.getTable("Elastic")
+                .getStringArrayTopic("ShooterMapTable")
+                .getEntry(new String[]{});
+        }
+
+        public void publishTable(InterpolatingDoubleTreeMap map, double[] distances) {
+            String[] rows = new String[distances.length + 1];
+            rows[0] = "Distance (m), RPM"; // Header row
+
+            for (int i = 0; i < distances.length; i++) {
+                double rpm = map.get(distances[i]);
+                rows[i + 1] = String.format("%.2f, %.0f", distances[i], rpm);
+            }
+
+            tableEntry.set(rows);
+        }
     }
 
     public class rangefinderResults{

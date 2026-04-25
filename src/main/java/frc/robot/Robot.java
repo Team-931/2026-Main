@@ -235,6 +235,13 @@ boolean limelight_b_pose_valid;
 
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
+
+  {addPeriodic(() ->{
+    double[] distances = {1.0, 2.0, 3.0, 4.0, 5.0};
+    shooter.shooterMapTable.publishTable(shooter.shooterHoodMap, distances);
+  }, .25);}
+
+
   {addPeriodic(() -> 
     SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);
   }
