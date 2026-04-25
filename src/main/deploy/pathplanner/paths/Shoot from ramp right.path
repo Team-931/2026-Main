@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.5618781006378466,
-        "y": 2.458732193732195
+        "x": 8.46488888888889,
+        "y": 7.075266666666667
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3124318111736946,
-        "y": 2.4421024411012504
+        "x": 8.215442599424737,
+        "y": 7.058636914035722
       },
       "isLocked": false,
       "linkedName": "return ramp right"
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -167.25884367596822
   },
   "useDefaultConstraints": true
 }

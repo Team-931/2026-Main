@@ -19,12 +19,6 @@
         {
           "type": "named",
           "data": {
-            "name": "hung"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "unstow"
           }
         },

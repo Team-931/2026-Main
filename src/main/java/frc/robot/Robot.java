@@ -68,6 +68,8 @@ public class Robot extends TimedRobot {
   Command releaseHopperCommand = climber.positionCommand(Position.RELEASE_HOPPER).beforeStarting(Commands.waitUntil(climber::isNotBusy));
   Command hungCommand = climber.positionCommand(Position.HUNG).beforeStarting(Commands.waitUntil(climber::isNotBusy));
   Command flattenHood = Commands.runOnce(()-> {current_rangefind_command.cancel(); shooter.rangefind(0);});
+  Command pass = Commands.runOnce(()-> {current_rangefind_command.cancel(); shooter.rangefind(100);}); //do direct stuff later
+
 
   {
     //NamedCommands ONLY supports runonce commands, so you need this goofy stack for it to work without event triggers.
@@ -87,8 +89,10 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("launchCancel", Commands.runOnce(()->{shooter.cancelCommand().schedule();}));
 
     NamedCommands.registerCommand("flattenHood", flattenHood);
-  }
+    NamedCommands.registerCommand("pass", pass);
 
+  }
+  
   {
       new EventTrigger("intake").onTrue(Commands.runOnce(()->{intakeCommand.schedule();})).onFalse(cancelIntakeCommand);
       new EventTrigger("unstow").onTrue(Commands.runOnce(()->{unstowCommand.schedule();}));
@@ -343,13 +347,13 @@ boolean limelight_b_pose_valid;
 
   static boolean useField = true, useVelCtrl = false;
 
-  double shooter_velocity = 61;
+  double shooter_velocity = 70;
 
   {
     SmartDashboard.putNumber("shooter_velocity",shooter_velocity);
   }
   
-  double long_hood_distance = 0.4;
+  double long_hood_distance = 1;
   {
     SmartDashboard.putNumber("long_hood_distance",long_hood_distance);
   }
