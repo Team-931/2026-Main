@@ -123,7 +123,7 @@ final class Constants {
         final static double velP = .0001;
          //TODO: tune better
         static final double DrvFF = 1 / freeVeloc; // Officially Volt /(m/s), conjectured: proportional output / (m/s)
-        static final double velI = 0.001, velIZone = .05;
+        static final double velI = 0.001, velIZone = .1;
         static final double turnI = 0.003 * posP, turnIZone = 1. / 64;
         // what speed can be ignored for wheel orientation
         static final double minSpd = .001, // 1.0 mm / s
