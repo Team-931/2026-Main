@@ -129,7 +129,7 @@ final class Constants {
         static final double minSpd = .001, // 1.0 mm / s
                             minSpdSq = minSpd*minSpd;
     }
-    static final class ShootConstants {
+    static final class ShootConstants { 
         // percent of full power (or velocity if using velocity control)
         // for shooters when turned on
         static final double launch_speed = 1;
