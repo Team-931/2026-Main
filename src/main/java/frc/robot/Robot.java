@@ -68,7 +68,7 @@ public class Robot extends TimedRobot {
   Command releaseHopperCommand = climber.positionCommand(Position.RELEASE_HOPPER).beforeStarting(Commands.waitUntil(climber::isNotBusy));
   Command hungCommand = climber.positionCommand(Position.HUNG).beforeStarting(Commands.waitUntil(climber::isNotBusy));
   Command flattenHood = Commands.runOnce(()-> {current_rangefind_command.cancel(); shooter.rangefind(0);});
-  Command pass = Commands.runOnce(()-> {current_rangefind_command.cancel(); shooter.rangefind(100);}); //do direct stuff later
+  Command pass = Commands.runOnce(()-> {current_rangefind_command.cancel(); shooter.adjustHood(1); shooter.shoot_with_velocity(70);}); //do direct stuff later
 
 
   {
