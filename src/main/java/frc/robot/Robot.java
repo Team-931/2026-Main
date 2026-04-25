@@ -23,6 +23,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -227,6 +228,10 @@ boolean limelight_b_pose_valid;
     }
   }
 
+  
+  PowerDistribution pdp = new PowerDistribution(); // Assumes default CAN ID/Type
+  
+
   // {
   //   NetworkTableInstance networkTableInstance = NetworkTableInstance.getDefault();
   //   networkTableInstance.
@@ -237,6 +242,10 @@ boolean limelight_b_pose_valid;
   {addPeriodic(m_swerve::report, .25);}
   {addPeriodic(() -> 
     SmartDashboard.putBoolean("Hood ready?", shooter.hoodReady()), .25,.125);
+  }
+  {addPeriodic(() -> 
+    //grapm amp current
+    SmartDashboard.putNumber("totalcurrent", pdp.getTotalCurrent()), .25,.125);
   }
 
   //{addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
