@@ -1,0 +1,79 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "releaseHopper"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Ramptoshoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "hung"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "unstow"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "launch"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 6.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "launchCancel"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "flattenHood"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "spinaroundForHang"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "skiphang2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "hung"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

@@ -134,7 +134,7 @@ final class Constants {
         // for shooters when turned on
         static final double launch_speed = 1;
 
-        static final double idle_velocity = 50;
+        static final double idle_velocity = 0;
         // percent of full power (or velocity if using velocity control)
         // for tranfer when turned on
         static final double transferPower = .5;
