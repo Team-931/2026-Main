@@ -182,6 +182,10 @@ public class Intake extends SubsystemBase {
         );
     }
 
+    public boolean isNotBusy(){
+        return getCurrentCommand() == null;
+    }
+
     public Command outtakeCommand() {
         return startEnd(
             () -> {

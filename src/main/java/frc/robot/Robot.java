@@ -413,6 +413,10 @@ boolean limelight_b_pose_valid;
       if (shooter.get_shooter_ready(3)){
         shooter.setTransfer(true,false);
       }
+
+      if (intake.isNotBusy()){
+        agitateCommand.schedule();
+      }
     }
     if(opController.getRawButtonReleased(ButtonBoard.Shoot)) {
       shooter.cancelCommand().schedule();
