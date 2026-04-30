@@ -267,6 +267,8 @@ boolean limelight_b_pose_valid;
                       LimelightHelpers.SetRobotOrientation("limelight-b", heading_from_swerve.getDegrees(), 0, 0, 0, 0, 0);
                       
                       LimelightHelpers.PoseEstimate lla_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-a");
+                      LimelightHelpers.PoseEstimate lla_mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-a");
+
                       LimelightHelpers.PoseEstimate llb_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-b");
                       
                       limelight_a_pose_valid = LimelightHelpers.validPoseEstimate(lla_mt2);
@@ -323,6 +325,13 @@ boolean limelight_b_pose_valid;
                         SmartDashboard.putNumber("ll_b pose x", ll_b_pose.getX());
                         SmartDashboard.putNumber("ll_b pose y", ll_b_pose.getY());
                         // SmartDashboard.putNumber("ll_b pose orientation degrees", ll_a_pose.getRotation().getDegrees());
+                      }
+
+                      if (drive_controller.getAButtonPressed()){
+                        if (limelight_a_pose_valid){
+                          Rotation2d mt1_rotation = lla_mt1.pose.getRotation();
+                          m_swerve.setHeadingOdometry(mt1_rotation);
+                        }
                       }
 
                       m_swerve_pose_estimate = m_swerve.reportOdometry();
