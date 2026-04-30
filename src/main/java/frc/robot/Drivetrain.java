@@ -54,7 +54,19 @@ public class Drivetrain extends SubsystemBase {
           },
           Pose2d.kZero);
 
+  //auto
   {odometry.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, DrvConst.VisionStvDev));}
+
+
+  public void set_mt2_vision_trust(){
+    odometry.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, DrvConst.VisionStvDev));
+  }
+
+  public void set_mt1_vision_trust(){
+    odometry.setVisionMeasurementStdDevs(VecBuilder.fill(DrvConst.VisionStvDev, DrvConst.VisionStvDev, 0.9));
+  }
+
+
   // basic set-up, may not be needed
   public Drivetrain() {
     gyro.reset();//TODO: Is this line needed? - Phill
