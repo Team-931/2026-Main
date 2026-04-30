@@ -131,6 +131,10 @@ public class Drivetrain extends SubsystemBase {
     }
   }
 
+  void setHeadingOdometry(Rotation2d newRotation2d){
+    odometry.resetRotation(newRotation2d);
+  }
+
   // Resets the translation of relative turn encoders to match the absolute
   void setRelOffset() {
     frontLeft.setRelOffset();
