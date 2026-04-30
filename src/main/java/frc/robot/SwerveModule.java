@@ -189,5 +189,4 @@ private boolean noLaborSaving = false;
       setTurnRot(angle);
     }
   }
- 
 }
