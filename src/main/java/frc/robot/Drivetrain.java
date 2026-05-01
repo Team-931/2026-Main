@@ -243,5 +243,9 @@ void fullSpeed() {
     // 2. Use your kinematics object to convert them to robot-relative speeds
     // Replace 'm_kinematics' with whatever your SwerveDriveKinematics variable is named
     return kinematics.toChassisSpeeds(fl, fr, bl, br);
-}
+  }
+  /** Corrects odometry rotation when gyro failure is detected via MT1 heading */
+  void injectHeading(Rotation2d correctedHeading) {
+    odometry.resetRotation(correctedHeading);
+  }
 }
