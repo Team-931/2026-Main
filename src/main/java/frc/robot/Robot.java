@@ -327,7 +327,7 @@ boolean limelight_b_pose_valid;
                         // SmartDashboard.putNumber("ll_b pose orientation degrees", ll_a_pose.getRotation().getDegrees());
                       }
 
-                      if (drive_controller.getAButtonPressed()){
+                      if (drive_controller.getRightStickButtonPressed()){
                         if (limelight_a_pose_valid){
                           Rotation2d mt1_rotation = lla_mt1.pose.getRotation();
                           m_swerve.setHeadingOdometry(mt1_rotation);
@@ -636,9 +636,8 @@ boolean limelight_b_pose_valid;
     //   teleop_angle_hold_output = 0;
     // }
   //This is so ugly.. lol
-    if (drive_controller.getRightStickButton()) {permaAutoTurnDisable = true;}
     final var rot = (
-      opController.getRawButton(ButtonBoard.Shoot) && rangefinding && (!permaAutoTurnDisable)?
+      drive_controller.getAButton()? //TODO: figure out what button thomas wants this to be. possibly a bumper becuase A is for the camera stuff. maybe move the camera stuff.
       //PID for hitting a target position
         turning_pid.calculate(
             m_swerve.reportOdometry().getRotation().minus(angle_to_goal).getRadians(),0)
