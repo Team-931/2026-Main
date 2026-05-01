@@ -52,8 +52,6 @@ public class Robot extends TimedRobot {
   private final Climber climber = new Climber();
   private final Drivetrain m_swerve = new Drivetrain();
 
-  static final double GYRO_FAILURE_THRESHOLD_DEG = 10.0; // degrees — tune this
-
   //create pathfollower commands
   //a compound command automatically requires everything that any peice requires
   Command current_rangefind_command = rangeFind();
@@ -256,93 +254,96 @@ boolean limelight_b_pose_valid;
 
   //{addPeriodic(() -> field.setRobotPose(m_swerve.reportOdometry()), 0.125);}
   {addPeriodic(() -> {
-    SmartDashboard.putBoolean("rangefinding?", current_rangefind_command.isScheduled());
+                      SmartDashboard.putBoolean("rangefinding?", current_rangefind_command.isScheduled());
 
-    m_swerve.updateOdometry();
+                      m_swerve.updateOdometry();
 
-    SmartDashboard.putBoolean("lime-a vision target found", LimelightHelpers.getTV("limelight-a"));
-    SmartDashboard.putBoolean("lime-b april tag found", LimelightHelpers.getTV("limelight-b"));
+                      SmartDashboard.putBoolean("lime-a vision target found", LimelightHelpers.getTV("limelight-a"));
+                      SmartDashboard.putBoolean("lime-b april tag found", LimelightHelpers.getTV("limelight-b"));
 
-    Rotation2d heading_from_swerve = m_swerve.reportOdometry().getRotation();
+                      Rotation2d heading_from_swerve = m_swerve.reportOdometry().getRotation();
 
-    // --- MT1: heading only, for gyro failure compensation ---
-    // MT1 does NOT need SetRobotOrientation — it solves heading on its own
-    LimelightHelpers.PoseEstimate lla_mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-a");
+                      LimelightHelpers.SetRobotOrientation("limelight-a", heading_from_swerve.getDegrees(), 0, 0, 0, 0, 0);
+                      LimelightHelpers.SetRobotOrientation("limelight-b", heading_from_swerve.getDegrees(), 0, 0, 0, 0, 0);
+                      
+                      LimelightHelpers.PoseEstimate lla_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-a");
+                      LimelightHelpers.PoseEstimate llb_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-b");
+                      
+                      limelight_a_pose_valid = LimelightHelpers.validPoseEstimate(lla_mt2);
+                      limelight_b_pose_valid = LimelightHelpers.validPoseEstimate(llb_mt2);
 
-    if (lla_mt1 != null && lla_mt1.tagCount > 0) {
-        Rotation2d mt1_heading = lla_mt1.pose.getRotation();
-        double headingError = Math.abs(
-            mt1_heading.minus(heading_from_swerve).getDegrees()
-        );
+                      if (lla_mt2.pose == feild_center_pose){
+                        limelight_a_pose_valid = false;
+                      }
+                      if (lla_mt2.tagCount == 0) {
+                        limelight_a_pose_valid = false;
+                      }
 
-        SmartDashboard.putNumber("mt1_heading_deg", mt1_heading.getDegrees());
-        SmartDashboard.putNumber("mt1_gyro_error_deg", headingError);
+                      if (llb_mt2.pose == feild_center_pose){
+                        limelight_b_pose_valid = false;
+                      }
+                      if (llb_mt2.tagCount == 0) {
+                        limelight_b_pose_valid = false;
+                      }
 
-        if (headingError > GYRO_FAILURE_THRESHOLD_DEG) {
-            // Gyro has drifted or failed — trust MT1 heading instead
-            SmartDashboard.putBoolean("gyro_failure_detected", true);
-            m_swerve.injectHeading(mt1_heading);
-        } else {
-            SmartDashboard.putBoolean("gyro_failure_detected", false);
-        }
-    }
 
-    // --- MT2: XY positioning only ---
-    // MT2 requires robot orientation hint to resolve tag ambiguity
-    LimelightHelpers.SetRobotOrientation("limelight-a", heading_from_swerve.getDegrees(), 0, 0, 0, 0, 0);
-    LimelightHelpers.SetRobotOrientation("limelight-b", heading_from_swerve.getDegrees(), 0, 0, 0, 0, 0);
+                      //TODO: do a check for if we are turning quickly and redject updates
 
-    LimelightHelpers.PoseEstimate lla_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-a");
-    LimelightHelpers.PoseEstimate llb_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-b");
+                      SmartDashboard.putNumber("heading_from_swerve_deg", heading_from_swerve.getDegrees());
+                      SmartDashboard.putNumber("heading_from_swerve_rad", heading_from_swerve.getRadians());
 
-    limelight_a_pose_valid = LimelightHelpers.validPoseEstimate(lla_mt2)
-        && lla_mt2.pose != feild_center_pose
-        && lla_mt2.tagCount > 0;
+                      Pose2d ll_a_pose = lla_mt2.pose;
+                      Pose2d ll_b_pose = llb_mt2.pose;
+                      
+                      Pose2d m_swerve_pose_estimate = m_swerve.reportOdometry();
+                      
+                      SmartDashboard.putBoolean("b pose valid", limelight_b_pose_valid);
+                      SmartDashboard.putBoolean("a pose valid", limelight_a_pose_valid);
 
-    limelight_b_pose_valid = LimelightHelpers.validPoseEstimate(llb_mt2)
-        && llb_mt2.pose != feild_center_pose
-        && llb_mt2.tagCount > 0;
+                      if (limelight_a_pose_valid){
 
-    // Re-fetch heading after possible MT1 correction above
-    Pose2d m_swerve_pose_estimate = m_swerve.reportOdometry();
+                        Pose2d rotationless_pose = new Pose2d(ll_a_pose.getTranslation(),m_swerve_pose_estimate.getRotation());
+                        
+                        m_swerve.visualOdometryUpdate(rotationless_pose, lla_mt2.timestampSeconds);
 
-    SmartDashboard.putBoolean("b pose valid", limelight_b_pose_valid);
-    SmartDashboard.putBoolean("a pose valid", limelight_a_pose_valid);
+                        SmartDashboard.putNumber("ll_a pose x", ll_a_pose.getX());
+                        SmartDashboard.putNumber("ll_a pose y", ll_a_pose.getY());
+                        // SmartDashboard.putNumber("ll_a pose orientation degrees", ll_a_pose.getRotation().getDegrees());
 
-    if (limelight_a_pose_valid) {
-        // Strip MT2 rotation — use odometry heading instead (MT2 heading is unreliable)
-        Pose2d rotationless_pose = new Pose2d(
-            lla_mt2.pose.getTranslation(),
-            m_swerve_pose_estimate.getRotation()
-        );
-        m_swerve.visualOdometryUpdate(rotationless_pose, lla_mt2.timestampSeconds);
-        SmartDashboard.putNumber("ll_a pose x", lla_mt2.pose.getX());
-        SmartDashboard.putNumber("ll_a pose y", lla_mt2.pose.getY());
-    }
+                        // double distance_to_goal_ll = ll_a_pose.getTranslation().getDistance(hub_pose.getTranslation());
+                        // SmartDashboard.putNumber("distance_to_goal_ll (unused)", distance_to_goal_ll);
+                      }
 
-    if (limelight_b_pose_valid && !isAutonomous()) {
-        Pose2d rotationless_pose = new Pose2d(
-            llb_mt2.pose.getTranslation(),
-            m_swerve_pose_estimate.getRotation()
-        );
-        m_swerve.visualOdometryUpdate(rotationless_pose, llb_mt2.timestampSeconds);
-        SmartDashboard.putNumber("ll_b pose x", llb_mt2.pose.getX());
-        SmartDashboard.putNumber("ll_b pose y", llb_mt2.pose.getY());
-    }
+                      if (limelight_b_pose_valid && !isAutonomous()){
 
-    m_swerve_pose_estimate = m_swerve.reportOdometry();
-    SmartDashboard.putData("feild", m_field);
-    m_field.setRobotPose(m_swerve_pose_estimate);
+                        Pose2d rotationless_pose = new Pose2d(ll_b_pose.getTranslation(),m_swerve_pose_estimate.getRotation());
 
-    if (isEnabled()) {
-        distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());
-        SmartDashboard.putNumber("distance_to_goal_est (used)", distance_to_goal);
-        angle_to_goal = hub_pose.getTranslation().minus(m_swerve_pose_estimate.getTranslation()).getAngle();
-        angle_of_robot_from_ll = lla_mt2 != null ? lla_mt2.pose.getRotation() : heading_from_swerve;
-        SmartDashboard.putNumber("angle_to_goal_est", angle_to_goal.getDegrees());
-        SmartDashboard.putNumber("angle_of_robot_from_ll", angle_of_robot_from_ll.getDegrees());
-    }
-}, kDefaultPeriod);}
+                        m_swerve.visualOdometryUpdate(rotationless_pose, llb_mt2.timestampSeconds);
+
+                        SmartDashboard.putNumber("ll_b pose x", ll_b_pose.getX());
+                        SmartDashboard.putNumber("ll_b pose y", ll_b_pose.getY());
+                        // SmartDashboard.putNumber("ll_b pose orientation degrees", ll_a_pose.getRotation().getDegrees());
+                      }
+
+                      m_swerve_pose_estimate = m_swerve.reportOdometry();
+                      SmartDashboard.putData("feild",m_field);
+                      {
+                        m_field.setRobotPose(m_swerve_pose_estimate);
+                      }
+
+                      if (isEnabled()) {
+                        distance_to_goal = m_swerve_pose_estimate.getTranslation().getDistance(hub_pose.getTranslation());
+                        SmartDashboard.putNumber("distance_to_goal_est (used)", distance_to_goal);
+
+                        angle_to_goal = hub_pose.getTranslation().minus(m_swerve_pose_estimate.getTranslation()).getAngle(); //This should be global angle reguardless of robot orientation
+                        angle_of_robot_from_ll = ll_a_pose.getRotation();
+
+                        SmartDashboard.putNumber("angle_to_goal_est", angle_to_goal.getDegrees());
+                        SmartDashboard.putNumber("angle_of_robot_from_ll", angle_of_robot_from_ll.getDegrees());
+                      }
+                    }
+            , kDefaultPeriod);}
+  
 
   static boolean useField = true, useVelCtrl = false;
 
