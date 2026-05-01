@@ -638,7 +638,7 @@ boolean limelight_b_pose_valid;
   //This is so ugly.. lol
     if (drive_controller.getRightStickButton()) {permaAutoTurnDisable = true;}
     final var rot = (
-      opController.getRawButton(ButtonBoard.Shoot) && rangefinding && (!permaAutoTurnDisable)?
+      drive_controller.getAButton()?
       //PID for hitting a target position
         turning_pid.calculate(
             m_swerve.reportOdometry().getRotation().minus(angle_to_goal).getRadians(),0)
